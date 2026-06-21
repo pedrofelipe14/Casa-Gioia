@@ -45,6 +45,54 @@
       <button id="logoutBtn" class="btn-ghost perfil-action-btn">Cerrar sesión</button>
     </div>
 
+    <!-- Dirección de envío -->
+    <div class="divider-ornament" style="margin:48px 0 0;">◆</div>
+    <div class="perfil-section">
+      <h3 class="perfil-section-title">Dirección de envío</h3>
+
+      <!-- Vista: dirección ya guardada -->
+      <div id="addr-view" style="display:none;">
+        <div class="addr-display" id="addr-display"></div>
+        <div class="addr-save-row" style="margin-top:20px;">
+          <button class="btn-ghost perfil-action-btn" id="editAddrBtn">Editar dirección</button>
+        </div>
+      </div>
+
+      <form id="addressForm" class="addr-form">
+        <div class="addr-grid">
+          <div class="form-group"><label>Nombre</label><input type="text" id="addr-nombre" placeholder="Tu nombre"></div>
+          <div class="form-group"><label>Apellido</label><input type="text" id="addr-apellido" placeholder="Tu apellido"></div>
+        </div>
+        <div class="addr-grid addr-3-1">
+          <div class="form-group"><label>Calle</label><input type="text" id="addr-calle" placeholder="Nombre de la calle"></div>
+          <div class="form-group"><label>Número</label><input type="text" id="addr-numero" placeholder="1234"></div>
+        </div>
+        <div class="form-group"><label>Piso / Depto (opcional)</label><input type="text" id="addr-piso" placeholder="3° B"></div>
+        <div class="addr-grid">
+          <div class="form-group"><label>Ciudad</label><input type="text" id="addr-ciudad" placeholder="Mar del Plata"></div>
+          <div class="form-group"><label>Provincia</label><input type="text" id="addr-provincia" placeholder="Buenos Aires"></div>
+        </div>
+        <div class="addr-grid">
+          <div class="form-group"><label>Código postal</label><input type="text" id="addr-cp" placeholder="7600"></div>
+          <div class="form-group"><label>Teléfono</label><input type="tel" id="addr-tel" placeholder="+54 9 223 XXXX XXXX"></div>
+        </div>
+        <div class="addr-save-row">
+          <button type="submit" class="btn-ghost perfil-action-btn" id="saveAddrBtn">Guardar dirección</button>
+          <span class="addr-msg" id="addrMsg"></span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Últimos pedidos -->
+    <div class="divider-ornament" style="margin:48px 0 0;">◆</div>
+    <div class="perfil-section">
+      <div class="historial-header">
+        <h3 class="perfil-section-title" style="margin:0;">Últimos pedidos</h3>
+        <a href="pedidos.html" class="historial-ver-todos">Ver todos →</a>
+      </div>
+      <div id="historial-list"><p style="color:#aaa; font-size:.9rem;">Cargando…</p></div>
+    </div>
+
   </div>
 
 </section>
@@ -115,6 +163,118 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   await supabase.auth.signOut()
   window.location.href = 'index.html'
 })
+
+/* ── Dirección de envío ── */
+const { data: perfil } = await supabase
+  .from('perfiles')
+  .select('*')
+  .eq('id', user.id)
+  .maybeSingle()
+
+function addrFillForm(p) {
+  document.getElementById('addr-nombre').value    = p?.nombre        || ''
+  document.getElementById('addr-apellido').value  = p?.apellido      || ''
+  document.getElementById('addr-calle').value     = p?.calle         || ''
+  document.getElementById('addr-numero').value    = p?.numero        || ''
+  document.getElementById('addr-piso').value      = p?.piso_depto    || ''
+  document.getElementById('addr-ciudad').value    = p?.ciudad        || ''
+  document.getElementById('addr-provincia').value = p?.provincia     || ''
+  document.getElementById('addr-cp').value        = p?.codigo_postal || ''
+  document.getElementById('addr-tel').value       = p?.telefono      || ''
+}
+
+function addrShowView(p) {
+  const lines = []
+  const fullName = [p.nombre, p.apellido].filter(Boolean).join(' ')
+  if (fullName)       lines.push(`<strong>${fullName}</strong>`)
+  let street = [p.calle, p.numero].filter(Boolean).join(' ')
+  if (p.piso_depto)   street += `, ${p.piso_depto}`
+  if (street)         lines.push(street)
+  const cityLine = [p.ciudad, p.provincia].filter(Boolean).join(', ')
+  if (cityLine)       lines.push(cityLine)
+  if (p.codigo_postal) lines.push(`CP ${p.codigo_postal}`)
+  if (p.telefono)      lines.push(p.telefono)
+
+  document.getElementById('addr-display').innerHTML = lines.map(l => `<p>${l}</p>`).join('')
+  document.getElementById('addr-view').style.display    = 'block'
+  document.getElementById('addressForm').style.display  = 'none'
+}
+
+function addrShowForm(p) {
+  addrFillForm(p)
+  document.getElementById('addr-view').style.display    = 'none'
+  document.getElementById('addressForm').style.display  = 'block'
+}
+
+// Arranque: si ya tiene dirección, mostrar vista; si no, mostrar form
+if (perfil?.calle) {
+  addrShowView(perfil)
+} else {
+  addrShowForm(perfil)
+}
+
+document.getElementById('editAddrBtn').addEventListener('click', () => addrShowForm(perfil))
+
+document.getElementById('addressForm').addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const btn = document.getElementById('saveAddrBtn')
+  const msg = document.getElementById('addrMsg')
+  btn.textContent = 'Guardando…'
+  btn.disabled    = true
+
+  const datos = {
+    id:             user.id,
+    nombre:         document.getElementById('addr-nombre').value,
+    apellido:       document.getElementById('addr-apellido').value,
+    calle:          document.getElementById('addr-calle').value,
+    numero:         document.getElementById('addr-numero').value,
+    piso_depto:     document.getElementById('addr-piso').value,
+    ciudad:         document.getElementById('addr-ciudad').value,
+    provincia:      document.getElementById('addr-provincia').value,
+    codigo_postal:  document.getElementById('addr-cp').value,
+    telefono:       document.getElementById('addr-tel').value,
+    updated_at:     new Date().toISOString()
+  }
+
+  const { error } = await supabase.from('perfiles').upsert(datos)
+
+  if (error) {
+    msg.textContent   = 'Error al guardar.'
+    msg.style.color   = '#c0392b'
+    msg.style.opacity = '1'
+    setTimeout(() => { msg.style.opacity = '0' }, 3000)
+  } else {
+    addrShowView(datos)
+  }
+
+  btn.textContent = 'Guardar dirección'
+  btn.disabled    = false
+})
+
+/* ── Historial de pedidos (últimos 3) ── */
+const ESTADO_LABELS = { pendiente:'Pendiente', confirmado:'Confirmado', preparando:'Preparando', en_camino:'En camino', entregado:'Entregado' }
+const { data: pedidos } = await supabase
+  .from('pedidos')
+  .select('numero_pedido, created_at, estado, total')
+  .order('created_at', { ascending: false })
+  .limit(3)
+
+const histEl = document.getElementById('historial-list')
+if (!pedidos?.length) {
+  histEl.innerHTML = '<p style="color:#aaa;font-size:.9rem;text-align:center;padding:24px 0;">Todavía no tenés pedidos.</p>'
+} else {
+  histEl.innerHTML = pedidos.map(p => {
+    const fecha = new Date(p.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric' })
+    return `<div class="historial-item">
+      <div>
+        <div class="historial-num">#${p.numero_pedido}</div>
+        <div class="historial-fecha">${fecha}</div>
+      </div>
+      ${p.total ? `<div class="historial-total">$${Number(p.total).toLocaleString('es-AR')}</div>` : ''}
+      <span class="estado-badge estado-${p.estado}">${ESTADO_LABELS[p.estado] ?? p.estado}</span>
+    </div>`
+  }).join('')
+}
 
 </script>
 </body>

@@ -254,11 +254,17 @@ body{
 }
 .marquee{
 
-    white-space:nowrap;
+    display:flex;
 
     overflow:hidden;
 }
 .marquee span{
+
+    flex-shrink:0;
+
+    min-width:100%;
+
+    white-space:nowrap;
 
     display:inline-block;
 
@@ -277,7 +283,7 @@ body{
     }
 
     to{
-        transform:translateX(-50%);
+        transform:translateX(-100%);
     }
 }
 /* HERO */
@@ -1479,4 +1485,223 @@ body{
 .btn-nav {
     opacity: 0;
     transition: opacity .15s, transform .35s ease, box-shadow .35s ease, background .35s ease;
+}
+
+/* ── Navbar actions wrapper (groups cart + user button) ── */
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Cart button in navbar ── */
+.cart-btn {
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition: color .25s, transform .25s;
+}
+.cart-btn svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+.cart-btn:hover {
+    color: var(--wine);
+    transform: translateY(-2px);
+}
+.cart-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--wine);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: .5rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* ── Agregar button on product cards ── */
+.btn-agregar {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid rgba(91,29,42,.2);
+    font-family: 'Manrope', sans-serif;
+    font-size: .7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--wine);
+    cursor: pointer;
+    transition: background .25s, color .25s, border-color .25s;
+}
+.btn-agregar:hover:not(:disabled) {
+    background: var(--wine);
+    color: #fff;
+    border-color: var(--wine);
+}
+.btn-agregar:disabled {
+    background: var(--green);
+    color: #fff;
+    border-color: var(--green);
+    cursor: default;
+}
+
+/* ── Carrito page ── */
+.carrito-wrap { max-width: 820px; margin: 0 auto; }
+.carrito-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 16px 28px;
+    align-items: center;
+    padding: 26px 0;
+    border-bottom: 1px solid rgba(91,29,42,.08);
+}
+.carrito-item-nombre {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--wine);
+    margin-bottom: 4px;
+}
+.carrito-item-precio { font-size: .85rem; color: #7a726c; }
+.carrito-qty-wrap { display: flex; align-items: center; gap: 14px; }
+.carrito-qty-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(91,29,42,.2);
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--wine);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+    line-height: 1;
+    padding: 0;
+}
+.carrito-qty-btn:hover { background: var(--wine); color: #fff; border-color: var(--wine); }
+.carrito-qty-num { font-size: .9rem; min-width: 20px; text-align: center; }
+.carrito-remove {
+    background: transparent;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: color .2s;
+    padding: 4px;
+    line-height: 1;
+}
+.carrito-remove:hover { color: var(--wine); }
+.carrito-footer {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 36px 0;
+    flex-wrap: wrap;
+}
+.carrito-total-label { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: #7a726c; }
+.carrito-total-monto { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-style: italic; color: var(--wine); }
+.carrito-empty-msg { text-align: center; padding: 80px 0; color: #aaa; }
+.carrito-empty-msg p { margin-bottom: 28px; font-size: 1rem; }
+
+/* ── Address form in perfil ── */
+.perfil-section { width: 100%; text-align: left; margin-top: 48px; }
+.perfil-section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--wine);
+    margin-bottom: 28px;
+    letter-spacing: 1px;
+}
+.addr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.addr-grid.addr-3-1 { grid-template-columns: 3fr 1fr; }
+.addr-form .form-group { margin-bottom: 20px; }
+.addr-form label {
+    display: block;
+    font-size: .65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+.addr-form input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid rgba(91,29,42,.15);
+    background: rgba(244,239,229,.35);
+    font-family: 'Manrope', sans-serif;
+    font-size: .9rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s;
+    box-sizing: border-box;
+}
+.addr-form input:focus { border-color: var(--wine); }
+.addr-save-row { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+.addr-display p {
+    font-size: .95rem;
+    color: var(--text);
+    line-height: 2;
+    margin: 0;
+}
+.addr-display p:first-child {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--wine);
+}
+.addr-msg {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: .95rem;
+    color: var(--wine);
+    opacity: 0;
+    transition: opacity .3s;
+}
+
+/* ── Order history mini in perfil ── */
+.historial-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.historial-ver-todos {
+    font-size: .7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--wine);
+    text-decoration: none;
+    transition: opacity .2s;
+}
+.historial-ver-todos:hover { opacity: .6; }
+.historial-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(91,29,42,.07);
+    gap: 16px;
+}
+.historial-num { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--wine); font-weight: 500; }
+.historial-fecha { font-size: .72rem; color: #aaa; margin-top: 3px; letter-spacing: 1px; }
+.historial-total { font-size: .9rem; color: var(--text); margin-left: auto; margin-right: 16px; white-space: nowrap; }
+
+@media (max-width: 640px) {
+    .addr-grid, .addr-grid.addr-3-1 { grid-template-columns: 1fr; }
+    .carrito-item { grid-template-columns: 1fr auto; }
+    .carrito-remove { grid-column: 2; grid-row: 1; align-self: start; }
+    .carrito-qty-wrap { grid-column: 1 / -1; }
 }

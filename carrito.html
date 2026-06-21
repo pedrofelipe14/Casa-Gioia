@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrito — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li><a href="coleccion.html">Colección</a></li>
+    <li><a href="la-casa.html">La Casa</a></li>
+    <li><a href="journal.html">Journal</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Ingresar</button>
+</nav>
+</header>
+
+<section class="section" style="padding-top:80px; padding-bottom:120px;">
+  <div class="carrito-wrap">
+
+    <div class="section-label">Tu selección</div>
+    <h2 class="section-title">Mi <span>carrito.</span></h2>
+
+    <div id="carrito-empty" class="carrito-empty-msg" style="display:none;">
+      <p>Tu carrito está vacío.</p>
+      <a href="coleccion.html" class="btn-ghost">Ver colección</a>
+    </div>
+
+    <div id="carrito-items"></div>
+
+    <div id="carrito-footer" class="carrito-footer" style="display:none;">
+      <a href="coleccion.html" style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--wine);text-decoration:none;margin-right:auto;">← Seguir comprando</a>
+      <div style="display:flex;align-items:baseline;gap:12px;">
+        <span class="carrito-total-label">Total</span>
+        <span class="carrito-total-monto" id="carrito-total">$0</span>
+      </div>
+      <button class="btn-primary" id="checkoutBtn">PROCEDER AL PAGO</button>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div><h4>Casa Gioia</h4><p>Diseño italiano para el hogar, la moda y los espacios cotidianos.</p></div>
+    <div><h4>Colecciones</h4><a href="coleccion.html">Muebles</a><a href="coleccion.html">Moda</a><a href="coleccion.html">Decoración</a></div>
+    <div><h4>Ayuda</h4><a href="#">Preguntas frecuentes</a><a href="#">Envíos</a><a href="#">Cambios y devoluciones</a></div>
+    <div><h4>Contacto</h4><a href="contacto.html">hola@casagioia.com</a><a href="#">Instagram</a><a href="#">WhatsApp</a></div>
+  </div>
+  <div class="footer-bottom">© 2025 Casa Gioia · Todos los derechos reservados</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+const { data: { user } } = await supabase.auth.getUser()
+const btn = document.getElementById('userBtn')
+if (user) {
+  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+  btn.textContent = `👤 ${nombre.split(' ')[0]}`
+  btn.onclick = () => window.location.href = 'perfil.html'
+} else {
+  btn.onclick = () => window.location.href = 'login.html'
+}
+btn.style.opacity = '1'
+
+/* ── Render carrito ── */
+const itemsEl   = document.getElementById('carrito-items')
+const emptyEl   = document.getElementById('carrito-empty')
+const footerEl  = document.getElementById('carrito-footer')
+const totalEl   = document.getElementById('carrito-total')
+
+function render() {
+  const items = window.cartGet()
+
+  if (!items.length) {
+    emptyEl.style.display  = 'block'
+    footerEl.style.display = 'none'
+    itemsEl.innerHTML      = ''
+    return
+  }
+
+  emptyEl.style.display  = 'none'
+  footerEl.style.display = 'flex'
+
+  itemsEl.innerHTML = items.map(item => `
+    <div class="carrito-item" data-id="${item.id}">
+      <div>
+        <div class="carrito-item-nombre">${item.nombre}</div>
+        <div class="carrito-item-precio">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
+      </div>
+      <div class="carrito-qty-wrap">
+        <button class="carrito-qty-btn" onclick="qtyChange('${item.id}', -1)">−</button>
+        <span class="carrito-qty-num">${item.qty}</span>
+        <button class="carrito-qty-btn" onclick="qtyChange('${item.id}', 1)">+</button>
+      </div>
+      <button class="carrito-remove" onclick="qtyRemove('${item.id}')" title="Eliminar">✕</button>
+    </div>
+  `).join('')
+
+  const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
+  totalEl.textContent = '$' + total.toLocaleString('es-AR')
+}
+
+window.qtyChange = (id, delta) => {
+  const items = window.cartGet()
+  const item  = items.find(i => i.id === id)
+  if (!item) return
+  item.qty += delta
+  if (item.qty <= 0) items.splice(items.indexOf(item), 1)
+  window.cartSave(items)
+  render()
+}
+
+window.qtyRemove = (id) => {
+  window.cartSave(window.cartGet().filter(i => i.id !== id))
+  render()
+}
+
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+  alert('Próximamente: integración de pago.')
+})
+
+render()
+</script>
+</body>
+</html>
