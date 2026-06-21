@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Pedidos — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li><a href="coleccion.html">Colección</a></li>
+    <li><a href="la-casa.html">La Casa</a></li>
+    <li><a href="journal.html">Journal</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Mi cuenta</button>
+</nav>
+</header>
+
+<section class="page-hero">
+  <div class="arch large"></div>
+  <div class="arch medium"></div>
+  <div class="arch small"></div>
+  <p class="page-hero-tag">◆ Tu cuenta</p>
+  <h1>Mis<span>pedidos.</span></h1>
+  <p>Seguí el estado de tus compras en tiempo real.</p>
+</section>
+
+<section class="luxury-band">
+  <div class="marquee">
+    <span>✦ Seguimiento en tiempo real ✦ Envíos a todo el país ✦ Atención personalizada ✦ Casa Gioia ✦ Seguimiento en tiempo real ✦ Envíos a todo el país ✦ Atención personalizada ✦ Casa Gioia &nbsp;&nbsp;</span>
+  </div>
+</section>
+
+<section class="section">
+
+  <div id="loading" class="pedidos-loading">
+    <p>Cargando pedidos…</p>
+  </div>
+
+  <div id="empty" class="pedidos-empty" style="display:none;">
+    <p class="empty-title">Todavía no tenés pedidos.</p>
+    <p class="empty-sub">Explorá nuestra colección y encontrá algo que te guste.</p>
+    <a href="coleccion.html" class="btn-ghost">Ver colección</a>
+  </div>
+
+  <div id="pedidos-list"></div>
+
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4>Casa Gioia</h4>
+      <p>Diseño italiano para el hogar, la moda y los espacios cotidianos.</p>
+    </div>
+    <div>
+      <h4>Colecciones</h4>
+      <a href="coleccion.html">Muebles</a>
+      <a href="coleccion.html">Moda</a>
+      <a href="coleccion.html">Decoración</a>
+    </div>
+    <div>
+      <h4>Ayuda</h4>
+      <a href="#">Preguntas frecuentes</a>
+      <a href="#">Envíos</a>
+      <a href="#">Cambios y devoluciones</a>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <a href="contacto.html">hola@casagioia.com</a>
+      <a href="#">Instagram</a>
+      <a href="#">WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2025 Casa Gioia · Todos los derechos reservados</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script type="module">
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+
+const { data: { user } } = await supabase.auth.getUser()
+
+if (!user) {
+  window.location.href = 'login.html'
+}
+
+const btn = document.getElementById('userBtn')
+const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+btn.textContent = `👤 ${nombre.split(' ')[0]}`
+btn.onclick = () => window.location.href = 'perfil.html'
+btn.style.opacity = '1'
+
+const { data: pedidos, error } = await supabase
+  .from('pedidos')
+  .select('*')
+  .order('created_at', { ascending: false })
+
+document.getElementById('loading').style.display = 'none'
+
+if (error || !pedidos?.length) {
+  document.getElementById('empty').style.display = 'block'
+} else {
+  renderPedidos(pedidos)
+}
+
+const ESTADOS = ['pendiente', 'confirmado', 'preparando', 'en_camino', 'entregado']
+const LABELS  = ['Recibido',  'Confirmado', 'Preparando', 'En camino', 'Entregado']
+const ESTADO_LABELS = {
+  pendiente:  'Pendiente',
+  confirmado: 'Confirmado',
+  preparando: 'Preparando',
+  en_camino:  'En camino',
+  entregado:  'Entregado'
+}
+
+function renderPedidos(list) {
+  const container = document.getElementById('pedidos-list')
+
+  container.innerHTML = list.map(pedido => {
+    const idx = ESTADOS.indexOf(pedido.estado)
+
+    const stepsHtml = ESTADOS.map((s, i) => {
+      let cls = ''
+      if (i < idx)        cls = 'completed'
+      else if (i === idx) cls = 'active'
+      return `<div class="tracking-step ${cls}">
+        <div class="step-dot"></div>
+        <span class="step-label">${LABELS[i]}</span>
+      </div>`
+    }).join('')
+
+    const fecha = new Date(pedido.created_at).toLocaleDateString('es-AR', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    })
+
+    const productos = pedido.productos || []
+    const productosHtml = productos.length
+      ? `<div class="pedido-productos">${productos.map(p => `<span class="producto-tag">${p.nombre}</span>`).join('')}</div>`
+      : ''
+
+    const footerItems = []
+    if (pedido.tracking) {
+      footerItems.push(`<span>Seguimiento: <strong>${pedido.tracking}</strong></span>`)
+    }
+    if (pedido.fecha_estimada) {
+      const fe = new Date(pedido.fecha_estimada + 'T00:00:00').toLocaleDateString('es-AR', {
+        day: 'numeric', month: 'long'
+      })
+      footerItems.push(`<span>Entrega estimada: <strong>${fe}</strong></span>`)
+    }
+    if (pedido.total) {
+      footerItems.push(`<span class="pedido-total">$${Number(pedido.total).toLocaleString('es-AR')}</span>`)
+    }
+
+    return `
+    <div class="pedido-card fade-in">
+      <div class="pedido-header">
+        <div>
+          <span class="pedido-num">#${pedido.numero_pedido}</span>
+          <span class="pedido-fecha">${fecha}</span>
+        </div>
+        <span class="estado-badge estado-${pedido.estado}">${ESTADO_LABELS[pedido.estado] ?? pedido.estado}</span>
+      </div>
+      ${productosHtml}
+      <div class="tracking-steps">${stepsHtml}</div>
+      ${footerItems.length ? `<div class="pedido-footer">${footerItems.join('')}</div>` : ''}
+    </div>`
+  }).join('')
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) }
+    })
+  }, { threshold: 0.05 })
+  document.querySelectorAll('#pedidos-list .fade-in').forEach(el => observer.observe(el))
+}
+
+</script>
+</body>
+</html>

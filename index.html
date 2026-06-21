@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Casa Gioia</title>
+
+<link rel="stylesheet" href="css/estilos.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<header>
+
+<nav class="navbar" id="navbar">
+
+   <div class="logo">
+        CASA GIOIA
+        <span>Moda • Hogar • Design</span>
+    </div>
+
+    <button class="mobile-toggle" id="mobileToggle">
+        ☰
+    </button>
+
+    <ul class="menu" id="menu">
+        <li><a href="coleccion.html">Colección</a></li>
+        <li><a href="la-casa.html">La Casa</a></li>
+        <li><a href="journal.html">Journal</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+    </ul>
+
+    <button class="btn-nav" id="userBtn">
+    Ingresar
+</button>
+
+</nav>
+
+</header>
+
+<main>
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <div class="breadcrumb">
+            ◆ Diseño Italiano • Mar del Plata
+        </div>
+
+        <div class="slides">
+
+            <div class="slide active">
+
+                <h1>
+                    La belleza
+                    <span>del hogar.</span>
+                </h1>
+
+                <h2>
+                    Diseño para vivir todos los días.
+                </h2>
+
+                <p>
+                    Muebles, objetos y prendas inspirados en la elegancia
+                    italiana. Piezas seleccionadas para transformar
+                    los espacios cotidianos.
+                </p>
+
+            </div>
+
+            <div class="slide">
+
+                <h1>
+                    Diseño
+                    <span>atemporal.</span>
+                </h1>
+
+                <h2>
+                    Inspirado en la tradición italiana.
+                </h2>
+
+                <p>
+                    Materiales nobles, líneas puras y detalles
+                    que permanecen en el tiempo.
+                </p>
+
+            </div>
+
+            <div class="slide">
+
+                <h1>
+                    Casa
+                    <span>Gioia.</span>
+                </h1>
+
+                <h2>
+                    Una forma de habitar.
+                </h2>
+
+                <p>
+                    Una colección pensada para quienes buscan
+                    belleza, calma y autenticidad.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="hero-actions">
+
+            <button class="btn-primary">
+                EXPLORAR COLECCIÓN
+            </button>
+
+            <div class="carousel-nav">
+
+                <span class="indicator active"></span>
+                <span class="indicator"></span>
+                <span class="indicator"></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="hero-art">
+
+        <div class="grid-pattern"></div>
+
+        <div class="circle"></div>
+
+        <div class="arch large"></div>
+
+        <div class="arch medium"></div>
+
+        <div class="arch small"></div>
+
+        <div class="city">
+            Sicilia
+        </div>
+
+    </div>
+
+</section>
+
+<section class="luxury-band">
+
+    <div class="marquee">
+
+        <span>
+            ✦ Diseño Italiano ✦ Envíos a todo el país ✦ Atención Personalizada ✦
+            Muebles y Moda ✦ Casa Gioia ✦ Diseño Italiano ✦ Envíos a todo el país ✦
+            Atención Personalizada ✦ Muebles y Moda ✦ Casa Gioia
+        </span>
+
+    </div>
+
+</section>
+
+</main>
+
+<script src="js/script.js"></script>
+<script type="module">
+
+import { createClient }
+from 'https://esm.sh/@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+
+const {
+  data:{user}
+} = await supabase.auth.getUser()
+
+const btn = document.getElementById("userBtn")
+
+if(user){
+
+    const nombre =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.email
+
+    btn.innerHTML = `👤 ${nombre.split(" ")[0]}`
+
+    btn.onclick = () => {
+        window.location.href = "perfil.html"
+    }
+
+}else{
+
+    btn.innerHTML = "Ingresar"
+
+    btn.onclick = () => {
+        window.location.href = "login.html"
+    }
+
+}
+
+btn.style.opacity = '1'
+
+</script>
+</body>
+<footer>
+
+    <div class="footer-grid">
+
+        <div>
+
+            <h4>Casa Gioia</h4>
+
+            <p>
+                Diseño italiano para el hogar, la moda y los espacios cotidianos.
+            </p>
+
+        </div>
+
+        <div>
+
+            <h4>Colecciones</h4>
+
+            <a href="#">Muebles</a>
+            <a href="#">Moda</a>
+            <a href="#">Decoración</a>
+
+        </div>
+
+        <div>
+
+            <h4>Ayuda</h4>
+
+            <a href="#">Preguntas frecuentes</a>
+            <a href="#">Envíos</a>
+            <a href="#">Cambios y devoluciones</a>
+
+        </div>
+
+        <div>
+
+            <h4>Contacto</h4>
+
+            <a href="#">hola@casagioia.com</a>
+            <a href="#">Instagram</a>
+            <a href="#">WhatsApp</a>
+
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        © 2025 Casa Gioia · Todos los derechos reservados
+    </div>
+
+</footer>
+</html>

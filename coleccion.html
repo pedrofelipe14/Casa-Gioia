@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colección — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li><a href="coleccion.html" style="color:var(--wine);">Colección</a></li>
+    <li><a href="la-casa.html">La Casa</a></li>
+    <li><a href="journal.html">Journal</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Ingresar</button>
+</nav>
+</header>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="arch large"></div>
+  <div class="arch medium"></div>
+  <div class="arch small"></div>
+  <p class="page-hero-tag">◆ Primavera · Verano 2025</p>
+  <h1>Colección<span>completa.</span></h1>
+  <p>Prendas, muebles y objetos seleccionados para quienes no distinguen entre vestir bien y vivir bien.</p>
+</section>
+
+<!-- MARQUEE -->
+<section class="luxury-band">
+  <div class="marquee">
+    <span>✦ Moda Italiana ✦ Diseño Atemporal ✦ Prendas Seleccionadas ✦ Muebles Únicos ✦ Casa Gioia ✦ Moda Italiana ✦ Diseño Atemporal ✦ Prendas Seleccionadas ✦ Muebles Únicos ✦ Casa Gioia &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</section>
+
+<!-- FILTROS + PRODUCTOS -->
+<section class="section">
+  <div class="section-label">Todo el catálogo</div>
+  <h2 class="section-title">Piezas para <span>vivir.</span></h2>
+
+  <div class="divider-ornament">◆ ◆ ◆</div>
+
+  <div class="filter-bar">
+    <button class="pill active" data-filter="all">Todo</button>
+    <button class="pill" data-filter="ropa">Ropa</button>
+    <button class="pill" data-filter="muebles">Muebles</button>
+    <button class="pill" data-filter="deco">Decoración</button>
+    <button class="pill" data-filter="nuevo">Nuevo</button>
+  </div>
+
+  <div class="grid-4">
+
+    <div class="card filterable fade-in" data-cat="ropa nuevo">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1594938298603-c8148c4b4c4c?w=600&q=80" alt="Vestido lino">
+        <span class="card-badge">Nuevo</span>
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Ropa · Mujer</p>
+        <h3 class="card-name">Vestido Lino Venezia</h3>
+        <p class="card-desc">Lino natural, corte recto. Verano eterno.</p>
+        <p class="card-price">$89.990</p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="ropa">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80" alt="Blazer">
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Ropa · Hombre</p>
+        <h3 class="card-name">Blazer Roma Verde</h3>
+        <p class="card-desc">Lana merino, entallado. Milán en Buenos Aires.</p>
+        <p class="card-price">$124.990 <span class="was">$155.000</span></p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="muebles">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=600&q=80" alt="Sillón">
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Muebles · Sala</p>
+        <h3 class="card-name">Sillón Firenze</h3>
+        <p class="card-desc">Cuero full grain, estructura de nogal.</p>
+        <p class="card-price">$349.990 <span class="was">$420.000</span></p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="deco nuevo">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80" alt="Lámpara">
+        <span class="card-badge">Nuevo</span>
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Decoración</p>
+        <h3 class="card-name">Lámpara Murano</h3>
+        <p class="card-desc">Vidrio soplado artesanal, latón envejecido.</p>
+        <p class="card-price">$198.000</p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="ropa">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80" alt="Blusa seda">
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Ropa · Mujer</p>
+        <h3 class="card-name">Blusa Seda Toscana</h3>
+        <p class="card-desc">Seda natural, caída perfecta, colores tierra.</p>
+        <p class="card-price">$74.990</p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="muebles nuevo">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80" alt="Mesa mármol">
+        <span class="card-badge">Nuevo</span>
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Muebles · Comedor</p>
+        <h3 class="card-name">Mesa Siena Mármol</h3>
+        <p class="card-desc">Mármol travertino, base hierro negro mate.</p>
+        <p class="card-price">$589.990</p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="deco">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=600&q=80" alt="Vela">
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Decoración</p>
+        <h3 class="card-name">Vela Arco di Roma</h3>
+        <p class="card-desc">Cera de soja, fragancia de higo y cedro.</p>
+        <p class="card-price">$24.990</p>
+      </div>
+    </div>
+
+    <div class="card filterable fade-in" data-cat="ropa">
+      <div class="card-img-wrap">
+        <img class="card-img" src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600&q=80" alt="Traje">
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Ropa · Hombre</p>
+        <h3 class="card-name">Traje Napoli Clásico</h3>
+        <p class="card-desc">Doble botonadura, lana virgen italiana.</p>
+        <p class="card-price">$389.990</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- BANNER VINO -->
+<section class="section-wine" style="text-align:center;">
+  <p class="page-hero-tag" style="color:rgba(244,239,229,.5); text-align:center;">Servicio exclusivo</p>
+  <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,5vw,3.5rem); font-style:italic; color:var(--cream); margin-bottom:16px;">¿No encontrás lo que buscás?</h2>
+  <p style="color:rgba(244,239,229,.6); max-width:520px; margin:0 auto 36px; line-height:1.9; font-size:.95rem;">Trabajamos con encargos personalizados. Contanos tu idea y la hacemos realidad.</p>
+  <a href="contacto.html" class="btn-ghost btn-ghost-light">Hacer un encargo</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4>Casa Gioia</h4>
+      <p>Diseño italiano para el hogar, la moda y los espacios cotidianos.</p>
+    </div>
+    <div>
+      <h4>Colecciones</h4>
+      <a href="coleccion.html">Muebles</a>
+      <a href="coleccion.html">Moda</a>
+      <a href="coleccion.html">Decoración</a>
+    </div>
+    <div>
+      <h4>Ayuda</h4>
+      <a href="#">Preguntas frecuentes</a>
+      <a href="#">Envíos</a>
+      <a href="#">Cambios y devoluciones</a>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <a href="contacto.html">hola@casagioia.com</a>
+      <a href="#">Instagram</a>
+      <a href="#">WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2025 Casa Gioia · Todos los derechos reservados</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+const { data: { user } } = await supabase.auth.getUser()
+const btn = document.getElementById('userBtn')
+if (user) {
+  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+  btn.textContent = `👤 ${nombre.split(' ')[0]}`
+  btn.onclick = () => window.location.href = 'perfil.html'
+} else {
+  btn.onclick = () => window.location.href = 'login.html'
+}
+btn.style.opacity = '1'
+</script>
+</body>
+</html>

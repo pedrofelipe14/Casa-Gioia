@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journal — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  .journal-featured {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 520px;
+  }
+  .journal-featured-img {
+    overflow: hidden;
+    position: relative;
+  }
+  .journal-featured-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .7s ease;
+  }
+  .journal-featured:hover .journal-featured-img img { transform: scale(1.04); }
+  .journal-featured-body {
+    background: var(--wine);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 56px;
+  }
+  .journal-featured-body .journal-tag { color: rgba(244,239,229,.5); }
+  .journal-featured-body h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 500;
+    font-style: italic;
+    color: var(--cream);
+    line-height: 1.2;
+    margin: 14px 0 18px;
+  }
+  .journal-featured-body p { color: rgba(244,239,229,.6); line-height: 1.85; font-size: .9rem; margin-bottom: 32px; }
+  .journal-card-img-wrap { aspect-ratio: 3/2; overflow: hidden; }
+  .journal-card-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+  .journal-card:hover .journal-card-img-wrap img { transform:scale(1.05); }
+  .journal-card { cursor:pointer; }
+  .journal-card .card-body { border-bottom: 1px solid rgba(91,29,42,.08); }
+  .read-time { font-size:.62rem; color:#aaa; letter-spacing:2px; text-transform:uppercase; }
+  @media(max-width:768px){
+    .journal-featured { grid-template-columns:1fr; }
+    .journal-featured-body { padding:40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li><a href="coleccion.html">Colección</a></li>
+    <li><a href="la-casa.html">La Casa</a></li>
+    <li><a href="journal.html" style="color:var(--wine);">Journal</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Ingresar</button>
+</nav>
+</header>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="arch large"></div><div class="arch medium"></div><div class="arch small"></div>
+  <p class="page-hero-tag">◆ Historias · Inspiración</p>
+  <h1>Journal<span>de Casa Gioia.</span></h1>
+  <p>Ideas para decorar, vestir y vivir con más intención. Notas desde Buenos Aires y desde Italia.</p>
+</section>
+
+<!-- MARQUEE -->
+<section class="luxury-band">
+  <div class="marquee">
+    <span>✦ Inspiración ✦ Diseño ✦ Estilo de Vida ✦ Interiorismo ✦ Moda ✦ Casa Gioia ✦ Inspiración ✦ Diseño ✦ Estilo de Vida ✦ Interiorismo ✦ Moda ✦ Casa Gioia &nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</section>
+
+<!-- ARTÍCULO DESTACADO -->
+<section class="section">
+  <div class="section-label">Artículo destacado</div>
+  <div class="journal-featured fade-in">
+    <div class="journal-featured-img">
+      <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=900&q=80" alt="Interior minimalista">
+    </div>
+    <div class="journal-featured-body">
+      <span class="journal-tag">✦ Interiorismo</span>
+      <h2>El arte de no comprar demasiado: menos, pero mejor.</h2>
+      <p>En Italia, la elegancia siempre fue discreción. Una sola pieza bien elegida dice más que diez compradas al apuro. Esta nota es sobre eso.</p>
+      <span class="read-time" style="color:rgba(244,239,229,.35); margin-bottom:24px;">8 min de lectura</span>
+      <a href="#" class="btn-ghost btn-ghost-light" style="align-self:flex-start;">Leer artículo</a>
+    </div>
+  </div>
+</section>
+
+<!-- FILTRO + GRILLA -->
+<section class="section-light">
+  <div style="padding: 0 60px 48px; max-width:1200px; margin:0 auto;">
+    <div class="section-label">Todas las notas</div>
+    <h2 class="section-title" style="margin-bottom:36px;">Leer, <span>inspirarse.</span></h2>
+    <div class="filter-bar">
+      <button class="pill active" data-filter="all">Todo</button>
+      <button class="pill" data-filter="deco">Decoración</button>
+      <button class="pill" data-filter="moda">Moda</button>
+      <button class="pill" data-filter="viaje">Viajes</button>
+      <button class="pill" data-filter="receta">Mesa & Cocina</button>
+    </div>
+  </div>
+  <div style="padding: 0 60px; max-width:1200px; margin:0 auto;">
+    <div class="grid-3">
+
+      <div class="card journal-card filterable fade-in" data-cat="deco">
+        <div class="journal-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=700&q=80" alt="Sala">
+        </div>
+        <div class="card-body">
+          <span class="journal-tag">Decoración</span>
+          <h3 class="card-name">Cómo elegir un sofá que dure 20 años.</h3>
+          <p class="card-desc">Materiales, proporciones y las preguntas que hay que hacerse antes de comprar.</p>
+          <span class="journal-date">12 mayo 2025 · 5 min</span>
+        </div>
+      </div>
+
+      <div class="card journal-card filterable fade-in" data-cat="moda">
+        <div class="journal-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=700&q=80" alt="Moda">
+        </div>
+        <div class="card-body">
+          <span class="journal-tag">Moda</span>
+          <h3 class="card-name">El guardarropa cápsula: 12 prendas para todo el año.</h3>
+          <p class="card-desc">Cómo construir un armario que siempre funcione sin importar la temporada.</p>
+          <span class="journal-date">5 mayo 2025 · 6 min</span>
+        </div>
+      </div>
+
+      <div class="card journal-card filterable fade-in" data-cat="viaje">
+        <div class="journal-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=700&q=80" alt="Milán">
+        </div>
+        <div class="card-body">
+          <span class="journal-tag">Viajes</span>
+          <h3 class="card-name">Tres días en Milán: lo que sí y lo que no.</h3>
+          <p class="card-desc">Una guía sin filtros para la ciudad del diseño y la moda.</p>
+          <span class="journal-date">28 abril 2025 · 7 min</span>
+        </div>
+      </div>
+
+      <div class="card journal-card filterable fade-in" data-cat="receta">
+        <div class="journal-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=700&q=80" alt="Mesa">
+        </div>
+        <div class="card-body">
+          <span class="journal-tag">Mesa & Cocina</span>
+          <h3 class="card-name">La mesa perfecta: cómo preparar una cena italiana en casa.</h3>
+          <p class="card-desc">No es solo la comida. Es el mantel, la luz, los platos y el orden de las copas.</p>
+          <span class="journal-date">18 abril 2025 · 4 min</span>
+        </div>
+      </div>
+
+      <div class="card journal-card filterable fade-in" data-cat="deco">
+        <div class="journal-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=700&q=80" alt="Iluminación">
+        </div>
+        <div class="card-body">
+          <span class="journal-tag">Decoración</span>
+          <h3 class="card-name">La iluminación es todo: guía para cada ambiente.</h3>
+          <p class="card-desc">Cálida, fría, directa o indirecta. Cada decisión cambia completamente la atmósfera.</p>
+          <span class="journal-date">10 abril 2025 · 5 min</span>
+        </div>
+      </div>
+
+      <div class="card journal-card filterable fade-in" data-cat="moda">
+        <div class="journal-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=700&q=80" alt="Blazer">
+        </div>
+        <div class="card-body">
+          <span class="journal-tag">Moda</span>
+          <h3 class="card-name">Por qué el lino es la tela del siglo.</h3>
+          <p class="card-desc">Fresco, duradero y cada vez más elegante. Todo lo que necesitás saber sobre el tejido del verano.</p>
+          <span class="journal-date">2 abril 2025 · 4 min</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="section-wine" style="text-align:center; padding:96px 60px;">
+  <div class="quote-block" style="border-left:none; padding:0; text-align:center;">
+    <p style="font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem,4vw,2.8rem); font-style:italic; color:var(--cream); max-width:700px; margin:0 auto 20px; line-height:1.35;">"La bellezza salverà il mondo."</p>
+    <cite style="font-size:.65rem; letter-spacing:4px; text-transform:uppercase; color:var(--gold);">Fiódor Dostoyevski</cite>
+  </div>
+</section>
+
+<!-- SUSCRIPCIÓN -->
+<section class="section">
+  <div style="max-width:600px; margin:0 auto; text-align:center;">
+    <div class="section-label" style="justify-content:center;">Newsletter</div>
+    <h2 class="section-title" style="margin-bottom:16px;">Sumate al <span>círculo.</span></h2>
+    <p style="color:#7a726c; line-height:1.85; margin-bottom:36px;">Notas de diseño, novedades de colección y acceso anticipado a lanzamientos. Una vez por mes, sin spam.</p>
+    <form style="display:flex; gap:0; max-width:480px; margin:0 auto;" onsubmit="return false;">
+      <input type="email" placeholder="tu@email.com" style="flex:1; border:1px solid rgba(91,29,42,.2); border-right:none; padding:14px 20px; font-family:'Manrope',sans-serif; font-size:.9rem; background:transparent; outline:none; color:var(--text);">
+      <button class="btn-primary" style="white-space:nowrap; padding:14px 28px;">Suscribirme</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div><h4>Casa Gioia</h4><p>Diseño italiano para el hogar, la moda y los espacios cotidianos.</p></div>
+    <div><h4>Colecciones</h4><a href="coleccion.html">Muebles</a><a href="coleccion.html">Moda</a><a href="coleccion.html">Decoración</a></div>
+    <div><h4>Ayuda</h4><a href="#">Preguntas frecuentes</a><a href="#">Envíos</a><a href="#">Cambios y devoluciones</a></div>
+    <div><h4>Contacto</h4><a href="contacto.html">hola@casagioia.com</a><a href="#">Instagram</a><a href="#">WhatsApp</a></div>
+  </div>
+  <div class="footer-bottom">© 2025 Casa Gioia · Todos los derechos reservados</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+const { data: { user } } = await supabase.auth.getUser()
+const btn = document.getElementById('userBtn')
+if (user) {
+  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+  btn.textContent = `👤 ${nombre.split(' ')[0]}`
+  btn.onclick = () => window.location.href = 'perfil.html'
+} else {
+  btn.onclick = () => window.location.href = 'login.html'
+}
+btn.style.opacity = '1'
+</script>
+</body>
+</html>

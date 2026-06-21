@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Perfil — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li><a href="coleccion.html">Colección</a></li>
+    <li><a href="la-casa.html">La Casa</a></li>
+    <li><a href="journal.html">Journal</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Mi cuenta</button>
+</nav>
+</header>
+
+<section class="section" style="max-width:680px; margin:0 auto; padding-top:80px; padding-bottom:120px;">
+
+  <div class="perfil-card">
+
+    <div class="perfil-avatar-wrap">
+      <img id="avatar" src="" alt="Avatar">
+      <div id="avatar-placeholder" class="avatar-placeholder"></div>
+    </div>
+
+    <h2 id="nombre" class="perfil-nombre"></h2>
+    <p  id="email"  class="perfil-email"></p>
+
+    <div class="divider-ornament" style="margin:40px 0;">◆</div>
+
+    <div class="perfil-actions">
+      <a href="pedidos.html" class="btn-ghost perfil-action-btn">◈ &nbsp;Mis pedidos</a>
+      <button id="logoutBtn" class="btn-ghost perfil-action-btn">Cerrar sesión</button>
+    </div>
+
+  </div>
+
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <h4>Casa Gioia</h4>
+      <p>Diseño italiano para el hogar, la moda y los espacios cotidianos.</p>
+    </div>
+    <div>
+      <h4>Colecciones</h4>
+      <a href="coleccion.html">Muebles</a>
+      <a href="coleccion.html">Moda</a>
+      <a href="coleccion.html">Decoración</a>
+    </div>
+    <div>
+      <h4>Ayuda</h4>
+      <a href="#">Preguntas frecuentes</a>
+      <a href="#">Envíos</a>
+      <a href="#">Cambios y devoluciones</a>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <a href="contacto.html">hola@casagioia.com</a>
+      <a href="#">Instagram</a>
+      <a href="#">WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2025 Casa Gioia · Todos los derechos reservados</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script type="module">
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+
+const { data: { user } } = await supabase.auth.getUser()
+
+if (!user) {
+  window.location.href = 'login.html'
+}
+
+const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+
+const navBtn = document.getElementById('userBtn')
+navBtn.textContent = `👤 ${nombre.split(' ')[0]}`
+navBtn.style.opacity = '1'
+document.getElementById('nombre').textContent = nombre
+document.getElementById('email').textContent   = user.email
+
+if (user.user_metadata?.avatar_url) {
+  const img = document.getElementById('avatar')
+  img.src = user.user_metadata.avatar_url
+  img.style.display = 'block'
+  document.getElementById('avatar-placeholder').style.display = 'none'
+} else {
+  document.getElementById('avatar').style.display = 'none'
+  document.getElementById('avatar-placeholder').textContent = nombre.charAt(0).toUpperCase()
+}
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await supabase.auth.signOut()
+  window.location.href = 'index.html'
+})
+
+</script>
+</body>
+</html>

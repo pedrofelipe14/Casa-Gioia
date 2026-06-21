@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacto — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .contact-info-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+  .contact-icon {
+    font-size: 1.3rem;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .contact-info-item h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--wine);
+    margin-bottom: 4px;
+  }
+  .contact-info-item p,
+  .contact-info-item a {
+    font-size: .9rem;
+    color: #7a726c;
+    line-height: 1.75;
+    text-decoration: none;
+    display: block;
+    transition: color .2s;
+  }
+  .contact-info-item a:hover { color: var(--wine); }
+  .form-submit { margin-top: 8px; }
+  .map-placeholder {
+    background: var(--green);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    margin-top: 48px;
+  }
+  .map-placeholder::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+  .map-placeholder .arch { border-color: rgba(185,155,98,.2); left: 50%; transform: translateX(-50%); bottom: -120px; }
+  .map-placeholder p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    color: rgba(244,239,229,.5);
+    z-index: 1;
+    text-align: center;
+  }
+  .faq-item {
+    border-bottom: 1px solid rgba(91,29,42,.1);
+    padding: 24px 0;
+    cursor: pointer;
+  }
+  .faq-q {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--wine);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .faq-q::after { content: '+'; font-size: 1.4rem; font-weight: 300; color: var(--gold); flex-shrink: 0; }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s ease, padding .3s;
+    font-size: .9rem;
+    color: #7a726c;
+    line-height: 1.85;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-top: 14px; }
+  .faq-item.open .faq-q::after { content: '−'; }
+  @media(max-width:768px){
+    .contact-layout { grid-template-columns: 1fr; gap: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li><a href="coleccion.html">Colección</a></li>
+    <li><a href="la-casa.html">La Casa</a></li>
+    <li><a href="journal.html">Journal</a></li>
+    <li><a href="contacto.html" style="color:var(--wine);">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Ingresar</button>
+</nav>
+</header>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="arch large"></div><div class="arch medium"></div><div class="arch small"></div>
+  <p class="page-hero-tag">◆ Hablemos</p>
+  <h1>Contacto<span>con gusto.</span></h1>
+  <p>Estamos para ayudarte a encontrar la pieza perfecta, resolver tu pedido o simplemente charlar de diseño.</p>
+</section>
+
+<!-- MARQUEE -->
+<section class="luxury-band">
+  <div class="marquee">
+    <span>✦ Atención Personalizada ✦ Mar del Plata, Buenos Aires ✦ Lunes a Sábado 10–19 hs ✦ hola@casagioia.com ✦ Casa Gioia ✦ Atención Personalizada ✦ Palermo, Buenos Aires ✦ Lunes a Sábado 10–19 hs ✦ hola@casagioia.com ✦ Casa Gioia &nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</section>
+
+<!-- FORM + INFO -->
+<section class="section">
+  <div class="contact-layout">
+
+    <!-- FORMULARIO -->
+    <div class="fade-in">
+      <div class="section-label">Escribinos</div>
+      <h2 class="section-title" style="margin-bottom:40px;">Contanos tu <span>proyecto.</span></h2>
+
+      <form onsubmit="handleForm(event)">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 32px;">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" placeholder="Tu nombre">
+          </div>
+          <div class="form-group">
+            <label>Apellido</label>
+            <input type="text" placeholder="Tu apellido">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="tu@email.com">
+        </div>
+        <div class="form-group">
+          <label>Teléfono (opcional)</label>
+          <input type="tel" placeholder="+54 11 XXXX XXXX">
+        </div>
+        <div class="form-group">
+          <label>¿En qué podemos ayudarte?</label>
+          <select>
+            <option value="" disabled selected>Seleccioná una opción</option>
+            <option>Consulta sobre un producto</option>
+            <option>Pedido personalizado / encargo</option>
+            <option>Asesoramiento de interiores</option>
+            <option>Envíos y logística</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mensaje</label>
+          <textarea placeholder="Contanos con detalle qué necesitás…"></textarea>
+        </div>
+        <button type="submit" class="btn-primary form-submit" id="submitBtn">ENVIAR MENSAJE</button>
+        <p id="formMsg" style="display:none; margin-top:16px; color:var(--wine); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem;">¡Gracias! Te respondemos dentro de las 24 hs.</p>
+      </form>
+    </div>
+
+    <!-- INFO -->
+    <div class="fade-in">
+      <div class="section-label">Encontranos</div>
+      <h2 class="section-title" style="margin-bottom:40px;">Venite a <span>vernos.</span></h2>
+
+      <div class="contact-info-item">
+        <span class="contact-icon">◆</span>
+        <div>
+          <h4>Casa Gioia</h4>
+          <p>Alsina 3364, Mar del Plata<br/>Buenos Aires, Argentina</p>
+        </div>
+      </div>
+      <div class="contact-info-item">
+        <span class="contact-icon">◈</span>
+        <div>
+          <h4>Horarios</h4>
+          <p>Lunes a Viernes: 10:00 – 19:00 hs<br/>Sábados: 11:00 – 17:00 hs<br/>Domingos: cerrado</p>
+        </div>
+      </div>
+      <div class="contact-info-item">
+        <span class="contact-icon">✦</span>
+        <div>
+          <h4>Email</h4>
+          <a href="mailto:hola@casagioia.com">hola@casagioia.com</a>
+        </div>
+      </div>
+      <div class="contact-info-item">
+        <span class="contact-icon">◇</span>
+        <div>
+          <h4>WhatsApp</h4>
+          <a href="#">+54 9 11 4567 8901</a>
+          <p style="font-size:.78rem; margin-top:4px; color:#aaa;">Respuesta en menos de 2 hs en horario de tienda.</p>
+        </div>
+      </div>
+
+      <div class="map-placeholder">
+        <div class="arch large"></div>
+        <p>Thames 1720<br/>Palermo, CABA</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section-light">
+  <div style="max-width:760px; margin:0 auto; padding:0 32px;">
+    <div class="section-label" style="justify-content:center; margin-bottom:12px;">Preguntas frecuentes</div>
+    <h2 class="section-title" style="text-align:center; margin-bottom:48px;">Todo lo que <span>necesitás saber.</span></h2>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Hacen envíos a todo el país?</div>
+      <div class="faq-a">Sí, enviamos a todo el territorio argentino. Las prendas tienen envío estándar en 3–5 días hábiles. Los muebles grandes se coordinan con un servicio de flete especializado.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Pueden hacer muebles a medida?</div>
+      <div class="faq-a">Sí. Trabajamos con artesanos locales e italianos para encargos personalizados. Contactanos con tus medidas e ideas y te respondemos con presupuesto sin compromiso.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Cuánto tiempo lleva un encargo personalizado?</div>
+      <div class="faq-a">Dependiendo del tipo de pieza, entre 4 y 12 semanas. Te mantenemos informado en cada etapa del proceso.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Aceptan cambios o devoluciones?</div>
+      <div class="faq-a">Sí, en un plazo de 30 días desde la recepción, siempre que el producto esté en condiciones originales. Para prendas, el cambio es inmediato en tienda.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">¿Ofrecen asesoramiento de interiores?</div>
+      <div class="faq-a">Sí. Contamos con un servicio de asesoramiento personalizado, tanto en tienda como a domicilio en AMBA. Para el interior del país hacemos consultas por videollamada.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div><h4>Casa Gioia</h4><p>Diseño italiano para el hogar, la moda y los espacios cotidianos.</p></div>
+    <div><h4>Colecciones</h4><a href="coleccion.html">Muebles</a><a href="coleccion.html">Moda</a><a href="coleccion.html">Decoración</a></div>
+    <div><h4>Ayuda</h4><a href="#">Preguntas frecuentes</a><a href="#">Envíos</a><a href="#">Cambios y devoluciones</a></div>
+    <div><h4>Contacto</h4><a href="contacto.html">hola@casagioia.com</a><a href="#">Instagram</a><a href="#">WhatsApp</a></div>
+  </div>
+  <div class="footer-bottom">© 2025 Casa Gioia · Todos los derechos reservados</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+const { data: { user } } = await supabase.auth.getUser()
+const btn = document.getElementById('userBtn')
+if (user) {
+  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+  btn.textContent = `👤 ${nombre.split(' ')[0]}`
+  btn.onclick = () => window.location.href = 'perfil.html'
+} else {
+  btn.onclick = () => window.location.href = 'login.html'
+}
+btn.style.opacity = '1'
+</script>
+<script>
+function handleForm(e){
+  e.preventDefault();
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = 'ENVIANDO…';
+  setTimeout(()=>{
+    document.getElementById('submitBtn').style.display = 'none';
+    document.getElementById('formMsg').style.display = 'block';
+  }, 1200);
+}
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.querySelector('.faq-q').addEventListener('click', () => {
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if(!wasOpen) item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
