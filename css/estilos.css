@@ -264,7 +264,7 @@ main{
 
     padding:18px 0;
 
-    margin-top:-13px;
+    margin-top:0;
 }
 .marquee{
 
@@ -304,8 +304,7 @@ main{
 
 .hero{
 
-    flex:1;
-    min-height:0;
+    height:calc(100vh - 170px);
 
     display:grid;
     grid-template-columns:55% 45%;
