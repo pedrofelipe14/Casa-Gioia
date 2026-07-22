@@ -626,7 +626,37 @@ body{
 
     cursor:pointer;
 }
-/* Hamburger aparece antes de que el menú toque el logo */
+/* SUB-NAVBAR: menú baja a segunda fila antes de tocar el logo */
+@media(max-width:1400px) and (min-width:1200px){
+    .navbar{
+        flex-wrap:wrap;
+        padding:20px 60px 0;
+    }
+    .navbar::before{
+        content:'';
+        flex:1;
+        order:0;
+    }
+    .logo{
+        order:1;
+    }
+    .navbar-actions{
+        order:2;
+    }
+    .menu{
+        order:10;
+        flex:0 0 100%;
+        justify-content:center;
+        padding:14px 0;
+        border-top:1px solid rgba(91,29,42,.06);
+        gap:40px;
+    }
+    .mobile-toggle{
+        display:none;
+    }
+}
+
+/* Hamburger por debajo de 1200px */
 @media(max-width:1200px){
 
     .mobile-toggle{
