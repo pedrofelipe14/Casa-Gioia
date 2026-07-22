@@ -333,6 +333,10 @@ main{
     margin-bottom:40px;
 }
 
+.slides{
+    min-height:360px;
+}
+
 .slide{
     display:none;
 }
@@ -389,7 +393,7 @@ main{
 
 .hero-actions{
 
-    margin-top:60px;
+    margin-top:32px;
 }
 
 
