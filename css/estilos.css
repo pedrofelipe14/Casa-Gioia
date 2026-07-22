@@ -628,6 +628,37 @@ body{
 
     cursor:pointer;
 }
+/* Hamburger aparece antes de que el menú toque el logo */
+@media(max-width:900px){
+
+    .mobile-toggle{
+        display:block;
+    }
+
+    .menu{
+        position:absolute;
+        top:100%;
+        left:0;
+        width:100%;
+        background:var(--cream);
+        flex-direction:column;
+        gap:25px;
+        padding:30px;
+        display:none;
+        z-index:100;
+        box-shadow:0 12px 24px rgba(0,0,0,.06);
+        border-top:1px solid rgba(91,29,42,.07);
+    }
+
+    .menu.active{
+        display:flex;
+    }
+
+    .btn-nav{
+        display:none;
+    }
+}
+
 @media(max-width:768px){
 
     .navbar{
@@ -637,48 +668,6 @@ body{
     .logo{
         font-size:1.3rem;
         letter-spacing:2px;
-    }
-
-    .mobile-toggle{
-
-        display:block;
-    }
-
-    .menu{
-
-        position:absolute;
-
-        top:100%;
-
-        left:0;
-
-        width:100%;
-
-        background:var(--cream);
-
-        flex-direction:column;
-
-        gap:25px;
-
-        padding:30px;
-
-        display:none;
-
-        z-index:100;
-
-        box-shadow:0 12px 24px rgba(0,0,0,.06);
-
-        border-top:1px solid rgba(91,29,42,.07);
-    }
-
-    .menu.active{
-
-        display:flex;
-    }
-
-    .btn-nav{
-
-        display:none;
     }
 
     .hero{
@@ -1076,7 +1065,7 @@ body{
 /* RESPONSIVE páginas internas */
 @media(max-width: 992px) {
     .navbar { padding: 22px 40px; }
-    .menu { gap: 28px; }
+    .menu { gap: 32px; }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .grid-4 { grid-template-columns: 1fr 1fr; }
     .stat-grid { grid-template-columns: 1fr 1fr; }
