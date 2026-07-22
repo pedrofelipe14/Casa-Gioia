@@ -627,7 +627,7 @@ body{
     cursor:pointer;
 }
 /* SUB-NAVBAR: menú baja a segunda fila antes de tocar el logo */
-@media(max-width:1500px) and (min-width:1200px){
+@media(max-width:1500px) and (min-width:1201px){
     .navbar{
         flex-wrap:wrap;
         padding:20px 60px 0;
