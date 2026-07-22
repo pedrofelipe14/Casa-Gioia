@@ -555,9 +555,9 @@ body{
 
     footer{
 
-    background:var(--green);
+    background:var(--cream);
 
-    color:white;
+    color:var(--text);
 
     padding:100px 60px 40px;
 }
