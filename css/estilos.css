@@ -29,8 +29,10 @@ body{
 .navbar{
 
     display:flex;
-    justify-content:space-between;
+    justify-content:flex-end;
     align-items:center;
+    position:relative;
+    gap:40px;
 
     padding:30px 60px;
 
@@ -42,15 +44,15 @@ body{
     font-family:'Cormorant Garamond',serif;
     font-size:2rem;
     letter-spacing:3px;
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    white-space:nowrap;
 }
 
 .logo span{
 
-    display:block;
-    font-size:.7rem;
-    letter-spacing:5px;
-    margin-top:4px;
-    color:var(--wine-soft);
+    display:none;
 }
 
 .menu{
