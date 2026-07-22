@@ -627,7 +627,7 @@ body{
     cursor:pointer;
 }
 /* Hamburger aparece antes de que el menú toque el logo */
-@media(max-width:1050px){
+@media(max-width:1200px){
 
     .mobile-toggle{
         display:flex;
@@ -663,11 +663,6 @@ body{
 
     .navbar{
         padding:16px 20px;
-    }
-
-    .logo{
-        font-size:1.3rem;
-        letter-spacing:2px;
     }
 
     .hero{
@@ -1723,7 +1718,7 @@ body{
 
 @media (max-width: 480px) {
     .navbar { padding: 14px 16px; }
-    .logo { font-size: 1.1rem; letter-spacing: 1px; }
+
     .perfil-section { margin-top: 32px; }
     .historial-total { display: none; }
     .addr-save-row { flex-direction: column; align-items: flex-start; }
