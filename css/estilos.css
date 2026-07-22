@@ -584,7 +584,7 @@ body{
 
     display:block;
 
-    color:#d8d8d8;
+    color:var(--text);
 
     text-decoration:none;
 
@@ -594,7 +594,7 @@ body{
 }
 .footer-grid a:hover{
 
-    color:white;
+    color:var(--wine);
 
     transform:translateX(6px);
 }
@@ -604,11 +604,11 @@ body{
 
     padding-top:30px;
 
-    border-top:1px solid rgba(255,255,255,.1);
+    border-top:1px solid rgba(0,0,0,.1);
 
     text-align:center;
 
-    color:#b8b8b8;
+    color:var(--text);
 }
 .mobile-toggle{
 
