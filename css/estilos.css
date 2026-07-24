@@ -755,9 +755,15 @@ main{
 /* Hamburger por debajo de 1200px */
 @media(max-width:1200px){
 
+    .navbar::before{
+        display:none;
+    }
+
     .mobile-toggle{
         display:flex;
         align-items:center;
+        order:0;
+        flex:1;
     }
 
     .menu{
