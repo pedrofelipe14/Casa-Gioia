@@ -62,18 +62,36 @@ if(fadeEls.length){
 }
 
 /* ── Filter pills ── */
+function applyFilter(f) {
+    document.querySelectorAll('.pill[data-filter]').forEach(p => {
+        p.classList.toggle('active', p.dataset.filter === f);
+    });
+    document.querySelectorAll('.filterable').forEach(card => {
+        const show = f === 'all' || card.dataset.cat.includes(f);
+        card.style.display = show ? '' : 'none';
+    });
+}
+
 document.querySelectorAll('.pill[data-filter]').forEach(pill => {
-    pill.addEventListener('click', () => {
-        const bar = pill.closest('.filter-bar');
-        bar.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        const f = pill.dataset.filter;
-        document.querySelectorAll('.filterable').forEach(card => {
-            const show = f === 'all' || card.dataset.cat.includes(f);
-            card.style.display = show ? '' : 'none';
-        });
+    pill.addEventListener('click', () => applyFilter(pill.dataset.filter));
+});
+
+/* ── Submenu buttons → navigate to coleccion with filter param ── */
+document.querySelectorAll('.submenu-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const f = btn.textContent.trim().toLowerCase();
+        window.location.href = `coleccion.html?filter=${f}`;
     });
 });
+
+/* ── On coleccion.html: read filter param, activate + scroll ── */
+const _filterParam = new URLSearchParams(window.location.search).get('filter');
+if (_filterParam && document.getElementById('catalogo')) {
+    applyFilter(_filterParam);
+    setTimeout(() => {
+        document.getElementById('catalogo').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+}
 
 // googleLogin is defined per-page where supabase is available (login.html)
 
