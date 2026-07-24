@@ -128,16 +128,16 @@ main{
 
 .submenu{
     list-style:none;
-    padding:0;
+    padding:8px 0;
     position:absolute;
-    top:calc(100% + 14px);
+    top:100%;
     left:-20px;
     background:var(--cream);
-    min-width:170px;
+    min-width:180px;
     opacity:0;
     visibility:hidden;
     pointer-events:none;
-    transform:translateY(-6px);
+    transform:translateY(-4px);
     transition:opacity .2s ease, transform .2s ease, visibility .2s ease;
     box-shadow:0 16px 40px rgba(0,0,0,.1);
     border-top:2px solid var(--wine);
@@ -163,8 +163,9 @@ main{
     transform:rotate(180deg);
 }
 
-.submenu li a{
+.submenu-btn{
     display:block;
+    width:100%;
     padding:10px 22px;
     font-size:.72rem;
     letter-spacing:2.5px;
@@ -172,15 +173,14 @@ main{
     color:var(--text);
     font-family:'Manrope',sans-serif;
     font-weight:400;
+    background:none;
+    border:none;
+    text-align:left;
+    cursor:pointer;
     transition:color .2s, padding-left .2s;
-    text-decoration:none;
 }
 
-.submenu li a::after{
-    display:none;
-}
-
-.submenu li a:hover{
+.submenu-btn:hover{
     color:var(--wine);
     padding-left:28px;
 }
@@ -808,13 +808,13 @@ main{
         transform:none;
     }
 
-    .submenu li a{
+    .submenu-btn{
         padding:6px 0;
         font-size:.7rem;
         letter-spacing:2px;
     }
 
-    .submenu li a:hover{
+    .submenu-btn:hover{
         padding-left:6px;
     }
 }
