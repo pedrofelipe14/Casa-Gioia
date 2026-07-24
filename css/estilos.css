@@ -121,6 +121,70 @@ main{
     color:var(--wine-soft);
 }
 
+/* Submenu dropdown */
+.menu li{
+    position:relative;
+}
+
+.submenu{
+    list-style:none;
+    padding:0;
+    position:absolute;
+    top:calc(100% + 14px);
+    left:-20px;
+    background:var(--cream);
+    min-width:170px;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transform:translateY(-6px);
+    transition:opacity .2s ease, transform .2s ease, visibility .2s ease;
+    box-shadow:0 16px 40px rgba(0,0,0,.1);
+    border-top:2px solid var(--wine);
+    z-index:999;
+}
+
+.menu li:hover > .submenu{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:translateY(0);
+}
+
+.submenu-arrow{
+    font-size:.65rem;
+    margin-left:3px;
+    display:inline-block;
+    transition:transform .2s;
+    vertical-align:middle;
+}
+
+.menu li:hover .submenu-arrow{
+    transform:rotate(180deg);
+}
+
+.submenu li a{
+    display:block;
+    padding:10px 22px;
+    font-size:.72rem;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--text);
+    font-family:'Manrope',sans-serif;
+    font-weight:400;
+    transition:color .2s, padding-left .2s;
+    text-decoration:none;
+}
+
+.submenu li a::after{
+    display:none;
+}
+
+.submenu li a:hover{
+    color:var(--wine);
+    padding-left:28px;
+}
+
 .btn-nav{
 
     background: var(--wine);
@@ -721,6 +785,37 @@ main{
 
     main > .hero{
         order:0;
+    }
+
+    .submenu{
+        position:static;
+        opacity:1;
+        visibility:visible;
+        pointer-events:auto;
+        transform:none;
+        box-shadow:none;
+        border-top:none;
+        background:transparent;
+        padding:6px 0 0 16px;
+        min-width:0;
+    }
+
+    .menu li:hover > .submenu{
+        transform:none;
+    }
+
+    .menu li:hover .submenu-arrow{
+        transform:none;
+    }
+
+    .submenu li a{
+        padding:6px 0;
+        font-size:.7rem;
+        letter-spacing:2px;
+    }
+
+    .submenu li a:hover{
+        padding-left:6px;
     }
 }
 
