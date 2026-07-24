@@ -76,6 +76,16 @@ document.querySelectorAll('.pill[data-filter]').forEach(pill => {
     pill.addEventListener('click', () => applyFilter(pill.dataset.filter));
 });
 
+/* ── Mobile submenu toggle ── */
+document.querySelectorAll('.has-submenu > a').forEach(link => {
+    link.addEventListener('click', e => {
+        if (window.innerWidth <= 1200) {
+            e.preventDefault();
+            link.closest('.has-submenu').classList.toggle('submenu-open');
+        }
+    });
+});
+
 /* ── Submenu buttons → navigate to coleccion with filter param ── */
 document.querySelectorAll('.submenu-btn').forEach(btn => {
     btn.addEventListener('click', () => {

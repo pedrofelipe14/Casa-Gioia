@@ -789,23 +789,36 @@ main{
 
     .submenu{
         position:static;
-        opacity:1;
-        visibility:visible;
-        pointer-events:auto;
+        visibility:hidden;
+        opacity:0;
+        pointer-events:none;
         transform:none;
         box-shadow:none;
         border-top:none;
         background:transparent;
-        padding:6px 0 0 16px;
+        padding:0 0 0 16px;
         min-width:0;
+        max-height:0;
+        overflow:hidden;
+        transition:opacity .2s ease, max-height .25s ease, visibility .2s ease;
+    }
+
+    .has-submenu.submenu-open > .submenu{
+        visibility:visible;
+        opacity:1;
+        pointer-events:auto;
+        max-height:200px;
+        padding:6px 0 6px 16px;
+    }
+
+    .has-submenu.submenu-open .submenu-arrow{
+        transform:rotate(180deg);
     }
 
     .menu li:hover > .submenu{
-        transform:none;
-    }
-
-    .menu li:hover .submenu-arrow{
-        transform:none;
+        opacity:0;
+        visibility:hidden;
+        pointer-events:none;
     }
 
     .submenu-btn{
