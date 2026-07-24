@@ -264,8 +264,7 @@ main{
 
     padding:18px 0;
 
-    position:sticky;
-    bottom:0;
+    position:relative;
     z-index:200;
 }
 .marquee{
@@ -715,6 +714,14 @@ main{
     .btn-nav{
         display:none;
     }
+
+    .luxury-band{
+        order:-1;
+    }
+
+    .hero{
+        order:0;
+    }
 }
 
 @media(max-width:768px){
@@ -747,8 +754,12 @@ main{
         font-size:1.5rem;
     }
 
-    .hero-art{
+    .hero{
+        height:auto;
+        min-height:0;
+    }
 
+    .hero-art{
         min-height:400px;
     }
 
