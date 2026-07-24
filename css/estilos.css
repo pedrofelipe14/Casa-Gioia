@@ -653,53 +653,77 @@ main{
     padding:100px 60px 40px;
 }
 .footer-grid{
-
     display:grid;
-
-    grid-template-columns:
-    2fr 1fr 1fr 1fr;
-
-    gap:60px;
-}
-.footer-grid h4{
-
-    font-family:'Cormorant Garamond',serif;
-
-    font-size:1.7rem;
-
-    color:var(--gold);
-
-    margin-bottom:20px;
+    grid-template-columns:1fr 1fr 1fr 1.6fr;
+    gap:40px;
+    align-items:start;
 }
 .footer-grid a{
-
     display:block;
-
     color:var(--text);
-
     text-decoration:none;
-
     margin-bottom:12px;
-
+    font-size:.82rem;
+    letter-spacing:.3px;
     transition:.3s;
 }
 .footer-grid a:hover{
-
     color:var(--wine);
-
-    transform:translateX(6px);
+    transform:translateX(4px);
+}
+.footer-newsletter h4{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.35rem;
+    font-weight:500;
+    color:var(--wine);
+    margin-bottom:10px;
+}
+.footer-newsletter p{
+    font-size:.8rem;
+    line-height:1.75;
+    margin-bottom:20px;
+    opacity:.65;
+}
+.footer-form{
+    display:flex;
+    align-items:stretch;
+}
+.footer-form input{
+    flex:1;
+    border:none;
+    border-bottom:1px solid rgba(0,0,0,.22);
+    background:transparent;
+    padding:10px 0;
+    font-family:'Manrope',sans-serif;
+    font-size:.8rem;
+    color:var(--text);
+    outline:none;
+}
+.footer-form input::placeholder{
+    color:rgba(0,0,0,.32);
+}
+.footer-form button{
+    background:var(--wine);
+    color:white;
+    border:none;
+    padding:10px 22px;
+    font-family:'Manrope',sans-serif;
+    font-size:.75rem;
+    letter-spacing:1.5px;
+    cursor:pointer;
+    transition:background .2s;
+}
+.footer-form button:hover{
+    background:#6d1542;
 }
 .footer-bottom{
-
-    margin-top:80px;
-
-    padding-top:30px;
-
-    border-top:1px solid rgba(0,0,0,.1);
-
+    margin-top:60px;
+    padding-top:24px;
+    border-top:1px solid rgba(0,0,0,.08);
     text-align:center;
-
     color:var(--text);
+    font-size:.78rem;
+    letter-spacing:.3px;
 }
 .mobile-toggle{
 
@@ -866,10 +890,12 @@ main{
     }
 
     .footer-grid{
+        grid-template-columns:1fr 1fr;
+        gap:32px;
+    }
 
-        grid-template-columns:1fr;
-
-        gap:40px;
+    .footer-newsletter{
+        grid-column:1 / -1;
     }
 
 }
