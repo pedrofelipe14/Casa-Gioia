@@ -715,11 +715,11 @@ main{
         display:none;
     }
 
-    .luxury-band{
+    main > .luxury-band{
         order:-1;
     }
 
-    .hero{
+    main > .hero{
         order:0;
     }
 }
