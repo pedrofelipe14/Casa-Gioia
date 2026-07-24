@@ -39,11 +39,18 @@ main{
 
     display:flex;
     align-items:center;
+    flex-wrap:wrap;
     position:relative;
 
-    padding:30px 60px;
+    padding:20px 60px 0;
 
     border-bottom:1px solid rgba(0,0,0,.05);
+}
+
+.navbar::before{
+    content:'';
+    flex:1;
+    order:0;
 }
 
 .logo{
@@ -54,7 +61,7 @@ main{
     letter-spacing:3px;
     white-space:nowrap;
     flex:0 0 auto;
-    order:2;
+    order:1;
 }
 
 .logo span{
@@ -65,11 +72,14 @@ main{
 .menu{
 
     display:flex;
-    gap:50px;
+    gap:40px;
     list-style:none;
-    flex:1;
-    order:1;
+    flex:0 0 100%;
+    order:10;
     align-items:center;
+    justify-content:center;
+    padding:14px 0;
+    border-top:1px solid rgba(91,29,42,.06);
 }
 
 .menu a{
@@ -740,35 +750,6 @@ main{
     color:var(--wine);
 
     cursor:pointer;
-}
-/* SUB-NAVBAR: menú baja a segunda fila antes de tocar el logo */
-@media(max-width:1500px) and (min-width:1201px){
-    .navbar{
-        flex-wrap:wrap;
-        padding:20px 60px 0;
-    }
-    .navbar::before{
-        content:'';
-        flex:1;
-        order:0;
-    }
-    .logo{
-        order:1;
-    }
-    .navbar-actions{
-        order:2;
-    }
-    .menu{
-        order:10;
-        flex:0 0 100%;
-        justify-content:center;
-        padding:14px 0;
-        border-top:1px solid rgba(91,29,42,.06);
-        gap:40px;
-    }
-    .mobile-toggle{
-        display:none;
-    }
 }
 
 /* Hamburger por debajo de 1200px */
@@ -1701,7 +1682,7 @@ main{
     align-items: center;
     gap: 8px;
     flex: 1;
-    order: 3;
+    order: 2;
     justify-content: flex-end;
 }
 
