@@ -221,19 +221,26 @@ document.getElementById('backBtn').addEventListener('click', () => {
 
 /* ── Traducción de errores ── */
 function traducirError(msg) {
+    if (!msg || msg === '{}' || msg.trim() === '') {
+        return 'Error al conectar con el servidor. Verificá tu conexión e intentá de nuevo.'
+    }
     const mapa = {
         'Invalid login credentials':        'Email o contraseña incorrectos.',
         'Email not confirmed':              'Confirmá tu email antes de ingresar.',
         'User already registered':          'Ya existe una cuenta con ese email.',
+        'already registered':              'Ya existe una cuenta con ese email.',
         'Password should be at least 6':    'La contraseña debe tener al menos 6 caracteres.',
         'Unable to validate email address': 'El formato del email no es válido.',
         'For security purposes':            'Esperá unos minutos antes de volver a intentarlo.',
         'Signup requires a valid password': 'Ingresá una contraseña válida.',
         'Email rate limit exceeded':        'Límite de emails alcanzado. Esperá unos minutos e intentá de nuevo.',
         'over_email_send_rate_limit':       'Límite de emails alcanzado. Esperá unos minutos e intentá de nuevo.',
+        'smtp':                             'Error al enviar el email de confirmación. Contactá al soporte.',
+        'sending confirmation email':       'Error al enviar el email de confirmación. Revisá la configuración SMTP.',
+        'Error sending':                    'Error al enviar el email de confirmación. Revisá la configuración SMTP.',
     }
     for(const [clave, texto] of Object.entries(mapa)){
-        if(msg.includes(clave)) return texto
+        if(msg.toLowerCase().includes(clave.toLowerCase())) return texto
     }
     return msg
 }
@@ -249,9 +256,17 @@ window.login = async () => {
 window.register = async () => {
     const email    = document.getElementById('email').value
     const password = document.getElementById('password').value
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    let data, error
+    try {
+        ;({ data, error } = await supabase.auth.signUp({ email, password }))
+    } catch(e) {
+        mostrarPopup('error', 'Error de conexión. Verificá tu internet e intentá de nuevo.')
+        console.error('signUp exception:', e)
+        return
+    }
     if(error){
-        mostrarPopup('error', traducirError(error.message))
+        console.error('signUp error:', error)
+        mostrarPopup('error', traducirError(error.message ?? error.msg ?? JSON.stringify(error)))
         return
     }
     if(data.session === null){
