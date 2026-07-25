@@ -1,33 +1,21 @@
 const slides = document.querySelectorAll('.slide');
 const indicators = document.querySelectorAll('.indicator');
 
-let current = 0;
+if (slides.length) {
+    let current = 0;
 
-function showSlide(index){
-
-    slides.forEach(slide=>{
-        slide.classList.remove('active');
-    });
-
-    indicators.forEach(indicator=>{
-        indicator.classList.remove('active');
-    });
-
-    slides[index].classList.add('active');
-    indicators[index].classList.add('active');
-}
-
-setInterval(()=>{
-
-    current++;
-
-    if(current >= slides.length){
-        current = 0;
+    function showSlide(index){
+        slides.forEach(slide => slide.classList.remove('active'));
+        indicators.forEach(indicator => indicator.classList.remove('active'));
+        slides[index].classList.add('active');
+        if (indicators[index]) indicators[index].classList.add('active');
     }
 
-    showSlide(current);
-
-},6000);
+    setInterval(() => {
+        current = (current + 1) % slides.length;
+        showSlide(current);
+    }, 6000);
+}
 
 const navbar = document.getElementById("navbar");
 
