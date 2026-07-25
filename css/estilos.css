@@ -78,7 +78,7 @@ main{
     order:10;
     align-items:center;
     justify-content:center;
-    padding:14px 0;
+    padding:6px 0 12px;
 }
 
 .menu a{
