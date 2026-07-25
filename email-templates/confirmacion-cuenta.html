@@ -4,50 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Confirmá tu cuenta — Casa Gioia</title>
-<style>
-  body, table, td, p, a { margin:0; padding:0; }
-  img { border:0; display:block; }
-  @media only screen and (max-width:600px) {
-    .container   { width:100% !important; }
-    .content     { padding:40px 28px 48px !important; }
-    .logo-area   { padding:40px 28px 28px !important; }
-    .footer-area { padding:20px 28px !important; }
-    h1           { font-size:22px !important; }
-  }
-</style>
 </head>
-<body style="background-color:#e9e3d7; margin:0; padding:0; -webkit-text-size-adjust:100%;">
+<body style="margin:0; padding:0; background-color:#e9e3d7; font-family:Arial,Helvetica,sans-serif;">
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr>
 <td align="center" style="padding:48px 16px;">
 
-  <!-- Tarjeta principal -->
-  <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0"
-         style="background-color:#F4EFE5; border-collapse:collapse;">
+  <table role="presentation" width="560" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4EFE5; max-width:560px; width:100%;">
 
-    <!-- Barra de acento superior -->
+    <!-- Barra wine superior -->
     <tr>
-      <td style="background-color:#891A55; height:5px; font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
+      <td style="background-color:#891A55; height:5px; font-size:0; line-height:0;">&nbsp;</td>
     </tr>
 
     <!-- Logo -->
     <tr>
-      <td class="logo-area" align="center" style="padding:52px 40px 36px;">
-        <p style="font-family:Georgia,'Times New Roman',Times,serif; font-size:30px; letter-spacing:8px;
-                  color:#2a2118; font-weight:normal; margin:0; line-height:1;">CASA GIOIA</p>
-        <p style="font-family:Arial,Helvetica,sans-serif; font-size:10px; letter-spacing:3.5px;
-                  color:#8D6175; margin:8px 0 0; text-transform:uppercase; line-height:1;">Moda &nbsp;·&nbsp; Hogar &nbsp;·&nbsp; Design</p>
+      <td align="center" style="padding:52px 40px 32px;">
+        <p style="font-family:Georgia,'Times New Roman',serif; font-size:28px; letter-spacing:8px; color:#2a2118; font-weight:normal; margin:0; line-height:1;">CASA GIOIA</p>
+        <p style="font-family:Arial,Helvetica,sans-serif; font-size:10px; letter-spacing:3px; color:#8D6175; margin:8px 0 0; text-transform:uppercase;">Moda &nbsp;·&nbsp; Hogar &nbsp;·&nbsp; Design</p>
       </td>
     </tr>
 
-    <!-- Separador ornamental -->
+    <!-- Separador -->
     <tr>
-      <td align="center" style="padding:0 40px 36px;">
+      <td align="center" style="padding:0 40px 32px;">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
           <tr>
             <td style="width:48px; height:1px; background-color:#c9a5b7; font-size:0; line-height:0;"></td>
-            <td style="padding:0 10px; font-family:Arial,sans-serif; font-size:10px; color:#891A55; line-height:1;">◆</td>
+            <td style="padding:0 10px; font-family:Arial,sans-serif; font-size:10px; color:#891A55; line-height:1;">&#9670;</td>
             <td style="width:48px; height:1px; background-color:#c9a5b7; font-size:0; line-height:0;"></td>
           </tr>
         </table>
@@ -56,46 +41,36 @@
 
     <!-- Cuerpo -->
     <tr>
-      <td class="content" style="padding:0 64px 56px;">
+      <td style="padding:0 56px 52px;">
 
-        <h1 style="font-family:Georgia,'Times New Roman',Times,serif; font-size:26px; font-weight:normal;
-                   color:#2a2118; margin:0 0 20px; line-height:1.35; text-align:center;">
+        <h1 style="font-family:Georgia,'Times New Roman',serif; font-size:24px; font-weight:normal; color:#2a2118; margin:0 0 18px; line-height:1.3; text-align:center;">
           Confirmá tu cuenta
         </h1>
 
-        <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.9;
-                  color:#6b6460; margin:0 0 36px; text-align:center;">
+        <p style="font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.85; color:#6b6460; margin:0 0 36px; text-align:center;">
           Gracias por registrarte en Casa Gioia.<br>
           Hacé clic en el botón para confirmar tu email y activar tu cuenta.
         </p>
 
-        <!-- Botón CTA -->
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 40px;">
+        <!-- Botón -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 36px;">
           <tr>
-            <td align="center" bgcolor="#891A55" style="background-color:#891A55;">
+            <td align="center" bgcolor="#891A55">
               <a href="{{ .ConfirmationURL }}" target="_blank"
-                 style="display:inline-block; padding:18px 52px;
-                        font-family:Arial,Helvetica,sans-serif; font-size:10px; letter-spacing:3.5px;
-                        text-transform:uppercase; color:#ffffff; text-decoration:none; line-height:1;">
+                 style="display:inline-block; padding:17px 50px; font-family:Arial,Helvetica,sans-serif; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#ffffff; text-decoration:none; line-height:1;">
                 Confirmar email
               </a>
             </td>
           </tr>
         </table>
 
-        <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.7;
-                  color:#b0a89e; margin:0 0 12px; text-align:center;">
-          Si no creaste una cuenta, podés ignorar este mensaje.
+        <p style="font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.7; color:#b0a89e; margin:0 0 12px; text-align:center;">
+          Si no creaste una cuenta en Casa Gioia, podés ignorar este mensaje.
         </p>
 
-        <!-- Link de respaldo -->
-        <p style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.7;
-                  color:#c0b8b0; margin:0; text-align:center;">
-          O copiá este link en tu navegador:<br>
-          <a href="{{ .ConfirmationURL }}" target="_blank"
-             style="color:#891A55; text-decoration:none; word-break:break-all;">
-            {{ .ConfirmationURL }}
-          </a>
+        <p style="font-family:Arial,Helvetica,sans-serif; font-size:11px; line-height:1.7; color:#c0b8b0; margin:0; text-align:center;">
+          O copiá este link:<br>
+          <a href="{{ .ConfirmationURL }}" style="color:#891A55; text-decoration:none; word-break:break-all;">{{ .ConfirmationURL }}</a>
         </p>
 
       </td>
@@ -103,17 +78,14 @@
 
     <!-- Footer -->
     <tr>
-      <td class="footer-area"
-          style="border-top:1px solid rgba(0,0,0,.07); padding:24px 40px; text-align:center; background-color:#ede8de;">
-        <p style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#b0a89e;
-                  margin:0; letter-spacing:.5px; line-height:1.6;">
-          © 2026 Casa Gioia &nbsp;·&nbsp; Todos los derechos reservados
+      <td style="border-top:1px solid #e0d9cf; padding:22px 40px; text-align:center; background-color:#ede8de;">
+        <p style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#b0a89e; margin:0; letter-spacing:.5px;">
+          &copy; 2026 Casa Gioia &nbsp;&middot;&nbsp; Todos los derechos reservados
         </p>
       </td>
     </tr>
 
   </table>
-  <!-- / Tarjeta -->
 
 </td>
 </tr>
