@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Email confirmado — Casa Gioia</title>
+
+<link rel="stylesheet" href="css/estilos.css">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+.confirm-box{
+    min-height:60vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:80px 40px;
+}
+.confirm-icon{
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    background:var(--green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:2rem;
+    color:white;
+    margin:0 auto 32px;
+}
+.confirm-title{
+    font-family:'Cormorant Garamond',serif;
+    font-size:2.6rem;
+    font-weight:500;
+    color:var(--text);
+    margin-bottom:14px;
+    line-height:1.2;
+}
+.confirm-title span{ color:var(--wine); }
+.confirm-sub{
+    font-size:.85rem;
+    color:#888;
+    line-height:1.8;
+    max-width:340px;
+    margin:0 auto 36px;
+}
+.confirm-timer{
+    font-size:.72rem;
+    letter-spacing:1px;
+    color:#bbb;
+    margin-bottom:24px;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li class="has-submenu">
+      <a href="coleccion.html">Collezione <span class="submenu-arrow">▾</span></a>
+      <ul class="submenu">
+        <li><button class="submenu-btn">Deco</button></li>
+        <li><button class="submenu-btn">Accesorios</button></li>
+        <li><button class="submenu-btn">Muebles</button></li>
+        <li><button class="submenu-btn">Deli</button></li>
+      </ul>
+    </li>
+    <li><a href="la-casa.html">Interiorismo</a></li>
+    <li><a href="journal.html">Storia</a></li>
+    <li><a href="contacto.html">Novità</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn" style="opacity:1;">Ingresar</button>
+</nav>
+</header>
+
+<div class="confirm-box">
+
+    <div class="confirm-icon">✓</div>
+
+    <h1 class="confirm-title">
+        Email <span>confirmado.</span>
+    </h1>
+
+    <p class="confirm-sub">
+        Tu cuenta está activa. Ya podés ingresar y explorar toda la colección de Casa Gioia.
+    </p>
+
+    <p class="confirm-timer" id="timer">Redirigiendo en 5…</p>
+
+    <a href="index.html" class="btn-primary" style="text-decoration:none;display:inline-block;text-align:center;">
+        Ir al inicio
+    </a>
+
+</div>
+
+<script src="js/script.js"></script>
+<script type="module">
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+
+/* Supabase intercambia el token del hash automáticamente al inicializarse */
+supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_IN') startCountdown()
+})
+
+/* Por si el evento ya ocurrió antes de que se registre el listener */
+const { data:{ session } } = await supabase.auth.getSession()
+if (session) startCountdown()
+
+let started = false
+function startCountdown() {
+    if (started) return
+    started = true
+    let n = 5
+    const el = document.getElementById('timer')
+    const iv = setInterval(() => {
+        n--
+        if (n <= 0) { clearInterval(iv); window.location.href = 'index.html' }
+        else el.textContent = `Redirigiendo en ${n}…`
+    }, 1000)
+}
+
+/* Si después de 8s no hubo sesión (link inválido), igual mostramos la página
+   y dejamos el botón manual disponible */
+
+</script>
+
+</body>
+</html>
