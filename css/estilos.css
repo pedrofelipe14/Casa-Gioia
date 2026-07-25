@@ -79,7 +79,6 @@ main{
     align-items:center;
     justify-content:center;
     padding:14px 0;
-    border-top:1px solid rgba(91,29,42,.06);
 }
 
 .menu a{
@@ -337,6 +336,7 @@ main{
     overflow:hidden;
 
     padding:18px 0;
+    margin-top:-10px;
 
     position:relative;
     z-index:200;
