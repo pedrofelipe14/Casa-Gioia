@@ -229,6 +229,8 @@ function traducirError(msg) {
         'Unable to validate email address': 'El formato del email no es válido.',
         'For security purposes':            'Esperá unos minutos antes de volver a intentarlo.',
         'Signup requires a valid password': 'Ingresá una contraseña válida.',
+        'Email rate limit exceeded':        'Límite de emails alcanzado. Esperá unos minutos e intentá de nuevo.',
+        'over_email_send_rate_limit':       'Límite de emails alcanzado. Esperá unos minutos e intentá de nuevo.',
     }
     for(const [clave, texto] of Object.entries(mapa)){
         if(msg.includes(clave)) return texto
