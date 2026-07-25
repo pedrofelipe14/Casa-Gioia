@@ -12,83 +12,50 @@
 
 <style>
 .popup-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.35);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:3000;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .22s ease;
+    position:fixed;inset:0;background:rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:center;
+    z-index:3000;opacity:0;pointer-events:none;transition:opacity .22s ease;
 }
-.popup-overlay.visible{
-    opacity:1;
-    pointer-events:auto;
-}
+.popup-overlay.visible{ opacity:1; pointer-events:auto; }
 .popup-box{
-    background:var(--cream);
-    padding:48px 52px 40px;
-    max-width:400px;
-    width:90%;
-    text-align:center;
-    box-shadow:0 24px 64px rgba(0,0,0,.14);
-    transform:translateY(-12px) scale(.97);
-    transition:transform .22s ease;
+    background:var(--cream);padding:48px 52px 40px;max-width:400px;width:90%;
+    text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.14);
+    transform:translateY(-12px) scale(.97);transition:transform .22s ease;
 }
-.popup-overlay.visible .popup-box{
-    transform:translateY(0) scale(1);
-}
-.popup-icon{
-    font-size:2rem;
-    margin-bottom:14px;
-    display:block;
-}
-.popup-title{
-    font-family:'Cormorant Garamond',serif;
-    font-size:1.6rem;
-    font-weight:500;
-    margin-bottom:10px;
-    color:var(--text);
-}
-.popup-msg{
-    font-size:.85rem;
-    line-height:1.7;
-    color:#6b6460;
-    margin-bottom:28px;
-}
+.popup-overlay.visible .popup-box{ transform:translateY(0) scale(1); }
+.popup-icon{ font-size:2rem;margin-bottom:14px;display:block; }
+.popup-title{ font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:500;margin-bottom:10px;color:var(--text); }
+.popup-msg{ font-size:.85rem;line-height:1.7;color:#6b6460;margin-bottom:28px; }
 .popup-btn{
-    background:var(--wine);
-    color:white;
-    border:none;
-    padding:11px 32px;
-    font-family:'Manrope',sans-serif;
-    font-size:.75rem;
-    letter-spacing:1.5px;
-    text-transform:uppercase;
-    cursor:pointer;
-    transition:background .2s;
+    background:var(--wine);color:white;border:none;padding:11px 32px;
+    font-family:'Manrope',sans-serif;font-size:.75rem;letter-spacing:1.5px;
+    text-transform:uppercase;cursor:pointer;transition:background .2s;
 }
 .popup-btn:hover{ background:#6d1542; }
 
 .btn-link{
-    background:none;
-    border:none;
-    color:var(--wine-soft);
-    font-family:'Manrope',sans-serif;
-    font-size:.75rem;
-    letter-spacing:.5px;
-    cursor:pointer;
-    padding:2px 0;
-    text-decoration:underline;
-    text-underline-offset:3px;
-    transition:color .2s;
-    margin-top:4px;
+    background:none;border:none;color:var(--wine-soft);
+    font-family:'Manrope',sans-serif;font-size:.75rem;letter-spacing:.5px;
+    cursor:pointer;padding:2px 0;text-decoration:underline;
+    text-underline-offset:3px;transition:color .2s;margin-top:4px;
 }
 .btn-link:hover{ color:var(--wine); }
-
 .auth-panel{ transition:opacity .18s ease; }
+
+.btn-primary:disabled,
+.btn-secondary:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+.lockout-msg{
+    font-family:'Manrope',sans-serif;
+    font-size:.72rem;
+    color:#c0392b;
+    letter-spacing:.5px;
+    text-align:center;
+    margin-top:4px;
+    min-height:1em;
+}
 </style>
 
 </head>
@@ -151,12 +118,13 @@
 
         <div class="divider"><span>o</span></div>
 
-        <input id="email" type="email" placeholder="Correo electrónico">
-        <input id="password" type="password" placeholder="Contraseña">
+        <input id="email"    type="email"    placeholder="Correo electrónico" autocomplete="email">
+        <input id="password" type="password" placeholder="Contraseña"         autocomplete="current-password">
 
-        <button class="btn-primary" onclick="login()">Ingresar</button>
-        <button class="btn-link" id="forgotBtn">¿Olvidaste tu contraseña?</button>
-        <button class="btn-secondary" onclick="register()">Crear cuenta</button>
+        <button class="btn-primary"   id="loginBtn"    onclick="login()">Ingresar</button>
+        <p class="lockout-msg" id="lockout-msg"></p>
+        <button class="btn-link"      id="forgotBtn">¿Olvidaste tu contraseña?</button>
+        <button class="btn-secondary" id="registerBtn" onclick="register()">Crear cuenta</button>
 
     </div>
 
@@ -165,10 +133,10 @@
 
         <p class="auth-subtitle">Ingresá tu email y te mandamos un link para restablecer tu contraseña.</p>
 
-        <input id="recovery-email" type="email" placeholder="Correo electrónico">
+        <input id="recovery-email" type="email" placeholder="Correo electrónico" autocomplete="email">
 
-        <button class="btn-primary" onclick="recuperarPassword()">Enviar link</button>
-        <button class="btn-link" id="backBtn">← Volver al inicio</button>
+        <button class="btn-primary" id="recoveryBtn" onclick="recuperarPassword()">Enviar link</button>
+        <button class="btn-link"    id="backBtn">← Volver al inicio</button>
 
     </div>
 
@@ -211,13 +179,55 @@ window.cerrarPopup = () => {
 document.getElementById('forgotBtn').addEventListener('click', () => {
     document.getElementById('panel-login').style.display    = 'none'
     document.getElementById('panel-recovery').style.display = 'block'
-    document.getElementById('recovery-email').value = document.getElementById('email').value
+    document.getElementById('recovery-email').value = document.getElementById('email').value.trim()
 })
 
 document.getElementById('backBtn').addEventListener('click', () => {
     document.getElementById('panel-recovery').style.display = 'none'
     document.getElementById('panel-login').style.display    = 'block'
 })
+
+/* ── Helpers de UI ── */
+function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId)
+    btn.disabled = loading
+    btn.style.opacity = loading ? '.6' : ''
+}
+
+function validarEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+/* ── Protección contra fuerza bruta (client-side) ── */
+let intentosFallidos = 0
+let bloqueadoHasta   = 0
+let lockoutInterval  = null
+
+function verificarBloqueo() {
+    if (Date.now() < bloqueadoHasta) {
+        const seg = Math.ceil((bloqueadoHasta - Date.now()) / 1000)
+        document.getElementById('lockout-msg').textContent = `Demasiados intentos. Esperá ${seg}s.`
+        document.getElementById('loginBtn').disabled = true
+        return true
+    }
+    document.getElementById('lockout-msg').textContent = ''
+    document.getElementById('loginBtn').disabled = false
+    return false
+}
+
+function registrarFallo() {
+    intentosFallidos++
+    if (intentosFallidos >= 3) {
+        bloqueadoHasta   = Date.now() + 30000
+        intentosFallidos = 0
+        if (lockoutInterval) clearInterval(lockoutInterval)
+        lockoutInterval = setInterval(() => {
+            if (Date.now() >= bloqueadoHasta) clearInterval(lockoutInterval)
+            verificarBloqueo()
+        }, 1000)
+        verificarBloqueo()
+    }
+}
 
 /* ── Traducción de errores ── */
 function traducirError(msg) {
@@ -229,15 +239,16 @@ function traducirError(msg) {
         'Email not confirmed':              'Confirmá tu email antes de ingresar.',
         'User already registered':          'Ya existe una cuenta con ese email.',
         'already registered':              'Ya existe una cuenta con ese email.',
-        'Password should be at least 6':    'La contraseña debe tener al menos 6 caracteres.',
+        'Password should be at least':      'La contraseña es demasiado corta.',
         'Unable to validate email address': 'El formato del email no es válido.',
         'For security purposes':            'Esperá unos minutos antes de volver a intentarlo.',
         'Signup requires a valid password': 'Ingresá una contraseña válida.',
         'Email rate limit exceeded':        'Límite de emails alcanzado. Esperá unos minutos e intentá de nuevo.',
         'over_email_send_rate_limit':       'Límite de emails alcanzado. Esperá unos minutos e intentá de nuevo.',
-        'smtp':                             'Error al enviar el email de confirmación. Contactá al soporte.',
-        'sending confirmation email':       'Error al enviar el email de confirmación. Revisá la configuración SMTP.',
-        'Error sending':                    'Error al enviar el email de confirmación. Revisá la configuración SMTP.',
+        'smtp':                             'Error al enviar el email de confirmación.',
+        'Error sending':                    'Error al enviar el email de confirmación.',
+        'Password is too weak':             'La contraseña es muy débil. Usá al menos 8 caracteres, números y mayúsculas.',
+        'breached':                         'Esa contraseña fue filtrada en brechas de seguridad. Elegí una diferente.',
     }
     for(const [clave, texto] of Object.entries(mapa)){
         if(msg.toLowerCase().includes(clave.toLowerCase())) return texto
@@ -247,29 +258,60 @@ function traducirError(msg) {
 
 /* ── Auth ── */
 window.login = async () => {
-    const email    = document.getElementById('email').value
+    if (verificarBloqueo()) return
+
+    const email    = document.getElementById('email').value.trim()
     const password = document.getElementById('password').value
+
+    if (!validarEmail(email)) {
+        mostrarPopup('error', 'Ingresá un email válido.')
+        return
+    }
+    if (!password) {
+        mostrarPopup('error', 'Ingresá tu contraseña.')
+        return
+    }
+
+    setLoading('loginBtn', true)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if(error) mostrarPopup('error', traducirError(error.message))
+    setLoading('loginBtn', false)
+
+    if (error) {
+        registrarFallo()
+        document.getElementById('password').value = ''
+        mostrarPopup('error', traducirError(error.message))
+    }
 }
 
 window.register = async () => {
-    const email    = document.getElementById('email').value
+    const email    = document.getElementById('email').value.trim()
     const password = document.getElementById('password').value
+
+    if (!validarEmail(email)) {
+        mostrarPopup('error', 'Ingresá un email válido.')
+        return
+    }
+    if (password.length < 8) {
+        mostrarPopup('error', 'La contraseña debe tener al menos 8 caracteres.')
+        return
+    }
+
+    setLoading('registerBtn', true)
     let data, error
     try {
         ;({ data, error } = await supabase.auth.signUp({ email, password }))
     } catch(e) {
+        setLoading('registerBtn', false)
         mostrarPopup('error', 'Error de conexión. Verificá tu internet e intentá de nuevo.')
-        console.error('signUp exception:', e)
         return
     }
-    if(error){
-        console.error('signUp error:', error)
-        mostrarPopup('error', traducirError(error.message ?? error.msg ?? JSON.stringify(error)))
+    setLoading('registerBtn', false)
+
+    if (error) {
+        mostrarPopup('error', traducirError(error.message ?? JSON.stringify(error)))
         return
     }
-    if(data.session === null){
+    if (data.session === null) {
         mostrarPopup('ok', 'Cuenta creada. Revisá tu email y confirmá antes de ingresar.')
     } else {
         mostrarPopup('ok', 'Cuenta creada correctamente. ¡Ya podés ingresar!')
@@ -278,18 +320,21 @@ window.register = async () => {
 
 window.recuperarPassword = async () => {
     const email = document.getElementById('recovery-email').value.trim()
-    if(!email){
-        mostrarPopup('error', 'Ingresá tu dirección de email.')
+    if (!validarEmail(email)) {
+        mostrarPopup('error', 'Ingresá un email válido.')
         return
     }
+    setLoading('recoveryBtn', true)
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/reset-password.html'
+        redirectTo: 'https://www.casagioia.com.ar/reset-password.html'
     })
-    if(error){
+    setLoading('recoveryBtn', false)
+
+    if (error) {
         mostrarPopup('error', traducirError(error.message))
         return
     }
-    mostrarPopup('ok', 'Si el email existe, te mandamos el link. Revisá tu bandeja de entrada (y el spam).')
+    mostrarPopup('ok', 'Si el email existe, te mandamos el link. Revisá tu bandeja (y el spam).')
 }
 
 window.googleLogin = async () => {
