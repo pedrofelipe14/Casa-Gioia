@@ -5,10 +5,73 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Login</title>
+<title>Ingresar — Casa Gioia</title>
 
 <link rel="stylesheet" href="css/estilos.css">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+.popup-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .22s ease;
+}
+.popup-overlay.visible{
+    opacity:1;
+    pointer-events:auto;
+}
+.popup-box{
+    background:var(--cream);
+    padding:48px 52px 40px;
+    max-width:400px;
+    width:90%;
+    text-align:center;
+    box-shadow:0 24px 64px rgba(0,0,0,.14);
+    transform:translateY(-12px) scale(.97);
+    transition:transform .22s ease;
+}
+.popup-overlay.visible .popup-box{
+    transform:translateY(0) scale(1);
+}
+.popup-icon{
+    font-size:2rem;
+    margin-bottom:14px;
+    display:block;
+}
+.popup-title{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.6rem;
+    font-weight:500;
+    margin-bottom:10px;
+    color:var(--text);
+}
+.popup-msg{
+    font-size:.85rem;
+    line-height:1.7;
+    color:#6b6460;
+    margin-bottom:28px;
+}
+.popup-btn{
+    background:var(--wine);
+    color:white;
+    border:none;
+    padding:11px 32px;
+    font-family:'Manrope',sans-serif;
+    font-size:.75rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .2s;
+}
+.popup-btn:hover{ background:#6d1542; }
+</style>
 
 </head>
 <body>
@@ -38,6 +101,16 @@
 </nav>
 </header>
 
+<!-- POPUP -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-box">
+    <span class="popup-icon" id="popup-icon"></span>
+    <div class="popup-title" id="popup-title"></div>
+    <p class="popup-msg" id="popup-msg"></p>
+    <button class="popup-btn" onclick="cerrarPopup()">OK</button>
+  </div>
+</div>
+
 <div class="login-box">
 
     <h1>Casa Gioia</h1>
@@ -56,131 +129,90 @@
         </svg>
         <span>Continuar con Google</span>
     </button>
-<p id="mensaje"></p>
+
     <div class="divider">
         <span>o</span>
     </div>
 
-    <input
-        id="email"
-        type="email"
-        placeholder="Correo electrónico">
+    <input id="email" type="email" placeholder="Correo electrónico">
+    <input id="password" type="password" placeholder="Contraseña">
 
-    <input
-        id="password"
-        type="password"
-        placeholder="Contraseña">
-
-    <button
-        class="btn-primary"
-        onclick="login()">
-
-        Ingresar
-
-    </button>
-<p id="mensaje"></p>
-    <button
-        class="btn-secondary"
-        onclick="register()">
-
-        Crear cuenta
-
-    </button>
-<p id="mensaje"></p>
-    <p id="mensaje"></p>
+    <button class="btn-primary" onclick="login()">Ingresar</button>
+    <button class="btn-secondary" onclick="register()">Crear cuenta</button>
 
 </div>
 
 <script src="js/script.js"></script>
 <script type="module">
 
-import { createClient }
-from 'https://esm.sh/@supabase/supabase-js'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
 const supabase = createClient(
   'https://dzuymtiutglcyrdcxkaj.supabase.co',
   'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
 )
-const {
-  data:{session}
-} = await supabase.auth.getSession()
 
-if(session){
+const { data:{ session } } = await supabase.auth.getSession()
+if(session) window.location.href = 'index.html'
 
-    window.location.href = "index.html"
-
-}
 supabase.auth.onAuthStateChange((event, session) => {
-
-    if(session){
-
-        window.location.href = "index.html"
-
-    }
-
+    if(session) window.location.href = 'index.html'
 })
 
+function traducirError(msg) {
+    const mapa = {
+        'Invalid login credentials':        'Email o contraseña incorrectos.',
+        'Email not confirmed':              'Confirmá tu email antes de ingresar.',
+        'User already registered':          'Ya existe una cuenta con ese email.',
+        'Password should be at least 6':    'La contraseña debe tener al menos 6 caracteres.',
+        'Unable to validate email address': 'El formato del email no es válido.',
+        'For security purposes':            'Esperá unos minutos antes de volver a intentarlo.',
+        'Signup requires a valid password': 'Ingresá una contraseña válida.',
+    }
+    for(const [clave, texto] of Object.entries(mapa)){
+        if(msg.includes(clave)) return texto
+    }
+    return msg
+}
+
+window.mostrarPopup = (tipo, mensaje) => {
+    document.getElementById('popup-icon').textContent  = tipo === 'ok' ? '✓' : '!'
+    document.getElementById('popup-title').textContent = tipo === 'ok' ? '¡Listo!' : 'Algo salió mal'
+    document.getElementById('popup-msg').textContent   = mensaje
+    document.getElementById('popup').classList.add('visible')
+}
+
+window.cerrarPopup = () => {
+    document.getElementById('popup').classList.remove('visible')
+}
+
 window.login = async () => {
-
-    const email =
-    document.getElementById("email").value
-
-    const password =
-    document.getElementById("password").value
-
-    const { error } =
-    await supabase.auth.signInWithPassword({
-        email,
-        password
-    })
-
-    if(error){
-
-        document.getElementById("mensaje")
-        .innerText = error.message
-
-        return
-    }
-
+    const email    = document.getElementById('email').value
+    const password = document.getElementById('password').value
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if(error) mostrarPopup('error', traducirError(error.message))
 }
+
 window.register = async () => {
-
-    const email =
-    document.getElementById("email").value
-
-    const password =
-    document.getElementById("password").value
-
-    const { error } =
-    await supabase.auth.signUp({
-        email,
-        password
-    })
-
-    const mensaje =
-    document.getElementById("mensaje")
-
+    const email    = document.getElementById('email').value
+    const password = document.getElementById('password').value
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if(error){
-
-        mensaje.innerText =
-        error.message
-
+        mostrarPopup('error', traducirError(error.message))
         return
     }
-
-    mensaje.innerText =
-    "Cuenta creada correctamente. Ya podés ingresar."
-
+    if(data.session === null){
+        mostrarPopup('ok', 'Cuenta creada. Revisá tu email y confirmá antes de ingresar.')
+    } else {
+        mostrarPopup('ok', 'Cuenta creada correctamente. ¡Ya podés ingresar!')
+    }
 }
-window.googleLogin = async () => {
 
+window.googleLogin = async () => {
     await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-            redirectTo: window.location.origin + '/'
-        }
+        options: { redirectTo: window.location.origin + '/' }
     })
-
 }
 
 </script>
