@@ -146,11 +146,3 @@ window.cartAdd = (btn) => {
     setTimeout(() => { btn.textContent = '+ Agregar'; btn.disabled = false }, 1500)
 }
 
-/* ── Newsletter footer: cargar módulo con SDK ── */
-;(function () {
-    if (!document.querySelector('.footer-form')) return
-    const s = document.createElement('script')
-    s.type = 'module'
-    s.src = 'js/newsletter.js'
-    document.head.appendChild(s)
-})()
