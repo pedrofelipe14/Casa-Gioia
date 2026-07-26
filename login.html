@@ -48,11 +48,14 @@
     opacity:.5;
     cursor:not-allowed;
 }
-.cf-turnstile{
+.turnstile-wrap{
     display:flex;
     justify-content:center;
-    margin:8px 0;
+    margin:16px auto 0;
+    opacity:.55;
+    transition:opacity .2s;
 }
+.turnstile-wrap:hover{ opacity:.85; }
 .lockout-msg{
     font-family:'Manrope',sans-serif;
     font-size:.72rem;
@@ -127,12 +130,6 @@
         <input id="email"    type="email"    placeholder="Correo electrónico" autocomplete="email">
         <input id="password" type="password" placeholder="Contraseña"         autocomplete="current-password">
 
-        <div class="cf-turnstile" style="margin:8px auto;"
-             data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
-             data-callback="onTurnstileLogin"
-             data-expired-callback="onTurnstileLoginExpired">
-        </div>
-
         <button class="btn-primary"   id="loginBtn"    onclick="login()">Ingresar</button>
         <p class="lockout-msg" id="lockout-msg"></p>
         <button class="btn-link"      id="forgotBtn">¿Olvidaste tu contraseña?</button>
@@ -147,17 +144,29 @@
 
         <input id="recovery-email" type="email" placeholder="Correo electrónico" autocomplete="email">
 
-        <div class="cf-turnstile" style="margin:8px auto;"
-             data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
-             data-callback="onTurnstileRecovery"
-             data-expired-callback="onTurnstileRecoveryExpired">
-        </div>
-
         <button class="btn-primary" id="recoveryBtn" onclick="recuperarPassword()">Enviar link</button>
         <button class="btn-link"    id="backBtn">← Volver al inicio</button>
 
     </div>
 
+</div>
+
+<!-- Turnstile widgets fuera del recuadro -->
+<div class="turnstile-wrap" id="tw-login">
+    <div class="cf-turnstile"
+         data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
+         data-theme="light"
+         data-callback="onTurnstileLogin"
+         data-expired-callback="onTurnstileLoginExpired">
+    </div>
+</div>
+<div class="turnstile-wrap" id="tw-recovery" style="display:none;">
+    <div class="cf-turnstile"
+         data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
+         data-theme="light"
+         data-callback="onTurnstileRecovery"
+         data-expired-callback="onTurnstileRecoveryExpired">
+    </div>
 </div>
 
 <script src="js/script.js"></script>
@@ -198,11 +207,15 @@ document.getElementById('forgotBtn').addEventListener('click', () => {
     document.getElementById('panel-login').style.display    = 'none'
     document.getElementById('panel-recovery').style.display = 'block'
     document.getElementById('recovery-email').value = document.getElementById('email').value.trim()
+    document.getElementById('tw-login').style.display    = 'none'
+    document.getElementById('tw-recovery').style.display = 'flex'
 })
 
 document.getElementById('backBtn').addEventListener('click', () => {
     document.getElementById('panel-recovery').style.display = 'none'
     document.getElementById('panel-login').style.display    = 'block'
+    document.getElementById('tw-recovery').style.display = 'none'
+    document.getElementById('tw-login').style.display    = 'flex'
 })
 
 /* ── Turnstile tokens ── */
