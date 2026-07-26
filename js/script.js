@@ -145,3 +145,65 @@ window.cartAdd = (btn) => {
     btn.disabled    = true
     setTimeout(() => { btn.textContent = '+ Agregar'; btn.disabled = false }, 1500)
 }
+
+/* ── Newsletter footer ── */
+;(function () {
+    const _SB_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co'
+    const _SB_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+
+    const form = document.querySelector('.footer-form')
+    if (!form) return
+
+    const input = form.querySelector('input[type="email"]')
+    const btn   = form.querySelector('button')
+
+    async function suscribir() {
+        const email = input.value.trim()
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            input.style.outline = '1.5px solid #c0392b'
+            setTimeout(() => input.style.outline = '', 1800)
+            return
+        }
+        btn.disabled = true
+        btn.textContent = '…'
+
+        const res = await fetch(`${_SB_URL}/rest/v1/newsletter`, {
+            method: 'POST',
+            headers: {
+                'apikey': _SB_KEY,
+                'Authorization': `Bearer ${_SB_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ email })
+        })
+
+        if (res.status === 409) {
+            // ya suscripto (UNIQUE constraint)
+            input.value = ''
+            btn.textContent = '✓'
+            btn.disabled = false
+            input.placeholder = 'Ya estás suscripto ✓'
+            return
+        }
+
+        if (!res.ok) {
+            btn.textContent = 'OK'
+            btn.disabled = false
+            input.style.outline = '1.5px solid #c0392b'
+            setTimeout(() => input.style.outline = '', 1800)
+            return
+        }
+
+        input.value = ''
+        input.placeholder = '¡Gracias! Te escribimos pronto.'
+        btn.textContent = '✓'
+        setTimeout(() => {
+            btn.disabled = false
+            input.placeholder = 'Email'
+        }, 4000)
+    }
+
+    btn.addEventListener('click', suscribir)
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') suscribir() })
+})()
