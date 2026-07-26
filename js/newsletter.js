@@ -60,6 +60,7 @@ if (journalForm) {
     const input = journalForm.querySelector('input[type="email"]')
     const btn   = journalForm.querySelector('button')
     const msg   = document.getElementById('journal-nl-msg')
-    btn.addEventListener('click', () => suscribir(input, btn, msg))
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') suscribir(input, btn, msg) })
+    const handler = (e) => { e.preventDefault(); suscribir(input, btn, msg) }
+    journalForm.addEventListener('submit', handler)
+    btn.addEventListener('click', handler)
 }
