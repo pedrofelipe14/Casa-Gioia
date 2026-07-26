@@ -279,6 +279,43 @@ if (user) {
   btn.onclick = () => window.location.href = 'login.html'
 }
 btn.style.opacity = '1'
+
+// Newsletter Storia
+const nlBtn   = document.querySelector('#journal-nl button')
+const nlInput = document.querySelector('#journal-nl input')
+const nlMsg   = document.getElementById('journal-nl-msg')
+if (nlBtn) {
+  nlBtn.addEventListener('click', async () => {
+    const email = nlInput.value.trim()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      nlMsg.textContent = 'Ingresá un email válido.'
+      nlMsg.style.color = '#c0392b'
+      return
+    }
+    nlBtn.disabled = true
+    nlBtn.textContent = '…'
+    nlMsg.textContent = ''
+    const { error } = await supabase.from('newsletter').insert({ email })
+    nlBtn.disabled = false
+    if (error) {
+      nlBtn.textContent = 'Suscribirme'
+      if (error.code === '23505') {
+        nlInput.value = ''
+        nlMsg.textContent = 'Ya estás suscripto con ese email ✓'
+        nlMsg.style.color = 'var(--wine-soft)'
+      } else {
+        nlMsg.textContent = 'Hubo un error. Intentá de nuevo.'
+        nlMsg.style.color = '#c0392b'
+      }
+      return
+    }
+    nlInput.value = ''
+    nlBtn.textContent = '✓'
+    nlMsg.textContent = '¡Gracias! Pronto vas a recibir nuestras novedades.'
+    nlMsg.style.color = 'var(--wine-soft)'
+    setTimeout(() => { nlBtn.textContent = 'Suscribirme'; nlMsg.textContent = '' }, 5000)
+  })
+}
 </script>
 </body>
 </html>
