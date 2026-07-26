@@ -146,81 +146,11 @@ window.cartAdd = (btn) => {
     setTimeout(() => { btn.textContent = '+ Agregar'; btn.disabled = false }, 1500)
 }
 
-/* ── Newsletter footer ── */
+/* ── Newsletter footer: cargar módulo con SDK ── */
 ;(function () {
-    const _SB_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co'
-    const _SB_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
-
-    const form = document.querySelector('.footer-form')
-    if (!form) return
-
-    const input = form.querySelector('input[type="email"]')
-    const btn   = form.querySelector('button')
-
-    // Mensaje de estado debajo del form
-    const msg = document.createElement('p')
-    msg.style.cssText = 'margin:8px 0 0;font-size:.72rem;letter-spacing:.5px;min-height:1em;'
-    form.parentNode.insertBefore(msg, form.nextSibling)
-
-    function setMsg(texto, color) {
-        msg.textContent = texto
-        msg.style.color = color || 'var(--wine-soft)'
-    }
-
-    async function suscribir() {
-        const email = input.value.trim()
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setMsg('Ingresá un email válido.', '#c0392b')
-            return
-        }
-        btn.disabled = true
-        btn.textContent = '…'
-        setMsg('')
-
-        let res
-        try {
-            res = await fetch(`${_SB_URL}/rest/v1/newsletter`, {
-                method: 'POST',
-                headers: {
-                    'apikey': _SB_KEY,
-                    'Authorization': `Bearer ${_SB_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal'
-                },
-                body: JSON.stringify({ email })
-            })
-        } catch {
-            btn.textContent = 'OK'
-            btn.disabled = false
-            setMsg('Error de conexión. Intentá de nuevo.', '#c0392b')
-            return
-        }
-
-        btn.disabled = false
-
-        if (res.status === 409) {
-            btn.textContent = 'OK'
-            input.value = ''
-            setMsg('Ya estás suscripto con ese email ✓')
-            return
-        }
-
-        if (!res.ok) {
-            btn.textContent = 'OK'
-            setMsg('Hubo un error. Intentá de nuevo.', '#c0392b')
-            console.error('Newsletter error:', res.status, await res.text())
-            return
-        }
-
-        input.value = ''
-        btn.textContent = '✓'
-        setMsg('¡Gracias! Pronto vas a recibir nuestras novedades.')
-        setTimeout(() => {
-            btn.textContent = 'OK'
-            setMsg('')
-        }, 5000)
-    }
-
-    btn.addEventListener('click', suscribir)
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') suscribir() })
+    if (!document.querySelector('.footer-form')) return
+    const s = document.createElement('script')
+    s.type = 'module'
+    s.src = 'js/newsletter.js'
+    document.head.appendChild(s)
 })()
