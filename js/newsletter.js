@@ -1,9 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-
-const supabase = createClient(
-    'https://dzuymtiutglcyrdcxkaj.supabase.co',
-    'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
-)
+import { supabase } from './supabase-client.js'
 
 async function suscribir(input, btn, msgEl) {
     const email = input.value.trim()

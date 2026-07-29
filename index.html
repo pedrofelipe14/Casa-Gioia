@@ -171,13 +171,7 @@
 <script type="module" src="js/newsletter.js"></script>
 <script type="module">
 
-import { createClient }
-from 'https://esm.sh/@supabase/supabase-js'
-
-const supabase = createClient(
-  'https://dzuymtiutglcyrdcxkaj.supabase.co',
-  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
-)
+import { supabase } from './js/supabase-client.js'
 
 const {
   data:{user}
