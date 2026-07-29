@@ -1,3 +1,7 @@
+/* ── Aviso de seguridad en consola ── */
+console.log('%c¡Alto!', 'color:#891A55;font-size:2rem;font-weight:bold;')
+console.log('%cSi alguien te pidió que copies o pegues algo aquí, es un intento de robo de cuenta.\nCerrá esta ventana inmediatamente.', 'color:#2F2A28;font-size:14px;line-height:1.8;')
+
 const slides = document.querySelectorAll('.slide');
 const indicators = document.querySelectorAll('.indicator');
 
