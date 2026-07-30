@@ -144,9 +144,11 @@
   text-align: left;
   transition: border-color .2s, background .2s;
   outline: none;
+  position: relative;
 }
 .shipping-type-btn:hover { background: #fdf9f4; }
-.shipping-type-btn.active { border-color: var(--wine); }
+.shipping-type-btn.active-retiro { border-color: #3caf7d; background: #f2fbf6; }
+.shipping-type-btn.active-envio  { border-color: var(--wine); }
 .stype-icon { font-size: 1.1rem; color: var(--gold); margin-bottom: 10px; display: block; }
 .stype-title {
   font-family: 'Cormorant Garamond', serif;
@@ -156,6 +158,56 @@
   margin-bottom: 4px;
 }
 .stype-desc { font-size: .78rem; color: #7a726c; line-height: 1.6; }
+.gratis-badge {
+  display: inline-block;
+  background: #d4edda;
+  color: #1a6e3b;
+  font-family: 'Manrope', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  margin-bottom: 6px;
+}
+/* Shipping price preview */
+.shipping-preview {
+  display: none;
+  background: white;
+  border: 1px solid rgba(91,29,42,.1);
+  padding: 20px 24px;
+  margin-top: 20px;
+}
+.shipping-preview-header {
+  font-family: 'Manrope', sans-serif;
+  font-size: .65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a09890;
+  margin-bottom: 12px;
+}
+.shipping-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(91,29,42,.06);
+}
+.shipping-preview-row:last-of-type { border-bottom: none; }
+.sp-carrier { font-size: .82rem; color: var(--text); }
+.sp-days    { font-size: .75rem; color: #a09890; }
+.sp-price   {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--wine);
+}
+.shipping-preview-note {
+  font-size: .72rem;
+  color: #b0a8a2;
+  margin-top: 12px;
+  line-height: 1.6;
+}
 .retiro-info {
   background: white;
   border: 1px solid rgba(91,29,42,.1);
@@ -207,6 +259,22 @@
   color: #7a726c;
   border-bottom: 1px solid rgba(91,29,42,.05);
 }
+/* Province select */
+#envio-form select {
+  width: 100%;
+  padding: 11px 14px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .85rem;
+  border: 1px solid rgba(91,29,42,.18);
+  background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a726c'/%3E%3C/svg%3E") no-repeat right 14px center;
+  color: var(--text);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+#envio-form select:focus { border-color: var(--wine); }
+#envio-form select option[value=""] { color: #c0b8b2; }
 @media (max-width: 768px) {
   .co-grid { grid-template-columns: 1fr; }
   .summary-card { position: static; order: -1; }
@@ -253,15 +321,16 @@
       <div>
         <!-- Tipo de envío -->
         <div class="shipping-type-grid">
-          <button class="shipping-type-btn active" id="btnRetiro" onclick="selectShipping('retiro')">
+          <button class="shipping-type-btn active-retiro" id="btnRetiro" onclick="selectShipping('retiro')">
+            <span class="gratis-badge">Gratis</span>
             <span class="stype-icon">◆</span>
             <div class="stype-title">Retiro en tienda</div>
-            <div class="stype-desc">Gratis · Alsina 3364, Mar del Plata<br>Lun–Vie 10–19 hs · Sáb 11–17 hs</div>
+            <div class="stype-desc">Alsina 3364, Mar del Plata<br>Lun–Vie 10–19 hs · Sáb 11–17 hs</div>
           </button>
           <button class="shipping-type-btn" id="btnEnvio" onclick="selectShipping('envio')">
             <span class="stype-icon">◈</span>
             <div class="stype-title">Envío a domicilio</div>
-            <div class="stype-desc">Todo el país · A coordinar por WhatsApp después del pago</div>
+            <div class="stype-desc">Todo el país · Precio estimado según provincia</div>
           </button>
         </div>
 
@@ -294,11 +363,53 @@
           <div class="form-group"><label>Piso / Depto (opcional)</label><input type="text" id="s-piso" placeholder="3° B"></div>
           <div class="addr-grid-2">
             <div class="form-group"><label>Ciudad</label><input type="text" id="s-ciudad" placeholder="Ciudad"></div>
-            <div class="form-group"><label>Provincia</label><input type="text" id="s-provincia" placeholder="Provincia"></div>
+            <div class="form-group">
+              <label>Provincia</label>
+              <select id="s-provincia">
+                <option value="">Seleccionar provincia</option>
+                <option value="Buenos Aires">Buenos Aires</option>
+                <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+                <option value="Catamarca">Catamarca</option>
+                <option value="Chaco">Chaco</option>
+                <option value="Chubut">Chubut</option>
+                <option value="Córdoba">Córdoba</option>
+                <option value="Corrientes">Corrientes</option>
+                <option value="Entre Ríos">Entre Ríos</option>
+                <option value="Formosa">Formosa</option>
+                <option value="Jujuy">Jujuy</option>
+                <option value="La Pampa">La Pampa</option>
+                <option value="La Rioja">La Rioja</option>
+                <option value="Mendoza">Mendoza</option>
+                <option value="Misiones">Misiones</option>
+                <option value="Neuquén">Neuquén</option>
+                <option value="Río Negro">Río Negro</option>
+                <option value="Salta">Salta</option>
+                <option value="San Juan">San Juan</option>
+                <option value="San Luis">San Luis</option>
+                <option value="Santa Cruz">Santa Cruz</option>
+                <option value="Santa Fe">Santa Fe</option>
+                <option value="Santiago del Estero">Santiago del Estero</option>
+                <option value="Tierra del Fuego">Tierra del Fuego</option>
+                <option value="Tucumán">Tucumán</option>
+              </select>
+            </div>
           </div>
           <div class="addr-grid-2">
             <div class="form-group"><label>Código postal</label><input type="text" id="s-cp" placeholder="7600"></div>
             <div class="form-group"><label>Teléfono</label><input type="tel" id="s-tel" placeholder="+54 9 223 XXXX XXXX"></div>
+          </div>
+
+          <!-- Shipping price preview -->
+          <div id="shipping-preview" class="shipping-preview">
+            <div class="shipping-preview-header">Estimado de envío</div>
+            <div class="shipping-preview-row">
+              <span class="sp-carrier">Andreani / OCA</span>
+              <div style="text-align:right;">
+                <div class="sp-price" id="sp-price"></div>
+                <div class="sp-days" id="sp-days"></div>
+              </div>
+            </div>
+            <p class="shipping-preview-note">* Precio estimado. El costo final se coordina con vos antes del envío.</p>
           </div>
         </div>
 
@@ -310,6 +421,10 @@
       <div class="summary-card">
         <div class="summary-brand">Casa Gioia</div>
         <div id="summary-items-s"></div>
+        <div class="summary-shipping-row" id="summary-shipping-s">
+          <span>Envío</span>
+          <span style="color:#1a6e3b;font-weight:600;">Gratis</span>
+        </div>
         <div class="summary-total-row">
           <span class="summary-total-label">Total</span>
           <span class="summary-total-amount" id="summary-total-s"></span>
@@ -336,7 +451,7 @@
       <div class="summary-card">
         <div class="summary-brand">Casa Gioia</div>
         <div id="summary-items-p"></div>
-        <div class="summary-shipping-row" id="summary-shipping-label">
+        <div class="summary-shipping-row" id="summary-shipping-p">
           <span></span><span></span>
         </div>
         <div class="summary-total-row">
@@ -477,25 +592,39 @@ window.qtyRemove = (id) => {
 
 /* ── Shipping step ── */
 let shippingMode = 'retiro'
+let shippingCost = 0
 let shippingData = {}
 let brickController = null
 
 window.selectShipping = (mode) => {
   shippingMode = mode
-  document.getElementById('btnRetiro').classList.toggle('active', mode === 'retiro')
-  document.getElementById('btnEnvio').classList.toggle('active',  mode === 'envio')
+  document.getElementById('btnRetiro').className = 'shipping-type-btn' + (mode === 'retiro' ? ' active-retiro' : '')
+  document.getElementById('btnEnvio').className  = 'shipping-type-btn' + (mode === 'envio'  ? ' active-envio'  : '')
   document.getElementById('retiro-info').style.display  = mode === 'retiro' ? 'block' : 'none'
   document.getElementById('envio-form').style.display   = mode === 'envio'  ? 'block' : 'none'
+  if (mode === 'retiro') {
+    shippingCost = 0
+    document.getElementById('shipping-preview').style.display = 'none'
+    fillSummary('s')
+  }
 }
 
 function fillSummary(suffix) {
   const items = window.cartGet()
-  const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
+  const subtotal = items.reduce((s, i) => s + i.precio * i.qty, 0)
+  const total = subtotal + shippingCost
   document.getElementById(`summary-items-${suffix}`).innerHTML = items.map(it =>
     `<div class="summary-item">
       <span class="summary-item-name">${it.nombre}<span class="summary-item-qty"> ×${it.qty}</span></span>
       <span class="summary-item-price">$${(it.precio * it.qty).toLocaleString('es-AR')}</span>
     </div>`).join('')
+  const shEl = document.getElementById(`summary-shipping-${suffix}`)
+  if (shEl) {
+    shEl.children[0].textContent = shippingMode === 'retiro' ? 'Retiro en tienda' : 'Envío'
+    shEl.children[1].innerHTML = shippingCost === 0
+      ? '<span style="color:#1a6e3b;font-weight:600;">Gratis</span>'
+      : '$' + shippingCost.toLocaleString('es-AR')
+  }
   document.getElementById(`summary-total-${suffix}`).textContent = '$' + total.toLocaleString('es-AR')
 }
 
@@ -527,6 +656,51 @@ if (user) {
   }
 }
 
+/* ── Shipping zones (precios estimados Andreani/OCA) ── */
+const SHIPPING_ZONES = {
+  'CABA':                { precio: 4500,  dias: '1–2' },
+  'Buenos Aires':        { precio: 5200,  dias: '2–4' },
+  'Córdoba':             { precio: 6500,  dias: '3–4' },
+  'Santa Fe':            { precio: 6500,  dias: '3–4' },
+  'Mendoza':             { precio: 7500,  dias: '4–5' },
+  'Tucumán':             { precio: 8200,  dias: '4–6' },
+  'Entre Ríos':          { precio: 7000,  dias: '3–5' },
+  'Salta':               { precio: 9000,  dias: '5–7' },
+  'Misiones':            { precio: 9500,  dias: '5–7' },
+  'Chaco':               { precio: 9500,  dias: '5–7' },
+  'Corrientes':          { precio: 9000,  dias: '5–7' },
+  'Santiago del Estero': { precio: 9000,  dias: '5–7' },
+  'San Juan':            { precio: 8000,  dias: '4–6' },
+  'Jujuy':               { precio: 9500,  dias: '5–7' },
+  'Río Negro':           { precio: 11000, dias: '5–7' },
+  'Neuquén':             { precio: 10500, dias: '5–7' },
+  'Formosa':             { precio: 10000, dias: '6–8' },
+  'San Luis':            { precio: 7500,  dias: '4–6' },
+  'Catamarca':           { precio: 9000,  dias: '5–7' },
+  'La Rioja':            { precio: 8500,  dias: '5–7' },
+  'La Pampa':            { precio: 8000,  dias: '4–6' },
+  'Chubut':              { precio: 13000, dias: '6–8' },
+  'Santa Cruz':          { precio: 14500, dias: '7–9' },
+  'Tierra del Fuego':    { precio: 16000, dias: '8–12' },
+}
+
+document.getElementById('s-provincia').addEventListener('change', (e) => {
+  const prov = e.target.value
+  const preview = document.getElementById('shipping-preview')
+  if (!prov || !SHIPPING_ZONES[prov]) {
+    preview.style.display = 'none'
+    shippingCost = 0
+    fillSummary('s')
+    return
+  }
+  const zone = SHIPPING_ZONES[prov]
+  shippingCost = zone.precio
+  document.getElementById('sp-price').textContent = '$' + zone.precio.toLocaleString('es-AR')
+  document.getElementById('sp-days').textContent  = zone.dias + ' días hábiles'
+  preview.style.display = 'block'
+  fillSummary('s')
+})
+
 /* ── Checkout: carrito → envío ── */
 document.getElementById('checkoutBtn').addEventListener('click', () => {
   if (!user) { window.location.href = 'login.html'; return }
@@ -544,10 +718,11 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
   errEl.style.display = 'none'
 
   if (shippingMode === 'envio') {
-    const calle = document.getElementById('s-calle').value.trim()
-    const ciudad = document.getElementById('s-ciudad').value.trim()
-    if (!calle || !ciudad) {
-      errEl.textContent = 'Por favor completá calle y ciudad para continuar.'
+    const calle    = document.getElementById('s-calle').value.trim()
+    const ciudad   = document.getElementById('s-ciudad').value.trim()
+    const provincia = document.getElementById('s-provincia').value
+    if (!calle || !ciudad || !provincia) {
+      errEl.textContent = 'Por favor completá calle, ciudad y provincia para continuar.'
       errEl.style.display = 'block'
       return
     }
@@ -559,7 +734,7 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
       numero:         document.getElementById('s-numero').value.trim(),
       piso_depto:     document.getElementById('s-piso').value.trim(),
       ciudad,
-      provincia:      document.getElementById('s-provincia').value.trim(),
+      provincia,
       codigo_postal:  document.getElementById('s-cp').value.trim(),
       telefono:       document.getElementById('s-tel').value.trim(),
     }
@@ -568,13 +743,16 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
   }
 
   const items = window.cartGet()
-  const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
+  const subtotal = items.reduce((s, i) => s + i.precio * i.qty, 0)
+  const total = subtotal + shippingCost
 
   // Summary panel del paso de pago
   fillSummary('p')
-  const shRow = document.getElementById('summary-shipping-label')
+  const shRow = document.getElementById('summary-shipping-p')
   shRow.children[0].textContent = shippingMode === 'retiro' ? 'Retiro en tienda' : 'Envío a domicilio'
-  shRow.children[1].textContent = shippingMode === 'retiro' ? 'Gratis' : 'A coordinar'
+  shRow.children[1].innerHTML = shippingCost === 0
+    ? '<span style="color:#1a6e3b;font-weight:600;">Gratis</span>'
+    : '$' + shippingCost.toLocaleString('es-AR')
 
   showSection('payment-section')
 
