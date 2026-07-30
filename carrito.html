@@ -253,23 +253,15 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
     const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' })
     const bricksBuilder = mp.bricks()
 
-    brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
+    brickController = await bricksBuilder.create('cardPayment', 'paymentBrick_container', {
       initialization: {
         amount: total,
-      },
-      customization: {
-        paymentMethods: {
-          creditCard: 'all',
-          debitCard: 'all',
-          ticket: 'all',
-          maxInstallments: 12,
-        },
+        payer: { email: user?.email ?? '' },
       },
       callbacks: {
         onReady: () => { console.log('[MP] Brick listo') },
-        onSubmit: async ({ selectedPaymentMethod, formData }) => {
-          console.log('[MP] onSubmit — método:', selectedPaymentMethod)
-          console.log('[MP] formData:', JSON.stringify(formData))
+        onSubmit: async (formData) => {
+          console.log('[MP] onSubmit:', JSON.stringify(formData))
           return new Promise(async (resolve, reject) => {
             try {
               const payRes = await fetch(`${SUPABASE_URL}/functions/v1/process-payment`, {
