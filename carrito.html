@@ -816,8 +816,9 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
             if (payment.error) { console.error('MP payment error:', payment.error); reject(new Error(payment.error)); return }
 
             if (payment.status === 'approved' || payment.status === 'in_process' || payment.status === 'pending') {
-              const pedido = await guardarPedido(items, total, payment.id, payment.status, payment.ticket_url)
-              enviarEmailPedido(pedido, items, total, payment.ticket_url)
+              const numero = 'CG' + Date.now().toString(36).toUpperCase()
+              await guardarPedido(numero, items, total, payment.id, payment.status, payment.ticket_url)
+              await enviarEmailPedido(numero, items, total, payment.ticket_url)
               window.cartSave([])
               resolve()
               const ticketUrl = payment.ticket_url ? `&ticket_url=${encodeURIComponent(payment.ticket_url)}` : ''
@@ -840,10 +841,9 @@ document.getElementById('paymentBackBtn').addEventListener('click', () => {
   showSection('shipping-section')
 })
 
-async function guardarPedido(items, total, mpPaymentId, mpStatus, ticketUrl = null) {
-  if (!user) return null
-  const numero = 'CG' + Date.now().toString(36).toUpperCase()
-  const { data } = await supabase.from('pedidos').insert({
+async function guardarPedido(numero, items, total, mpPaymentId, mpStatus, ticketUrl = null) {
+  if (!user) return
+  const { error } = await supabase.from('pedidos').insert({
     user_id:       user.id,
     numero_pedido: numero,
     total,
@@ -852,25 +852,27 @@ async function guardarPedido(items, total, mpPaymentId, mpStatus, ticketUrl = nu
     ticket_url:    ticketUrl ?? null,
     items:         items,
     envio:         shippingData,
-  }).select().single()
-  return data
+  })
+  if (error) console.error('guardarPedido error:', error)
 }
 
-async function enviarEmailPedido(pedido, items, total, ticketUrl) {
-  if (!pedido || !user?.email) return
+async function enviarEmailPedido(numero, items, total, ticketUrl) {
+  if (!user?.email) return
   const isEfectivo = !!ticketUrl
   try {
-    await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
       body: JSON.stringify({
         type:  isEfectivo ? 'efectivo_created' : 'payment_confirmed',
         email: user.email,
-        data:  { numero_pedido: pedido.numero_pedido, total, items, ticket_url: ticketUrl, envio: shippingData },
+        data:  { numero_pedido: numero, total, items, ticket_url: ticketUrl, envio: shippingData },
       }),
     })
+    const result = await res.json()
+    if (!res.ok) console.error('Email error:', result)
   } catch (e) {
-    console.error('Email error:', e)
+    console.error('Email fetch error:', e)
   }
 }
 
