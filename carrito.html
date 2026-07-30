@@ -7,6 +7,39 @@
 <title>Carrito — Casa Gioia</title>
 <link rel="stylesheet" href="css/estilos.css">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+<style>
+#mp-payment-section {
+  display: none;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 80px 32px 120px;
+}
+#mp-payment-section h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+#mp-payment-section .section-label { margin-bottom: 4px; }
+.mp-back-link {
+  display: inline-block;
+  margin-bottom: 32px;
+  font-size: .7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--wine);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Manrope', sans-serif;
+}
+.mp-back-link:hover { text-decoration: underline; }
+#paymentBrick_container { margin-top: 24px; }
+</style>
 </head>
 <body>
 
@@ -35,6 +68,14 @@
   <button class="btn-nav" id="userBtn">Ingresar</button>
 </nav>
 </header>
+
+<!-- Sección pago MP Bricks -->
+<section id="mp-payment-section">
+  <div class="section-label">Checkout seguro</div>
+  <h2>Completá tu <span style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">pago.</span></h2>
+  <button class="mp-back-link" id="mpBackBtn">← Volver al carrito</button>
+  <div id="paymentBrick_container"></div>
+</section>
 
 <section class="section" style="padding-top:80px; padding-bottom:120px;">
   <div class="carrito-wrap">
@@ -164,9 +205,124 @@ window.qtyRemove = (id) => {
   render()
 }
 
-document.getElementById('checkoutBtn').addEventListener('click', () => {
-  alert('Próximamente: integración de pago.')
+const SUPABASE_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+const MP_PUBLIC_KEY = 'TEST-c4131b45-4ea9-4c43-8d24-a1f82edd021d'
+
+let brickController = null
+
+document.getElementById('mpBackBtn').addEventListener('click', () => {
+  if (brickController) { brickController.unmount(); brickController = null }
+  document.getElementById('mp-payment-section').style.display = 'none'
+  document.querySelector('.carrito-wrap').style.display = 'block'
+  const btn = document.getElementById('checkoutBtn')
+  btn.textContent = 'PROCEDER AL PAGO'
+  btn.disabled = false
 })
+
+document.getElementById('checkoutBtn').addEventListener('click', async () => {
+  if (!user) { window.location.href = 'login.html'; return }
+
+  const items = window.cartGet()
+  if (!items.length) return
+  const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
+
+  const btn = document.getElementById('checkoutBtn')
+  btn.textContent = 'INICIANDO PAGO…'
+  btn.disabled = true
+
+  try {
+    const prefRes = await fetch(`${SUPABASE_URL}/functions/v1/create-preference`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+      },
+      body: JSON.stringify({ items, origin: window.location.origin }),
+    })
+
+    const prefData = await prefRes.json()
+    if (prefData.error || !prefData.id) throw new Error(prefData.error ?? 'No preference ID')
+
+    document.querySelector('.carrito-wrap').style.display = 'none'
+    const paySection = document.getElementById('mp-payment-section')
+    paySection.style.display = 'block'
+    paySection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+    const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' })
+    const bricksBuilder = mp.bricks()
+
+    brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
+      initialization: {
+        amount: total,
+        preferenceId: prefData.id,
+      },
+      customization: {
+        paymentMethods: {
+          creditCard: 'all',
+          debitCard: 'all',
+          ticket: 'all',
+          bankTransfer: 'all',
+          wallet_purchase: 'all',
+          maxInstallments: 12,
+        },
+      },
+      callbacks: {
+        onReady: () => {},
+        onSubmit: async ({ formData }) => {
+          return new Promise(async (resolve, reject) => {
+            try {
+              const payRes = await fetch(`${SUPABASE_URL}/functions/v1/process-payment`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': `Bearer ${SUPABASE_KEY}`,
+                },
+                body: JSON.stringify({ formData, total }),
+              })
+              const payment = await payRes.json()
+
+              if (payment.error) { reject(new Error(payment.error)); return }
+
+              if (payment.status === 'approved' || payment.status === 'in_process' || payment.status === 'pending') {
+                await guardarPedido(items, total, payment.id, payment.status)
+                window.cartSave([])
+                resolve()
+                const dest = payment.status === 'approved' ? 'pago-exitoso.html' : 'pago-exitoso.html'
+                window.location.href = `${dest}?payment_id=${payment.id}&status=${payment.status}&source=card`
+              } else {
+                reject(new Error('Pago rechazado: ' + (payment.status_detail ?? payment.status)))
+              }
+            } catch (e) {
+              reject(e)
+            }
+          })
+        },
+        onError: (error) => {
+          console.error('MP Bricks error:', error)
+        },
+      },
+    })
+  } catch (e) {
+    console.error(e)
+    btn.textContent = 'PROCEDER AL PAGO'
+    btn.disabled = false
+    alert('No pudimos iniciar el pago. Por favor intentá de nuevo.')
+  }
+})
+
+async function guardarPedido(items, total, mpPaymentId, mpStatus) {
+  if (!user) return
+  const numero = 'CG' + Date.now().toString(36).toUpperCase()
+  await supabase.from('pedidos').insert({
+    user_id: user.id,
+    numero_pedido: numero,
+    total,
+    estado: mpStatus === 'approved' ? 'confirmado' : 'pendiente',
+  })
+}
 
 render()
 </script>
