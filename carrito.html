@@ -859,15 +859,19 @@ async function guardarPedido(items, total, mpPaymentId, mpStatus, ticketUrl = nu
 async function enviarEmailPedido(pedido, items, total, ticketUrl) {
   if (!pedido || !user?.email) return
   const isEfectivo = !!ticketUrl
-  fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-    body: JSON.stringify({
-      type:  isEfectivo ? 'efectivo_created' : 'payment_confirmed',
-      email: user.email,
-      data:  { numero_pedido: pedido.numero_pedido, total, items, ticket_url: ticketUrl, envio: shippingData },
-    }),
-  })
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      body: JSON.stringify({
+        type:  isEfectivo ? 'efectivo_created' : 'payment_confirmed',
+        email: user.email,
+        data:  { numero_pedido: pedido.numero_pedido, total, items, ticket_url: ticketUrl, envio: shippingData },
+      }),
+    })
+  } catch (e) {
+    console.error('Email error:', e)
+  }
 }
 
 render()
