@@ -158,11 +158,17 @@ btn.style.opacity = '1'
 const { data: pedidos, error } = await supabase
   .from('pedidos')
   .select('*')
+  .eq('user_id', user.id)
   .order('created_at', { ascending: false })
+
+console.log('pedidos result:', { pedidos, error, userId: user.id })
 
 document.getElementById('loading').style.display = 'none'
 
-if (error || !pedidos?.length) {
+if (error) {
+  console.error('Error cargando pedidos:', error)
+  document.getElementById('empty').style.display = 'block'
+} else if (!pedidos?.length) {
   document.getElementById('empty').style.display = 'block'
 } else {
   renderPedidos(pedidos)
