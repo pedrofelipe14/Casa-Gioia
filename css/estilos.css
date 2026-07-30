@@ -10,6 +10,8 @@
     --gold:#B99B62;
 
     --text:#2F2A28;
+
+    --gradient: linear-gradient(135deg, #891A55 0%, #B99B62 100%);
 }
 
 *{
