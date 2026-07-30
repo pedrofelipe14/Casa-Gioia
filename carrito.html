@@ -259,56 +259,6 @@
   color: #7a726c;
   border-bottom: 1px solid rgba(91,29,42,.05);
 }
-/* ── Estimador de envío en carrito ── */
-.envio-estimador {
-  display: none;
-  padding: 20px 0;
-  border-top: 1px solid rgba(91,29,42,.08);
-  border-bottom: 1px solid rgba(91,29,42,.08);
-  margin-bottom: 0;
-}
-.envio-est-inner {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.envio-est-label {
-  font-family: 'Manrope', sans-serif;
-  font-size: .68rem;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: #7a726c;
-  white-space: nowrap;
-}
-.envio-est-input {
-  padding: 9px 14px;
-  font-family: 'Manrope', sans-serif;
-  font-size: .88rem;
-  border: 1px solid rgba(91,29,42,.18);
-  background: white;
-  color: var(--text);
-  outline: none;
-  width: 130px;
-}
-.envio-est-input:focus { border-color: var(--wine); }
-.envio-est-input::placeholder { color: #c0b8b2; }
-.envio-est-result { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.envio-est-price {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.15rem;
-  font-weight: 400;
-  color: var(--wine);
-}
-.envio-est-meta { font-size: .75rem; color: #a09890; }
-.envio-est-gratis {
-  font-family: 'Manrope', sans-serif;
-  font-size: .72rem;
-  font-weight: 700;
-  color: #1a6e3b;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
 /* Province select */
 #envio-form select {
   width: 100%;
@@ -530,15 +480,6 @@
 
     <div id="carrito-items"></div>
 
-    <!-- Estimador de envío -->
-    <div id="envio-estimador" class="envio-estimador">
-      <div class="envio-est-inner">
-        <span class="envio-est-label">Calculá el envío</span>
-        <input type="text" id="est-cp" class="envio-est-input" maxlength="5" placeholder="Código postal" inputmode="numeric">
-        <div id="est-result" class="envio-est-result"></div>
-      </div>
-    </div>
-
     <div id="carrito-footer" class="carrito-footer" style="display:none;">
       <a href="coleccion.html" style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--wine);text-decoration:none;margin-right:auto;">← Seguir comprando</a>
       <div style="display:flex;align-items:baseline;gap:12px;">
@@ -611,20 +552,16 @@ const emptyEl  = document.getElementById('carrito-empty')
 const footerEl = document.getElementById('carrito-footer')
 const totalEl  = document.getElementById('carrito-total')
 
-const estimadorEl = document.getElementById('envio-estimador')
-
 function render() {
   const items = window.cartGet()
   if (!items.length) {
-    emptyEl.style.display     = 'block'
-    footerEl.style.display    = 'none'
-    estimadorEl.style.display = 'none'
-    itemsEl.innerHTML         = ''
+    emptyEl.style.display  = 'block'
+    footerEl.style.display = 'none'
+    itemsEl.innerHTML      = ''
     return
   }
-  emptyEl.style.display     = 'none'
-  footerEl.style.display    = 'flex'
-  estimadorEl.style.display = 'block'
+  emptyEl.style.display  = 'none'
+  footerEl.style.display = 'flex'
   itemsEl.innerHTML = items.map(item => `
     <div class="carrito-item" data-id="${item.id}">
       <div>
@@ -746,18 +683,6 @@ function getShippingZone(cp) {
   return CP_ZONES.find(z => num >= z.min && num <= z.max) ?? null
 }
 
-/* ── Estimador en carrito ── */
-document.getElementById('est-cp').addEventListener('input', (e) => {
-  const resultEl = document.getElementById('est-result')
-  const zone = getShippingZone(e.target.value.trim())
-  if (!zone) { resultEl.innerHTML = ''; return }
-  const diasStr = zone.dias === '1' ? '1 día hábil' : `${zone.dias} días hábiles`
-  resultEl.innerHTML = zone.precio === 0
-    ? `<span class="envio-est-gratis">Gratis</span><span class="envio-est-meta">${zone.zona} · ${diasStr}</span>`
-    : `<span class="envio-est-price">$${zone.precio.toLocaleString('es-AR')}</span><span class="envio-est-meta">${zone.zona} · ${diasStr}</span>`
-})
-
-/* ── Listener CP en formulario de envío ── */
 document.getElementById('s-cp').addEventListener('input', (e) => {
   const preview = document.getElementById('shipping-preview')
   if (shippingMode !== 'envio') return
@@ -783,13 +708,6 @@ document.getElementById('checkoutBtn').addEventListener('click', () => {
   if (!items.length) return
   fillSummary('s')
   showSection('shipping-section')
-  // Pre-llenar CP desde el estimador del carrito
-  const estCp = document.getElementById('est-cp').value.trim()
-  if (estCp) {
-    const cpField = document.getElementById('s-cp')
-    cpField.value = estCp
-    cpField.dispatchEvent(new Event('input'))
-  }
 })
 
 document.getElementById('shippingBackBtn').addEventListener('click', () => showSection('cart'))
