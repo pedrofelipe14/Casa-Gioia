@@ -234,7 +234,7 @@ tr:hover td { background: #fdf9f5; }
 <div class="admin-bar">
   <div class="admin-bar-brand"><span>◆</span>Admin · Casa Gioia</div>
   <div class="admin-bar-right">
-    <span class="admin-bar-user" id="adminEmail"></span>
+    <span class="admin-bar-user">Panel de administración</span>
     <button class="admin-logout" id="logoutBtn">Salir</button>
   </div>
 </div>
@@ -260,19 +260,14 @@ const supabase = createClient(
   { auth: { storage: makeStorage(), persistSession: true, detectSessionInUrl: true } }
 )
 
-const FN_URL    = 'https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders'
-const ANON_KEY  = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
-const ADMIN_EMAIL = 'marchioripedro1@gmail.com'
+const FN_URL   = 'https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders'
+const ANON_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
 
+// Verificar sesión activa — si no hay sesión, redirigir al login
 const { data: { session } } = await supabase.auth.getSession()
 if (!session) { window.location.href = 'login.html' }
 
-const user = session.user
-if (user.email !== ADMIN_EMAIL) {
-  document.getElementById('loadingMsg').textContent = 'No tenés acceso a esta sección.'
-  throw new Error('not admin')
-}
-document.getElementById('adminEmail').textContent = user.email
+// El servidor es quien decide si el usuario es admin o no (401 = no autorizado)
 document.getElementById('logoutBtn').onclick = async () => {
   await supabase.auth.signOut()
   window.location.href = 'index.html'
@@ -295,8 +290,12 @@ async function fetchPedidos() {
   const res = await fetch(FN_URL, {
     headers: { 'Authorization': `Bearer ${session.access_token}`, 'apikey': ANON_KEY },
   })
+  if (res.status === 401) {
+    window.location.href = 'index.html'
+    throw new Error('no autorizado')
+  }
+  if (!res.ok) throw new Error('Error del servidor')
   const data = await res.json()
-  if (data.error) throw new Error(data.error)
   userCount = data.user_count ?? 0
   return data.pedidos ?? []
 }
@@ -314,6 +313,7 @@ async function updateEstado(id, estado, selectEl) {
       },
       body: JSON.stringify({ id, estado }),
     })
+    if (res.status === 401) { window.location.href = 'index.html'; return }
     const data = await res.json()
     if (data.ok) {
       const p = allPedidos.find(p => p.id === id)
