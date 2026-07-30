@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -9,19 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 <style>
-/* ── Checkout section ── */
-#mp-payment-section {
+/* ── Shared checkout layout ── */
+.co-section {
   display: none;
   background: #f8f4ee;
   padding: 56px 0 120px;
   min-height: 80vh;
 }
-.checkout-wrap {
+.co-wrap {
   max-width: 1080px;
   margin: 0 auto;
   padding: 0 32px;
 }
-.checkout-back {
+.co-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -36,8 +36,8 @@
   border: none;
   padding: 0;
 }
-.checkout-back:hover { opacity: .7; }
-.checkout-heading {
+.co-back:hover { opacity: .7; }
+.co-heading {
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
   font-weight: 400;
@@ -45,71 +45,63 @@
   line-height: 1.15;
   margin-bottom: 40px;
 }
-.checkout-heading span {
+.co-heading span {
   background: var(--gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.checkout-grid {
+.co-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 320px;
   gap: 40px;
   align-items: start;
 }
-/* ── Order summary ── */
-.checkout-summary {
-  position: sticky;
-  top: 96px;
-}
+/* ── Summary card (shared) ── */
 .summary-card {
   background: #fff;
   border: 1px solid rgba(91,29,42,.1);
-  padding: 32px 28px;
+  padding: 28px 24px;
+  position: sticky;
+  top: 96px;
 }
 .summary-brand {
   font-family: 'Cormorant Garamond', serif;
-  font-size: .8rem;
+  font-size: .78rem;
   letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--wine);
-  margin-bottom: 24px;
-  padding-bottom: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
   border-bottom: 1px solid rgba(91,29,42,.08);
 }
-.summary-items { margin-bottom: 20px; }
 .summary-item {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 8px;
+  padding: 8px 0;
   border-bottom: 1px solid rgba(91,29,42,.05);
-}
-.summary-item-name {
   font-family: 'Manrope', sans-serif;
-  font-size: .82rem;
-  color: var(--text);
-  flex: 1;
-  min-width: 0;
 }
-.summary-item-qty {
-  font-size: .75rem;
-  color: #a09890;
-  margin-left: 4px;
-}
-.summary-item-price {
+.summary-item-name { font-size: .81rem; color: var(--text); flex: 1; }
+.summary-item-qty  { font-size: .72rem; color: #a09890; }
+.summary-item-price { font-size: .83rem; color: var(--text); font-weight: 500; white-space: nowrap; }
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
   font-family: 'Manrope', sans-serif;
-  font-size: .85rem;
-  color: var(--text);
-  font-weight: 500;
-  white-space: nowrap;
+  font-size: .8rem;
+  color: #7a726c;
+  border-bottom: 1px solid rgba(91,29,42,.05);
 }
 .summary-total-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding-top: 20px;
+  padding-top: 16px;
   margin-top: 4px;
 }
 .summary-total-label {
@@ -121,7 +113,7 @@
 }
 .summary-total-amount {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 500;
   color: var(--wine);
 }
@@ -129,26 +121,65 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 24px;
-  padding-top: 20px;
+  margin-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid rgba(91,29,42,.08);
   font-family: 'Manrope', sans-serif;
-  font-size: .72rem;
-  color: #a09890;
-  letter-spacing: .5px;
+  font-size: .7rem;
+  color: #b0a8a2;
+  line-height: 1.6;
 }
-.summary-secure-icon {
-  font-size: .9rem;
-  color: var(--gold);
-  flex-shrink: 0;
+/* ── STEP 1: Shipping ── */
+.shipping-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-bottom: 32px;
 }
-/* ── Brick wrapper ── */
-.checkout-form-col {
+.shipping-type-btn {
+  padding: 24px 20px;
+  background: white;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .2s, background .2s;
+  outline: none;
+}
+.shipping-type-btn:hover { background: #fdf9f4; }
+.shipping-type-btn.active { border-color: var(--wine); }
+.stype-icon { font-size: 1.1rem; color: var(--gold); margin-bottom: 10px; display: block; }
+.stype-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.stype-desc { font-size: .78rem; color: #7a726c; line-height: 1.6; }
+.retiro-info {
+  background: white;
+  border: 1px solid rgba(91,29,42,.1);
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+.retiro-info-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.retiro-info-row:last-child { margin-bottom: 0; }
+.retiro-info-icon { color: var(--gold); font-size: .9rem; margin-top: 2px; flex-shrink: 0; }
+.retiro-info-text { font-size: .85rem; color: #7a726c; line-height: 1.7; }
+.addr-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.addr-grid-3-1 { display: grid; grid-template-columns: 3fr 1fr; gap: 0 16px; }
+/* ── STEP 2: Payment ── */
+.payment-col {
   background: #fff;
   border: 1px solid rgba(91,29,42,.08);
-  padding: 40px 36px;
+  padding: 36px 32px;
 }
-.checkout-form-label {
+.payment-col-label {
   font-family: 'Manrope', sans-serif;
   font-size: .65rem;
   letter-spacing: 3px;
@@ -156,20 +187,31 @@
   color: var(--wine-soft);
   margin-bottom: 6px;
 }
-.checkout-form-title {
+.payment-col-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 400;
   color: var(--text);
-  margin-bottom: 28px;
-  padding-bottom: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
   border-bottom: 1px solid rgba(91,29,42,.08);
 }
-#paymentBrick_container { min-height: 200px; }
+#paymentBrick_container { min-height: 180px; }
+.summary-shipping-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: .78rem;
+  color: #7a726c;
+  border-bottom: 1px solid rgba(91,29,42,.05);
+}
 @media (max-width: 768px) {
-  .checkout-grid { grid-template-columns: 1fr; }
-  .checkout-summary { position: static; order: -1; }
-  .checkout-form-col { padding: 28px 20px; }
+  .co-grid { grid-template-columns: 1fr; }
+  .summary-card { position: static; order: -1; }
+  .shipping-type-grid { grid-template-columns: 1fr; }
+  .payment-col { padding: 24px 18px; }
 }
 </style>
 </head>
@@ -201,44 +243,115 @@
 </nav>
 </header>
 
-<!-- Checkout -->
-<section id="mp-payment-section">
-  <div class="checkout-wrap">
-    <button class="checkout-back" id="mpBackBtn">← Volver al carrito</button>
-    <h1 class="checkout-heading">Completá tu <span>pago.</span></h1>
+<!-- ═══ PASO 1: ENVÍO ═══ -->
+<section class="co-section" id="shipping-section">
+  <div class="co-wrap">
+    <button class="co-back" id="shippingBackBtn">← Volver al carrito</button>
+    <h1 class="co-heading">¿Cómo <span>recibís?</span></h1>
 
-    <div class="checkout-grid">
+    <div class="co-grid">
+      <div>
+        <!-- Tipo de envío -->
+        <div class="shipping-type-grid">
+          <button class="shipping-type-btn active" id="btnRetiro" onclick="selectShipping('retiro')">
+            <span class="stype-icon">◆</span>
+            <div class="stype-title">Retiro en tienda</div>
+            <div class="stype-desc">Gratis · Alsina 3364, Mar del Plata<br>Lun–Vie 10–19 hs · Sáb 11–17 hs</div>
+          </button>
+          <button class="shipping-type-btn" id="btnEnvio" onclick="selectShipping('envio')">
+            <span class="stype-icon">◈</span>
+            <div class="stype-title">Envío a domicilio</div>
+            <div class="stype-desc">Todo el país · A coordinar por WhatsApp después del pago</div>
+          </button>
+        </div>
 
-      <!-- Formulario MP -->
-      <div class="checkout-form-col">
-        <div class="checkout-form-label">Datos de pago</div>
-        <div class="checkout-form-title">Tarjeta de crédito o débito</div>
-        <div id="paymentBrick_container"></div>
-      </div>
-
-      <!-- Resumen del pedido -->
-      <div class="checkout-summary">
-        <div class="summary-card">
-          <div class="summary-brand">Casa Gioia</div>
-          <div class="summary-items" id="summary-items"></div>
-          <div class="summary-total-row">
-            <span class="summary-total-label">Total a pagar</span>
-            <span class="summary-total-amount" id="summary-total"></span>
+        <!-- Info retiro -->
+        <div id="retiro-info" class="retiro-info">
+          <div class="retiro-info-row">
+            <span class="retiro-info-icon">◆</span>
+            <span class="retiro-info-text"><strong>Casa Gioia</strong><br>Alsina 3364, Mar del Plata, Buenos Aires</span>
           </div>
-          <div class="summary-secure">
-            <span class="summary-secure-icon">◆</span>
-            Pago 100% seguro · Datos encriptados por MercadoPago
+          <div class="retiro-info-row">
+            <span class="retiro-info-icon">◈</span>
+            <span class="retiro-info-text">Lunes a Viernes: 10:00 – 19:00 hs<br>Sábados: 11:00 – 17:00 hs · Domingos: cerrado</span>
+          </div>
+          <div class="retiro-info-row">
+            <span class="retiro-info-icon">✦</span>
+            <span class="retiro-info-text">Te avisamos por email cuando tu pedido esté listo para retirar.</span>
           </div>
         </div>
+
+        <!-- Formulario envío -->
+        <div id="envio-form" style="display:none;">
+          <div class="addr-grid-2">
+            <div class="form-group"><label>Nombre</label><input type="text" id="s-nombre" placeholder="Tu nombre"></div>
+            <div class="form-group"><label>Apellido</label><input type="text" id="s-apellido" placeholder="Tu apellido"></div>
+          </div>
+          <div class="addr-grid-3-1">
+            <div class="form-group"><label>Calle</label><input type="text" id="s-calle" placeholder="Nombre de la calle"></div>
+            <div class="form-group"><label>Número</label><input type="text" id="s-numero" placeholder="1234"></div>
+          </div>
+          <div class="form-group"><label>Piso / Depto (opcional)</label><input type="text" id="s-piso" placeholder="3° B"></div>
+          <div class="addr-grid-2">
+            <div class="form-group"><label>Ciudad</label><input type="text" id="s-ciudad" placeholder="Ciudad"></div>
+            <div class="form-group"><label>Provincia</label><input type="text" id="s-provincia" placeholder="Provincia"></div>
+          </div>
+          <div class="addr-grid-2">
+            <div class="form-group"><label>Código postal</label><input type="text" id="s-cp" placeholder="7600"></div>
+            <div class="form-group"><label>Teléfono</label><input type="tel" id="s-tel" placeholder="+54 9 223 XXXX XXXX"></div>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="continuePayBtn" style="margin-top:8px;">CONTINUAR AL PAGO</button>
+        <p id="shipping-error" style="display:none; color:var(--wine); font-size:.85rem; margin-top:12px;"></p>
       </div>
 
+      <!-- Resumen -->
+      <div class="summary-card">
+        <div class="summary-brand">Casa Gioia</div>
+        <div id="summary-items-s"></div>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-amount" id="summary-total-s"></span>
+        </div>
+        <div class="summary-secure">◆ &nbsp;Pago 100% seguro · Procesado por MercadoPago</div>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- ═══ PASO 2: PAGO ═══ -->
+<section class="co-section" id="payment-section">
+  <div class="co-wrap">
+    <button class="co-back" id="paymentBackBtn">← Cambiar entrega</button>
+    <h1 class="co-heading">Elegí cómo <span>pagar.</span></h1>
+
+    <div class="co-grid">
+      <div class="payment-col">
+        <div class="payment-col-label">Método de pago</div>
+        <div class="payment-col-title">Tarjeta · Efectivo · MercadoPago</div>
+        <div id="paymentBrick_container"></div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-brand">Casa Gioia</div>
+        <div id="summary-items-p"></div>
+        <div class="summary-shipping-row" id="summary-shipping-label">
+          <span></span><span></span>
+        </div>
+        <div class="summary-total-row">
+          <span class="summary-total-label">Total</span>
+          <span class="summary-total-amount" id="summary-total-p"></span>
+        </div>
+        <div class="summary-secure">◆ &nbsp;Pago 100% seguro · Datos encriptados por MercadoPago</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CARRITO ═══ -->
 <section class="section" style="padding-top:80px; padding-bottom:120px;">
   <div class="carrito-wrap">
-
     <div class="section-label">Tu selección</div>
     <h2 class="section-title">Mi <span>carrito.</span></h2>
 
@@ -257,7 +370,6 @@
       </div>
       <button class="btn-primary" id="checkoutBtn">PROCEDER AL PAGO</button>
     </div>
-
   </div>
 </section>
 
@@ -287,7 +399,7 @@
       <p>Suscribite para recibir nuestras últimas novedades y obtené un 10% OFF en tu primera compra.</p>
       <div class="footer-form">
         <input type="email" placeholder="Email">
-        <button type="submit">OK</button>
+        <button type="button">OK</button>
       </div>
     </div>
   </div>
@@ -300,36 +412,38 @@
 <script type="module" src="js/newsletter.js"></script>
 <script type="module">
 import { supabase } from './js/supabase-client.js'
+
 const { data: { user } } = await supabase.auth.getUser()
-const btn = document.getElementById('userBtn')
+const navBtn = document.getElementById('userBtn')
 if (user) {
   const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
-  btn.textContent = `👤 ${nombre.split(' ')[0]}`
-  btn.onclick = () => window.location.href = 'perfil.html'
+  navBtn.textContent = `👤 ${nombre.split(' ')[0]}`
+  navBtn.onclick = () => window.location.href = 'perfil.html'
 } else {
-  btn.onclick = () => window.location.href = 'login.html'
+  navBtn.onclick = () => window.location.href = 'login.html'
 }
-btn.style.opacity = '1'
+navBtn.style.opacity = '1'
+
+const SUPABASE_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+const MP_PUBLIC_KEY = 'TEST-c4131b45-4ea9-4c43-8d24-a1f82edd021d'
 
 /* ── Render carrito ── */
-const itemsEl   = document.getElementById('carrito-items')
-const emptyEl   = document.getElementById('carrito-empty')
-const footerEl  = document.getElementById('carrito-footer')
-const totalEl   = document.getElementById('carrito-total')
+const itemsEl  = document.getElementById('carrito-items')
+const emptyEl  = document.getElementById('carrito-empty')
+const footerEl = document.getElementById('carrito-footer')
+const totalEl  = document.getElementById('carrito-total')
 
 function render() {
   const items = window.cartGet()
-
   if (!items.length) {
     emptyEl.style.display  = 'block'
     footerEl.style.display = 'none'
     itemsEl.innerHTML      = ''
     return
   }
-
   emptyEl.style.display  = 'none'
   footerEl.style.display = 'flex'
-
   itemsEl.innerHTML = items.map(item => `
     <div class="carrito-item" data-id="${item.id}">
       <div>
@@ -342,9 +456,7 @@ function render() {
         <button class="carrito-qty-btn" onclick="qtyChange('${item.id}', 1)">+</button>
       </div>
       <button class="carrito-remove" onclick="qtyRemove('${item.id}')" title="Eliminar">✕</button>
-    </div>
-  `).join('')
-
+    </div>`).join('')
   const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
   totalEl.textContent = '$' + total.toLocaleString('es-AR')
 }
@@ -358,139 +470,207 @@ window.qtyChange = (id, delta) => {
   window.cartSave(items)
   render()
 }
-
 window.qtyRemove = (id) => {
   window.cartSave(window.cartGet().filter(i => i.id !== id))
   render()
 }
 
-const SUPABASE_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
-const MP_PUBLIC_KEY = 'TEST-c4131b45-4ea9-4c43-8d24-a1f82edd021d'
-
+/* ── Shipping step ── */
+let shippingMode = 'retiro'
+let shippingData = {}
 let brickController = null
 
-document.getElementById('mpBackBtn').addEventListener('click', () => {
-  if (brickController) { brickController.unmount(); brickController = null }
-  document.getElementById('mp-payment-section').style.display = 'none'
-  document.querySelector('.carrito-wrap').style.display = 'block'
-  const btn = document.getElementById('checkoutBtn')
-  btn.textContent = 'PROCEDER AL PAGO'
-  btn.disabled = false
-})
+window.selectShipping = (mode) => {
+  shippingMode = mode
+  document.getElementById('btnRetiro').classList.toggle('active', mode === 'retiro')
+  document.getElementById('btnEnvio').classList.toggle('active',  mode === 'envio')
+  document.getElementById('retiro-info').style.display  = mode === 'retiro' ? 'block' : 'none'
+  document.getElementById('envio-form').style.display   = mode === 'envio'  ? 'block' : 'none'
+}
 
-document.getElementById('checkoutBtn').addEventListener('click', async () => {
-  if (!user) { window.location.href = 'login.html'; return }
-
+function fillSummary(suffix) {
   const items = window.cartGet()
-  if (!items.length) return
   const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
-
-  const btn = document.getElementById('checkoutBtn')
-  btn.textContent = 'INICIANDO PAGO…'
-  btn.disabled = true
-
-  // Llenar resumen de pedido
-  document.getElementById('summary-items').innerHTML = items.map(it => `
-    <div class="summary-item">
+  document.getElementById(`summary-items-${suffix}`).innerHTML = items.map(it =>
+    `<div class="summary-item">
       <span class="summary-item-name">${it.nombre}<span class="summary-item-qty"> ×${it.qty}</span></span>
       <span class="summary-item-price">$${(it.precio * it.qty).toLocaleString('es-AR')}</span>
     </div>`).join('')
-  document.getElementById('summary-total').textContent = '$' + total.toLocaleString('es-AR')
+  document.getElementById(`summary-total-${suffix}`).textContent = '$' + total.toLocaleString('es-AR')
+}
 
-  document.querySelector('.carrito-wrap').style.display = 'none'
-  const paySection = document.getElementById('mp-payment-section')
-  paySection.style.display = 'block'
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-
-  try {
-    const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' })
-    const bricksBuilder = mp.bricks()
-
-    brickController = await bricksBuilder.create('cardPayment', 'paymentBrick_container', {
-      initialization: {
-        amount: total,
-        payer: { email: user?.email ?? '' },
-      },
-      customization: {
-        visual: {
-          style: {
-            theme: 'flat',
-            customVariables: {
-              baseColor: '#5B1D2A',
-              baseColorFirstVariant: '#7d2839',
-              baseColorSecondVariant: '#a3384d',
-              errorColor: '#b5293e',
-              textPrimaryColor: '#2F2A28',
-              textSecondaryColor: '#7a726c',
-              inputBackgroundColor: '#faf7f2',
-              formBackgroundColor: '#ffffff',
-              borderRadiusSmall: '0px',
-              borderRadiusMedium: '0px',
-              borderRadiusLarge: '0px',
-              borderRadiusFull: '2px',
-              fontSizeMedium: '0.88rem',
-              fontSizeLarge: '0.95rem',
-            },
-          },
-          hideFormTitle: true,
-        },
-        paymentMethods: { maxInstallments: 12 },
-      },
-      callbacks: {
-        onReady: () => {
-          btn.textContent = 'PROCEDER AL PAGO'
-          btn.disabled = false
-        },
-        onSubmit: async (formData) => {
-          return new Promise(async (resolve, reject) => {
-            try {
-              const payRes = await fetch(`${SUPABASE_URL}/functions/v1/process-payment`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'apikey': SUPABASE_KEY,
-                  'Authorization': `Bearer ${SUPABASE_KEY}`,
-                },
-                body: JSON.stringify({ formData, total }),
-              })
-              const payment = await payRes.json()
-
-              if (payment.error) { reject(new Error(payment.error)); return }
-
-              if (payment.status === 'approved' || payment.status === 'in_process' || payment.status === 'pending') {
-                await guardarPedido(items, total, payment.id, payment.status)
-                window.cartSave([])
-                resolve()
-                window.location.href = `pago-exitoso.html?payment_id=${payment.id}&status=${payment.status}&source=card`
-              } else {
-                reject(new Error(payment.status_detail ?? payment.status))
-              }
-            } catch (e) {
-              reject(e)
-            }
-          })
-        },
-        onError: (error) => {
-          console.error('MP error:', error)
-        },
-      },
-    })
-  } catch (e) {
-    console.error(e)
-    btn.textContent = 'PROCEDER AL PAGO'
-    btn.disabled = false
-    document.querySelector('.carrito-wrap').style.display = 'block'
-    paySection.style.display = 'none'
-    alert('No pudimos iniciar el pago. Por favor intentá de nuevo.')
+function showSection(id) {
+  document.querySelector('.section').style.display = 'none'
+  document.getElementById('shipping-section').style.display = 'none'
+  document.getElementById('payment-section').style.display  = 'none'
+  if (id === 'cart') {
+    document.querySelector('.section').style.display = 'block'
+  } else {
+    document.getElementById(id).style.display = 'block'
   }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+/* ── Prefill address from profile ── */
+if (user) {
+  const { data: perfil } = await supabase.from('perfiles').select('*').eq('id', user.id).maybeSingle()
+  if (perfil?.calle) {
+    document.getElementById('s-nombre').value    = perfil.nombre        || ''
+    document.getElementById('s-apellido').value  = perfil.apellido      || ''
+    document.getElementById('s-calle').value     = perfil.calle         || ''
+    document.getElementById('s-numero').value    = perfil.numero        || ''
+    document.getElementById('s-piso').value      = perfil.piso_depto    || ''
+    document.getElementById('s-ciudad').value    = perfil.ciudad        || ''
+    document.getElementById('s-provincia').value = perfil.provincia     || ''
+    document.getElementById('s-cp').value        = perfil.codigo_postal || ''
+    document.getElementById('s-tel').value       = perfil.telefono      || ''
+  }
+}
+
+/* ── Checkout: carrito → envío ── */
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+  if (!user) { window.location.href = 'login.html'; return }
+  const items = window.cartGet()
+  if (!items.length) return
+  fillSummary('s')
+  showSection('shipping-section')
+})
+
+document.getElementById('shippingBackBtn').addEventListener('click', () => showSection('cart'))
+
+/* ── Envío → pago ── */
+document.getElementById('continuePayBtn').addEventListener('click', async () => {
+  const errEl = document.getElementById('shipping-error')
+  errEl.style.display = 'none'
+
+  if (shippingMode === 'envio') {
+    const calle = document.getElementById('s-calle').value.trim()
+    const ciudad = document.getElementById('s-ciudad').value.trim()
+    if (!calle || !ciudad) {
+      errEl.textContent = 'Por favor completá calle y ciudad para continuar.'
+      errEl.style.display = 'block'
+      return
+    }
+    shippingData = {
+      tipo: 'envio',
+      nombre:         document.getElementById('s-nombre').value.trim(),
+      apellido:       document.getElementById('s-apellido').value.trim(),
+      calle,
+      numero:         document.getElementById('s-numero').value.trim(),
+      piso_depto:     document.getElementById('s-piso').value.trim(),
+      ciudad,
+      provincia:      document.getElementById('s-provincia').value.trim(),
+      codigo_postal:  document.getElementById('s-cp').value.trim(),
+      telefono:       document.getElementById('s-tel').value.trim(),
+    }
+  } else {
+    shippingData = { tipo: 'retiro', direccion: 'Alsina 3364, Mar del Plata' }
+  }
+
+  const items = window.cartGet()
+  const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
+
+  // Summary panel del paso de pago
+  fillSummary('p')
+  const shRow = document.getElementById('summary-shipping-label')
+  shRow.children[0].textContent = shippingMode === 'retiro' ? 'Retiro en tienda' : 'Envío a domicilio'
+  shRow.children[1].textContent = shippingMode === 'retiro' ? 'Gratis' : 'A coordinar'
+
+  showSection('payment-section')
+
+  // Crear preferencia (necesaria para wallet + ticket)
+  const prefRes = await fetch(`${SUPABASE_URL}/functions/v1/create-preference`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+    body: JSON.stringify({ items, origin: window.location.origin }),
+  })
+  const prefData = await prefRes.json()
+  const preferenceId = prefData.id ?? null
+
+  const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' })
+  const bricksBuilder = mp.bricks()
+
+  if (brickController) { brickController.unmount(); brickController = null }
+
+  brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
+    initialization: {
+      amount: total,
+      ...(preferenceId && { preferenceId }),
+    },
+    customization: {
+      paymentMethods: {
+        creditCard: 'all',
+        debitCard:  'all',
+        ticket:     'all',
+        ...(preferenceId && { mercadoPago: 'all' }),
+        maxInstallments: 12,
+      },
+      visual: {
+        style: {
+          theme: 'flat',
+          customVariables: {
+            baseColor:            '#5B1D2A',
+            baseColorFirstVariant:'#7d2839',
+            baseColorSecondVariant:'#a3384d',
+            errorColor:           '#b5293e',
+            textPrimaryColor:     '#2F2A28',
+            textSecondaryColor:   '#7a726c',
+            inputBackgroundColor: '#faf7f2',
+            formBackgroundColor:  '#ffffff',
+            borderRadiusSmall:    '0px',
+            borderRadiusMedium:   '0px',
+            borderRadiusLarge:    '0px',
+            borderRadiusFull:     '2px',
+            fontSizeMedium:       '0.88rem',
+            fontSizeLarge:        '0.95rem',
+          },
+        },
+        hideFormTitle: true,
+      },
+    },
+    callbacks: {
+      onReady: () => {},
+      onSubmit: async ({ selectedPaymentMethod, formData }) => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const payRes = await fetch(`${SUPABASE_URL}/functions/v1/process-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+              body: JSON.stringify({ formData, total, selectedPaymentMethod }),
+            })
+            const payment = await payRes.json()
+
+            if (payment.error) { reject(new Error(payment.error)); return }
+
+            if (payment.status === 'approved' || payment.status === 'in_process' || payment.status === 'pending') {
+              await guardarPedido(items, total, payment.id, payment.status)
+              window.cartSave([])
+              resolve()
+              const ticketUrl = payment.ticket_url ? `&ticket_url=${encodeURIComponent(payment.ticket_url)}` : ''
+              window.location.href = `pago-exitoso.html?payment_id=${payment.id}&status=${payment.status}&source=card${ticketUrl}`
+            } else {
+              reject(new Error(payment.status_detail ?? payment.status))
+            }
+          } catch (e) {
+            reject(e)
+          }
+        })
+      },
+      onError: (error) => { console.error('MP error:', error) },
+    },
+  })
+})
+
+document.getElementById('paymentBackBtn').addEventListener('click', () => {
+  if (brickController) { brickController.unmount(); brickController = null }
+  showSection('shipping-section')
 })
 
 async function guardarPedido(items, total, mpPaymentId, mpStatus) {
   if (!user) return
   const numero = 'CG' + Date.now().toString(36).toUpperCase()
   await supabase.from('pedidos').insert({
-    user_id: user.id,
+    user_id:      user.id,
     numero_pedido: numero,
     total,
     estado: mpStatus === 'approved' ? 'confirmado' : 'pendiente',

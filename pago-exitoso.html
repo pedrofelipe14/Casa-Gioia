@@ -173,54 +173,52 @@ const actionsEl = document.getElementById('resultActions')
 const isPending = status === 'in_process' || status === 'pending'
 const isApproved = status === 'approved'
 
+const ticketUrl = p.get('ticket_url') ? decodeURIComponent(p.get('ticket_url')) : null
+
 if (isApproved) {
   iconEl.textContent = '◆'
   titleEl.innerHTML = '¡Gracias por tu <span>compra!</span>'
-  subEl.textContent = 'Tu pago fue aprobado. Te mandamos un email con los detalles de tu pedido.'
-  if (paymentId) {
-    numEl.textContent = `Referencia de pago: ${paymentId}`
-    numEl.style.display = 'inline-block'
-  }
+  subEl.textContent = 'Tu pago fue aprobado. Te enviamos un email con los detalles del pedido.'
+  if (paymentId) { numEl.textContent = `Ref. ${paymentId}`; numEl.style.display = 'inline-block' }
   actionsEl.innerHTML = `
     <a href="pedidos.html" class="btn-primary">VER MIS PEDIDOS</a>
-    <a href="coleccion.html" class="btn-ghost">Seguir comprando</a>
-  `
+    <a href="coleccion.html" class="btn-ghost">Seguir comprando</a>`
 
-  // Si el pago vino por redirect de MP (wallet), guardar pedido desde localStorage
+  // Wallet/MP redirect: guardar pedido desde localStorage
   if (source !== 'card' && user) {
     const items = window.cartGet ? window.cartGet() : []
     if (items.length) {
       const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
       const numero = 'CG' + Date.now().toString(36).toUpperCase()
-      await supabase.from('pedidos').insert({
-        user_id: user.id,
-        numero_pedido: numero,
-        total,
-        estado: 'confirmado',
-      })
+      await supabase.from('pedidos').insert({ user_id: user.id, numero_pedido: numero, total, estado: 'confirmado' })
       if (window.cartSave) window.cartSave([])
     }
   }
+
+} else if (isPending && ticketUrl) {
+  iconEl.textContent = '◈'
+  titleEl.innerHTML = 'Ya casi. <span>Pagá el ticket.</span>'
+  subEl.textContent = 'Tu pedido está reservado. Ingresá al link para imprimir o pagar el ticket en Rapipago, Pago Fácil o cualquier punto de cobro habilitado.'
+  if (paymentId) { numEl.textContent = `Ref. ${paymentId}`; numEl.style.display = 'inline-block' }
+  actionsEl.innerHTML = `
+    <a href="${ticketUrl}" target="_blank" rel="noopener" class="btn-primary">VER TICKET DE PAGO</a>
+    <a href="pedidos.html" class="btn-ghost">Mis pedidos</a>`
 
 } else if (isPending) {
   iconEl.textContent = '◈'
   titleEl.innerHTML = 'Pago en <span>revisión.</span>'
   subEl.textContent = 'Tu pago está siendo procesado. Te avisamos por email cuando se confirme.'
-  if (paymentId) {
-    numEl.textContent = `Referencia: ${paymentId}`
-    numEl.style.display = 'inline-block'
-  }
+  if (paymentId) { numEl.textContent = `Ref. ${paymentId}`; numEl.style.display = 'inline-block' }
   actionsEl.innerHTML = `
     <a href="pedidos.html" class="btn-ghost">Ver mis pedidos</a>
-    <a href="index.html" class="btn-ghost">Ir al inicio</a>
-  `
+    <a href="index.html" class="btn-ghost">Ir al inicio</a>`
+
 } else {
   titleEl.innerHTML = 'Ocurrió un <span>problema.</span>'
   subEl.textContent = 'No pudimos procesar tu pago. Tu carrito sigue guardado.'
   actionsEl.innerHTML = `
     <a href="carrito.html" class="btn-primary">VOLVER AL CARRITO</a>
-    <a href="contacto.html" class="btn-ghost">Contactarnos</a>
-  `
+    <a href="contacto.html" class="btn-ghost">Contactarnos</a>`
 }
 </script>
 </body>

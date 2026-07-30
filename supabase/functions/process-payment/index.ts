@@ -12,20 +12,29 @@ serve(async (req) => {
   }
 
   try {
-    const { formData, total } = await req.json()
+    const { formData, total, selectedPaymentMethod } = await req.json()
     const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN")!
 
-    const payment = {
+    const isCard = selectedPaymentMethod === "credit_card" || selectedPaymentMethod === "debit_card"
+
+    // Base payment object
+    const payment: Record<string, unknown> = {
       transaction_amount: Number(total),
-      token: formData.token,
       description: "Casa Gioia — Pedido",
-      installments: Number(formData.installments),
       payment_method_id: formData.payment_method_id,
-      issuer_id: formData.issuer_id,
       payer: {
-        email: formData.payer.email,
-        identification: formData.payer.identification,
+        email: formData.payer?.email,
+        ...(formData.payer?.identification && { identification: formData.payer.identification }),
+        ...(formData.payer?.first_name && { first_name: formData.payer.first_name }),
+        ...(formData.payer?.last_name  && { last_name:  formData.payer.last_name }),
       },
+    }
+
+    // Card-only fields
+    if (isCard && formData.token) {
+      payment.token        = formData.token
+      payment.installments = Number(formData.installments) || 1
+      if (formData.issuer_id) payment.issuer_id = formData.issuer_id
     }
 
     const res = await fetch("https://api.mercadopago.com/v1/payments", {
@@ -48,7 +57,12 @@ serve(async (req) => {
 
     const data = await res.json()
     return new Response(
-      JSON.stringify({ id: data.id, status: data.status, status_detail: data.status_detail }),
+      JSON.stringify({
+        id:           data.id,
+        status:       data.status,
+        status_detail: data.status_detail,
+        ticket_url:   data.transaction_details?.external_resource_url ?? null,
+      }),
       { headers: { ...CORS, "Content-Type": "application/json" } }
     )
   } catch (e: unknown) {
