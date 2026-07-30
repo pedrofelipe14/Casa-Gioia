@@ -259,9 +259,8 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
         payer: { email: user?.email ?? '' },
       },
       callbacks: {
-        onReady: () => { console.log('[MP] Brick listo') },
+        onReady: () => {},
         onSubmit: async (formData) => {
-          console.log('[MP] onSubmit:', JSON.stringify(formData))
           return new Promise(async (resolve, reject) => {
             try {
               const payRes = await fetch(`${SUPABASE_URL}/functions/v1/process-payment`, {
@@ -274,7 +273,6 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
                 body: JSON.stringify({ formData, total }),
               })
               const payment = await payRes.json()
-              console.log('[MP] respuesta process-payment:', JSON.stringify(payment))
 
               if (payment.error) { reject(new Error(payment.error)); return }
 
@@ -287,13 +285,12 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
                 reject(new Error('Pago rechazado: ' + (payment.status_detail ?? payment.status)))
               }
             } catch (e) {
-              console.error('[MP] error en onSubmit:', e)
               reject(e)
             }
           })
         },
         onError: (error) => {
-          console.error('[MP] onError:', JSON.stringify(error))
+          console.error('MP error:', error)
         },
       },
     })
