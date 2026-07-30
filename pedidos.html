@@ -7,6 +7,41 @@
 <title>Mis Pedidos — Casa Gioia</title>
 <link rel="stylesheet" href="css/estilos.css">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+.pedido-items {
+  border-top: 1px solid rgba(91,29,42,.07);
+  border-bottom: 1px solid rgba(91,29,42,.07);
+  padding: 10px 0;
+  margin: 14px 0;
+}
+.pedido-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Manrope', sans-serif;
+  font-size: .8rem;
+  color: #5a5450;
+  padding: 5px 0;
+}
+.item-qty { color: #a09890; }
+.pedido-envio {
+  font-family: 'Manrope', sans-serif;
+  font-size: .75rem;
+  color: #a09890;
+  padding: 4px 0 12px;
+}
+.btn-ticket {
+  display: inline-block;
+  background: #891A55;
+  color: white;
+  text-decoration: none;
+  padding: 9px 20px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.btn-ticket:hover { opacity: .85; }
+</style>
 </head>
 <body>
 
@@ -147,40 +182,49 @@ function renderPedidos(list) {
   const container = document.getElementById('pedidos-list')
 
   container.innerHTML = list.map(pedido => {
-    const idx = ESTADOS.indexOf(pedido.estado)
+    const esCancelado = pedido.estado === 'cancelado'
+    const idx = esCancelado ? -1 : ESTADOS.indexOf(pedido.estado)
 
-    const stepsHtml = ESTADOS.map((s, i) => {
-      let cls = ''
-      if (i < idx)        cls = 'completed'
-      else if (i === idx) cls = 'active'
-      return `<div class="tracking-step ${cls}">
-        <div class="step-dot"></div>
-        <span class="step-label">${LABELS[i]}</span>
-      </div>`
-    }).join('')
+    const stepsHtml = esCancelado
+      ? `<div style="font-size:.78rem;color:#b5293e;padding:12px 0;">Pedido cancelado.</div>`
+      : ESTADOS.map((s, i) => {
+          let cls = ''
+          if (i < idx)        cls = 'completed'
+          else if (i === idx) cls = 'active'
+          return `<div class="tracking-step ${cls}">
+            <div class="step-dot"></div>
+            <span class="step-label">${LABELS[i]}</span>
+          </div>`
+        }).join('')
 
     const fecha = new Date(pedido.created_at).toLocaleDateString('es-AR', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
 
-    const productos = pedido.productos || []
-    const productosHtml = productos.length
-      ? `<div class="pedido-productos">${productos.map(p => `<span class="producto-tag">${p.nombre}</span>`).join('')}</div>`
+    // Items reales guardados en el pedido
+    const items = pedido.items || []
+    const itemsHtml = items.length
+      ? `<div class="pedido-items">
+          ${items.map(it => `
+            <div class="pedido-item-row">
+              <span>${it.nombre} <span class="item-qty">×${it.qty}</span></span>
+              <span>$${(it.precio * it.qty).toLocaleString('es-AR')}</span>
+            </div>`).join('')}
+        </div>`
       : ''
 
-    const footerItems = []
-    if (pedido.tracking) {
-      footerItems.push(`<span>Seguimiento: <strong>${pedido.tracking}</strong></span>`)
-    }
-    if (pedido.fecha_estimada) {
-      const fe = new Date(pedido.fecha_estimada + 'T00:00:00').toLocaleDateString('es-AR', {
-        day: 'numeric', month: 'long'
-      })
-      footerItems.push(`<span>Entrega estimada: <strong>${fe}</strong></span>`)
-    }
-    if (pedido.total) {
-      footerItems.push(`<span class="pedido-total">$${Number(pedido.total).toLocaleString('es-AR')}</span>`)
-    }
+    // Botón ticket si efectivo pendiente
+    const ticketBtn = (pedido.ticket_url && pedido.estado === 'pendiente')
+      ? `<a href="${pedido.ticket_url}" target="_blank" rel="noopener" class="btn-ticket">Ver código de pago</a>`
+      : ''
+
+    // Info de envío
+    const envio = pedido.envio
+    const envioHtml = envio
+      ? envio.tipo === 'retiro'
+        ? `<div class="pedido-envio">◆ Retiro en tienda · Alsina 3364, Mar del Plata</div>`
+        : `<div class="pedido-envio">◈ Envío a domicilio · ${envio.calle} ${envio.numero}, ${envio.ciudad}</div>`
+      : ''
 
     return `
     <div class="pedido-card fade-in">
@@ -191,9 +235,13 @@ function renderPedidos(list) {
         </div>
         <span class="estado-badge estado-${pedido.estado}">${ESTADO_LABELS[pedido.estado] ?? pedido.estado}</span>
       </div>
-      ${productosHtml}
+      ${itemsHtml}
+      ${envioHtml}
       <div class="tracking-steps">${stepsHtml}</div>
-      ${footerItems.length ? `<div class="pedido-footer">${footerItems.join('')}</div>` : ''}
+      <div class="pedido-footer">
+        ${ticketBtn}
+        <span class="pedido-total">$${Number(pedido.total ?? 0).toLocaleString('es-AR')}</span>
+      </div>
     </div>`
   }).join('')
 

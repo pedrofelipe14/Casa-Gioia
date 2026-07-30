@@ -50,6 +50,30 @@ serve(async (req) => {
     if (error) return new Response(JSON.stringify({ error: error.message }), {
       status: 500, headers: { ...CORS, "Content-Type": "application/json" },
     })
+
+    // Enviar email de actualización (fire & forget)
+    try {
+      const { data: pedido } = await admin.from("pedidos").select("*").eq("id", id).single()
+      if (pedido) {
+        const { data: userData } = await admin.auth.admin.getUserById(pedido.user_id)
+        const userEmail = userData?.user?.email
+        if (userEmail) {
+          fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-order-email`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": Deno.env.get("SUPABASE_ANON_KEY")!,
+            },
+            body: JSON.stringify({
+              type: "status_update",
+              email: userEmail,
+              data: { numero_pedido: pedido.numero_pedido, estado },
+            }),
+          })
+        }
+      }
+    } catch (_) { /* no bloquear la respuesta si el email falla */ }
+
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...CORS, "Content-Type": "application/json" },
     })
