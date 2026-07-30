@@ -9,36 +9,168 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 <style>
+/* ── Checkout section ── */
 #mp-payment-section {
   display: none;
-  max-width: 760px;
+  background: #f8f4ee;
+  padding: 56px 0 120px;
+  min-height: 80vh;
+}
+.checkout-wrap {
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 80px 32px 120px;
+  padding: 0 32px;
 }
-#mp-payment-section h2 {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  font-weight: 400;
-  color: var(--text);
-  margin-bottom: 8px;
-}
-#mp-payment-section .section-label { margin-bottom: 4px; }
-.mp-back-link {
-  display: inline-block;
-  margin-bottom: 32px;
-  font-size: .7rem;
-  letter-spacing: 2px;
+.checkout-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .68rem;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--wine);
-  text-decoration: none;
   cursor: pointer;
   background: none;
   border: none;
   padding: 0;
-  font-family: 'Manrope', sans-serif;
 }
-.mp-back-link:hover { text-decoration: underline; }
-#paymentBrick_container { margin-top: 24px; }
+.checkout-back:hover { opacity: .7; }
+.checkout-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.15;
+  margin-bottom: 40px;
+}
+.checkout-heading span {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 40px;
+  align-items: start;
+}
+/* ── Order summary ── */
+.checkout-summary {
+  position: sticky;
+  top: 96px;
+}
+.summary-card {
+  background: #fff;
+  border: 1px solid rgba(91,29,42,.1);
+  padding: 32px 28px;
+}
+.summary-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .8rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--wine);
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(91,29,42,.08);
+}
+.summary-items { margin-bottom: 20px; }
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(91,29,42,.05);
+}
+.summary-item-name {
+  font-family: 'Manrope', sans-serif;
+  font-size: .82rem;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+.summary-item-qty {
+  font-size: .75rem;
+  color: #a09890;
+  margin-left: 4px;
+}
+.summary-item-price {
+  font-family: 'Manrope', sans-serif;
+  font-size: .85rem;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.summary-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 20px;
+  margin-top: 4px;
+}
+.summary-total-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: .68rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #a09890;
+}
+.summary-total-amount {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--wine);
+}
+.summary-secure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(91,29,42,.08);
+  font-family: 'Manrope', sans-serif;
+  font-size: .72rem;
+  color: #a09890;
+  letter-spacing: .5px;
+}
+.summary-secure-icon {
+  font-size: .9rem;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+/* ── Brick wrapper ── */
+.checkout-form-col {
+  background: #fff;
+  border: 1px solid rgba(91,29,42,.08);
+  padding: 40px 36px;
+}
+.checkout-form-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: .65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--wine-soft);
+  margin-bottom: 6px;
+}
+.checkout-form-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(91,29,42,.08);
+}
+#paymentBrick_container { min-height: 200px; }
+@media (max-width: 768px) {
+  .checkout-grid { grid-template-columns: 1fr; }
+  .checkout-summary { position: static; order: -1; }
+  .checkout-form-col { padding: 28px 20px; }
+}
 </style>
 </head>
 <body>
@@ -69,12 +201,39 @@
 </nav>
 </header>
 
-<!-- Sección pago MP Bricks -->
+<!-- Checkout -->
 <section id="mp-payment-section">
-  <div class="section-label">Checkout seguro</div>
-  <h2>Completá tu <span style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">pago.</span></h2>
-  <button class="mp-back-link" id="mpBackBtn">← Volver al carrito</button>
-  <div id="paymentBrick_container"></div>
+  <div class="checkout-wrap">
+    <button class="checkout-back" id="mpBackBtn">← Volver al carrito</button>
+    <h1 class="checkout-heading">Completá tu <span>pago.</span></h1>
+
+    <div class="checkout-grid">
+
+      <!-- Formulario MP -->
+      <div class="checkout-form-col">
+        <div class="checkout-form-label">Datos de pago</div>
+        <div class="checkout-form-title">Tarjeta de crédito o débito</div>
+        <div id="paymentBrick_container"></div>
+      </div>
+
+      <!-- Resumen del pedido -->
+      <div class="checkout-summary">
+        <div class="summary-card">
+          <div class="summary-brand">Casa Gioia</div>
+          <div class="summary-items" id="summary-items"></div>
+          <div class="summary-total-row">
+            <span class="summary-total-label">Total a pagar</span>
+            <span class="summary-total-amount" id="summary-total"></span>
+          </div>
+          <div class="summary-secure">
+            <span class="summary-secure-icon">◆</span>
+            Pago 100% seguro · Datos encriptados por MercadoPago
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
 <section class="section" style="padding-top:80px; padding-bottom:120px;">
@@ -231,25 +390,20 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
   btn.textContent = 'INICIANDO PAGO…'
   btn.disabled = true
 
+  // Llenar resumen de pedido
+  document.getElementById('summary-items').innerHTML = items.map(it => `
+    <div class="summary-item">
+      <span class="summary-item-name">${it.nombre}<span class="summary-item-qty"> ×${it.qty}</span></span>
+      <span class="summary-item-price">$${(it.precio * it.qty).toLocaleString('es-AR')}</span>
+    </div>`).join('')
+  document.getElementById('summary-total').textContent = '$' + total.toLocaleString('es-AR')
+
+  document.querySelector('.carrito-wrap').style.display = 'none'
+  const paySection = document.getElementById('mp-payment-section')
+  paySection.style.display = 'block'
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+
   try {
-    const prefRes = await fetch(`${SUPABASE_URL}/functions/v1/create-preference`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-      },
-      body: JSON.stringify({ items, origin: window.location.origin }),
-    })
-
-    const prefData = await prefRes.json()
-    if (prefData.error || !prefData.id) throw new Error(prefData.error ?? 'No preference ID')
-
-    document.querySelector('.carrito-wrap').style.display = 'none'
-    const paySection = document.getElementById('mp-payment-section')
-    paySection.style.display = 'block'
-    paySection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
     const mp = new window.MercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' })
     const bricksBuilder = mp.bricks()
 
@@ -258,8 +412,36 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
         amount: total,
         payer: { email: user?.email ?? '' },
       },
+      customization: {
+        visual: {
+          style: {
+            theme: 'flat',
+            customVariables: {
+              baseColor: '#5B1D2A',
+              baseColorFirstVariant: '#7d2839',
+              baseColorSecondVariant: '#a3384d',
+              errorColor: '#b5293e',
+              textPrimaryColor: '#2F2A28',
+              textSecondaryColor: '#7a726c',
+              inputBackgroundColor: '#faf7f2',
+              formBackgroundColor: '#ffffff',
+              borderRadiusSmall: '0px',
+              borderRadiusMedium: '0px',
+              borderRadiusLarge: '0px',
+              borderRadiusFull: '2px',
+              fontSizeMedium: '0.88rem',
+              fontSizeLarge: '0.95rem',
+            },
+          },
+          hideFormTitle: true,
+        },
+        paymentMethods: { maxInstallments: 12 },
+      },
       callbacks: {
-        onReady: () => {},
+        onReady: () => {
+          btn.textContent = 'PROCEDER AL PAGO'
+          btn.disabled = false
+        },
         onSubmit: async (formData) => {
           return new Promise(async (resolve, reject) => {
             try {
@@ -282,7 +464,7 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
                 resolve()
                 window.location.href = `pago-exitoso.html?payment_id=${payment.id}&status=${payment.status}&source=card`
               } else {
-                reject(new Error('Pago rechazado: ' + (payment.status_detail ?? payment.status)))
+                reject(new Error(payment.status_detail ?? payment.status))
               }
             } catch (e) {
               reject(e)
@@ -298,6 +480,8 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
     console.error(e)
     btn.textContent = 'PROCEDER AL PAGO'
     btn.disabled = false
+    document.querySelector('.carrito-wrap').style.display = 'block'
+    paySection.style.display = 'none'
     alert('No pudimos iniciar el pago. Por favor intentá de nuevo.')
   }
 })
