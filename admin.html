@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Casa Gioia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --wine:      #5B1D2A;
+  --wine-soft: #8d3244;
+  --gold:      #c9a96e;
+  --cream:     #F4EFE5;
+  --text:      #2F2A28;
+  --bg:        #f5f1eb;
+}
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── Top bar ── */
+.admin-bar {
+  background: var(--text);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.admin-bar-brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+.admin-bar-brand span { color: var(--gold); margin-right: 12px; }
+.admin-bar-right { display: flex; align-items: center; gap: 20px; }
+.admin-bar-user { font-size: .72rem; color: rgba(244,239,229,.55); letter-spacing: .5px; }
+.admin-logout {
+  font-size: .68rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(244,239,229,.6);
+  background: none;
+  border: 1px solid rgba(244,239,229,.2);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.admin-logout:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Main ── */
+.admin-main { max-width: 1200px; margin: 0 auto; padding: 40px 32px 80px; }
+
+/* ── Stats ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-bottom: 40px;
+}
+.stat-card {
+  background: white;
+  padding: 24px 20px;
+  border-left: 3px solid transparent;
+}
+.stat-card.wine  { border-color: var(--wine); }
+.stat-card.gold  { border-color: var(--gold); }
+.stat-card.green { border-color: #4caf7d; }
+.stat-card.blue  { border-color: #5b8dd9; }
+.stat-label {
+  font-size: .65rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #a09890;
+  margin-bottom: 10px;
+}
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* ── Filters ── */
+.filters { display: flex; gap: 2px; margin-bottom: 24px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 8px 18px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .68rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(91,29,42,.15);
+  background: white;
+  color: #7a726c;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.filter-btn:hover  { background: var(--cream); }
+.filter-btn.active { background: var(--wine); color: white; border-color: var(--wine); }
+
+/* ── Table ── */
+.table-wrap { background: white; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--text); }
+th {
+  padding: 14px 16px;
+  font-size: .65rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(244,239,229,.6);
+  text-align: left;
+  font-weight: 500;
+  white-space: nowrap;
+}
+td {
+  padding: 14px 16px;
+  font-size: .82rem;
+  color: var(--text);
+  border-bottom: 1px solid rgba(91,29,42,.06);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fdf9f5; }
+
+.order-num { font-weight: 600; color: var(--wine); font-size: .78rem; letter-spacing: .5px; }
+.order-email { color: #7a726c; font-size: .8rem; }
+.order-date  { color: #a09890; font-size: .78rem; white-space: nowrap; }
+.order-total { font-weight: 600; }
+
+/* Estado badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: .65rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-pendiente  { background: #fff3cd; color: #856404; }
+.badge-confirmado { background: #d4edda; color: #155724; }
+.badge-preparando { background: #cce5ff; color: #004085; }
+.badge-en_camino  { background: #e2d9f3; color: #432874; }
+.badge-entregado  { background: #d4edda; color: #0a4020; }
+.badge-cancelado  { background: #f8d7da; color: #721c24; }
+
+.estado-select {
+  font-family: 'Manrope', sans-serif;
+  font-size: .72rem;
+  padding: 5px 10px;
+  border: 1px solid rgba(91,29,42,.2);
+  background: white;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+.estado-select:focus { border-color: var(--wine); }
+
+.saving { opacity: .4; pointer-events: none; }
+
+/* ── Empty / loading ── */
+.admin-loading {
+  text-align: center;
+  padding: 80px 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: #a09890;
+}
+.admin-empty {
+  text-align: center;
+  padding: 60px 32px;
+  color: #a09890;
+  font-size: .88rem;
+}
+
+/* ── Search ── */
+.search-bar { margin-bottom: 16px; }
+.search-input {
+  width: 100%;
+  max-width: 360px;
+  padding: 9px 14px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .82rem;
+  border: 1px solid rgba(91,29,42,.2);
+  background: white;
+  color: var(--text);
+  outline: none;
+}
+.search-input:focus { border-color: var(--wine); }
+.search-input::placeholder { color: #c0b8b2; }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .admin-main { padding: 24px 16px 60px; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-bar">
+  <div class="admin-bar-brand"><span>◆</span>Admin · Casa Gioia</div>
+  <div class="admin-bar-right">
+    <span class="admin-bar-user" id="adminEmail"></span>
+    <button class="admin-logout" id="logoutBtn">Salir</button>
+  </div>
+</div>
+
+<div class="admin-main" id="adminMain">
+  <div class="admin-loading" id="loadingMsg">Cargando pedidos…</div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+const supabase = createClient(
+  'https://dzuymtiutglcyrdcxkaj.supabase.co',
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+)
+const FN_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders'
+const ANON_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+const ADMIN_EMAIL = 'marchioripedro1@gmail.com'
+
+const { data: { session } } = await supabase.auth.getSession()
+if (!session) { window.location.href = 'login.html'; }
+
+const user = session.user
+if (user.email !== ADMIN_EMAIL) {
+  document.getElementById('loadingMsg').textContent = 'No tenés acceso a esta sección.'
+  throw new Error('not admin')
+}
+document.getElementById('adminEmail').textContent = user.email
+document.getElementById('logoutBtn').onclick = async () => {
+  await supabase.auth.signOut()
+  window.location.href = 'index.html'
+}
+
+const ESTADOS = ['pendiente','confirmado','preparando','en_camino','entregado','cancelado']
+const ESTADO_LABEL = {
+  pendiente:'Pendiente', confirmado:'Confirmado', preparando:'Preparando',
+  en_camino:'En camino', entregado:'Entregado', cancelado:'Cancelado',
+}
+
+let allPedidos = []
+let activeFilter = 'todos'
+let searchQuery = ''
+
+async function fetchPedidos() {
+  const res = await fetch(FN_URL, {
+    headers: { 'Authorization': `Bearer ${session.access_token}`, 'apikey': ANON_KEY },
+  })
+  const data = await res.json()
+  if (data.error) throw new Error(data.error)
+  return data.pedidos ?? []
+}
+
+async function updateEstado(id, estado, selectEl) {
+  selectEl.closest('tr').classList.add('saving')
+  const res = await fetch(FN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+      'apikey': ANON_KEY,
+    },
+    body: JSON.stringify({ id, estado }),
+  })
+  const data = await res.json()
+  selectEl.closest('tr').classList.remove('saving')
+  if (data.ok) {
+    const p = allPedidos.find(p => p.id === id)
+    if (p) p.estado = estado
+    renderBadge(selectEl.closest('tr'), estado)
+    renderStats()
+  }
+}
+
+function renderBadge(row, estado) {
+  const badgeEl = row.querySelector('.badge')
+  if (badgeEl) {
+    badgeEl.className = `badge badge-${estado}`
+    badgeEl.textContent = ESTADO_LABEL[estado] ?? estado
+  }
+}
+
+function renderStats() {
+  const total    = allPedidos.length
+  const revenue  = allPedidos.filter(p => p.estado !== 'cancelado').reduce((s, p) => s + Number(p.total ?? 0), 0)
+  const pending  = allPedidos.filter(p => p.estado === 'pendiente').length
+  const shipped  = allPedidos.filter(p => p.estado === 'en_camino').length
+  document.getElementById('stat-total').textContent   = total
+  document.getElementById('stat-revenue').textContent = '$' + revenue.toLocaleString('es-AR')
+  document.getElementById('stat-pending').textContent = pending
+  document.getElementById('stat-shipped').textContent = shipped
+}
+
+function filteredPedidos() {
+  return allPedidos.filter(p => {
+    const matchFilter = activeFilter === 'todos' || p.estado === activeFilter
+    const q = searchQuery.toLowerCase()
+    const matchSearch = !q ||
+      (p.numero_pedido ?? '').toLowerCase().includes(q) ||
+      (p.cliente_email ?? '').toLowerCase().includes(q)
+    return matchFilter && matchSearch
+  })
+}
+
+function renderTable() {
+  const list = filteredPedidos()
+  const tbody = document.getElementById('tbody')
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="admin-empty">No hay pedidos en esta categoría.</td></tr>`
+    return
+  }
+  tbody.innerHTML = list.map(p => {
+    const fecha = p.created_at
+      ? new Date(p.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric' })
+      : '—'
+    const opts = ESTADOS.map(e =>
+      `<option value="${e}" ${p.estado === e ? 'selected' : ''}>${ESTADO_LABEL[e]}</option>`).join('')
+    return `<tr data-id="${p.id}">
+      <td><div class="order-num">#${p.numero_pedido ?? '—'}</div></td>
+      <td><div class="order-email">${p.cliente_email ?? '—'}</div></td>
+      <td><div class="order-date">${fecha}</div></td>
+      <td><div class="order-total">$${Number(p.total ?? 0).toLocaleString('es-AR')}</div></td>
+      <td><span class="badge badge-${p.estado}">${ESTADO_LABEL[p.estado] ?? p.estado}</span></td>
+      <td>
+        <select class="estado-select" onchange="handleEstado(this, '${p.id}')">
+          ${opts}
+        </select>
+      </td>
+    </tr>`
+  }).join('')
+}
+
+window.handleEstado = (selectEl, id) => {
+  updateEstado(id, selectEl.value, selectEl)
+}
+
+function render() {
+  renderStats()
+  renderTable()
+}
+
+// Build full UI
+function buildUI() {
+  document.getElementById('adminMain').innerHTML = `
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card wine">
+        <div class="stat-label">Total pedidos</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="stat-label">Facturación</div>
+        <div class="stat-value" id="stat-revenue">—</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Pendientes</div>
+        <div class="stat-value" id="stat-pending">—</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">En camino</div>
+        <div class="stat-value" id="stat-shipped">—</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input class="search-input" id="searchInput" type="text" placeholder="Buscar por número de pedido o email…">
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-btn active" data-f="todos"      onclick="setFilter(this)">Todos</button>
+      <button class="filter-btn"        data-f="pendiente"  onclick="setFilter(this)">Pendientes</button>
+      <button class="filter-btn"        data-f="confirmado" onclick="setFilter(this)">Confirmados</button>
+      <button class="filter-btn"        data-f="preparando" onclick="setFilter(this)">Preparando</button>
+      <button class="filter-btn"        data-f="en_camino"  onclick="setFilter(this)">En camino</button>
+      <button class="filter-btn"        data-f="entregado"  onclick="setFilter(this)">Entregados</button>
+      <button class="filter-btn"        data-f="cancelado"  onclick="setFilter(this)">Cancelados</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Pedido</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Cambiar estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  `
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value
+    renderTable()
+  })
+}
+
+window.setFilter = (btn) => {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  activeFilter = btn.dataset.f
+  renderTable()
+}
+
+// Init
+try {
+  allPedidos = await fetchPedidos()
+  buildUI()
+  render()
+} catch(e) {
+  document.getElementById('loadingMsg').textContent = 'Error al cargar pedidos. ' + e.message
+}
+</script>
+</body>
+</html>
