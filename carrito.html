@@ -256,20 +256,20 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
     brickController = await bricksBuilder.create('payment', 'paymentBrick_container', {
       initialization: {
         amount: total,
-        preferenceId: prefData.id,
       },
       customization: {
         paymentMethods: {
           creditCard: 'all',
           debitCard: 'all',
           ticket: 'all',
-          mercadoPago: 'all',
           maxInstallments: 12,
         },
       },
       callbacks: {
-        onReady: () => {},
-        onSubmit: async ({ formData }) => {
+        onReady: () => { console.log('[MP] Brick listo') },
+        onSubmit: async ({ selectedPaymentMethod, formData }) => {
+          console.log('[MP] onSubmit — método:', selectedPaymentMethod)
+          console.log('[MP] formData:', JSON.stringify(formData))
           return new Promise(async (resolve, reject) => {
             try {
               const payRes = await fetch(`${SUPABASE_URL}/functions/v1/process-payment`, {
@@ -282,6 +282,7 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
                 body: JSON.stringify({ formData, total }),
               })
               const payment = await payRes.json()
+              console.log('[MP] respuesta process-payment:', JSON.stringify(payment))
 
               if (payment.error) { reject(new Error(payment.error)); return }
 
@@ -289,18 +290,18 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
                 await guardarPedido(items, total, payment.id, payment.status)
                 window.cartSave([])
                 resolve()
-                const dest = payment.status === 'approved' ? 'pago-exitoso.html' : 'pago-exitoso.html'
-                window.location.href = `${dest}?payment_id=${payment.id}&status=${payment.status}&source=card`
+                window.location.href = `pago-exitoso.html?payment_id=${payment.id}&status=${payment.status}&source=card`
               } else {
                 reject(new Error('Pago rechazado: ' + (payment.status_detail ?? payment.status)))
               }
             } catch (e) {
+              console.error('[MP] error en onSubmit:', e)
               reject(e)
             }
           })
         },
         onError: (error) => {
-          console.error('MP Bricks error:', error)
+          console.error('[MP] onError:', JSON.stringify(error))
         },
       },
     })
