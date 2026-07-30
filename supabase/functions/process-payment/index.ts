@@ -37,13 +37,13 @@ serve(async (req) => {
       if (formData.issuer_id) payment.issuer_id = formData.issuer_id
     }
 
-    // Ticket (efectivo) fields — date_of_expiration is required by MP for rapipago/pagofacil
+    // Ticket (efectivo) — date_of_expiration required for rapipago/pagofacil
     if (!isCard) {
-      const exp = new Date()
-      exp.setDate(exp.getDate() + 3)
-      exp.setHours(23, 59, 59, 0)
-      // Argentina is UTC-3
-      payment.date_of_expiration = exp.toISOString().replace('Z', '.000-03:00')
+      const exp = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+      const y = exp.getUTCFullYear()
+      const m = String(exp.getUTCMonth() + 1).padStart(2, '0')
+      const d = String(exp.getUTCDate()).padStart(2, '0')
+      payment.date_of_expiration = `${y}-${m}-${d}T23:59:59.000-03:00`
     }
 
     const res = await fetch("https://api.mercadopago.com/v1/payments", {
@@ -58,6 +58,7 @@ serve(async (req) => {
 
     if (!res.ok) {
       const err = await res.text()
+      console.error("MP API error", res.status, err)
       return new Response(JSON.stringify({ error: err }), {
         status: res.status,
         headers: { ...CORS, "Content-Type": "application/json" },

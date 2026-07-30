@@ -813,7 +813,7 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
             })
             const payment = await payRes.json()
 
-            if (payment.error) { reject(new Error(payment.error)); return }
+            if (payment.error) { console.error('MP payment error:', payment.error); reject(new Error(payment.error)); return }
 
             if (payment.status === 'approved' || payment.status === 'in_process' || payment.status === 'pending') {
               await guardarPedido(items, total, payment.id, payment.status)
