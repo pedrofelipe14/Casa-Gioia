@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — Casa Gioia</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -54,25 +55,37 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 
 /* ── Main ── */
 .admin-main { max-width: 1200px; margin: 0 auto; padding: 40px 32px 80px; }
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(91,29,42,.1);
+}
 
 /* ── Stats ── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 2px;
   margin-bottom: 40px;
 }
 .stat-card {
   background: white;
-  padding: 24px 20px;
+  padding: 22px 18px;
   border-left: 3px solid transparent;
 }
-.stat-card.wine  { border-color: var(--wine); }
-.stat-card.gold  { border-color: var(--gold); }
-.stat-card.green { border-color: #4caf7d; }
-.stat-card.blue  { border-color: #5b8dd9; }
+.stat-card.wine   { border-color: var(--wine); }
+.stat-card.gold   { border-color: var(--gold); }
+.stat-card.green  { border-color: #4caf7d; }
+.stat-card.blue   { border-color: #5b8dd9; }
+.stat-card.purple { border-color: #9b59b6; }
 .stat-label {
-  font-size: .65rem;
+  font-size: .62rem;
   letter-spacing: 2.5px;
   text-transform: uppercase;
   color: #a09890;
@@ -80,14 +93,27 @@ body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--t
 }
 .stat-value {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: 400;
   color: var(--text);
   line-height: 1;
 }
 
+/* ── Charts ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-bottom: 40px;
+}
+.chart-card {
+  background: white;
+  padding: 24px;
+}
+.chart-card canvas { max-height: 240px; }
+
 /* ── Filters ── */
-.filters { display: flex; gap: 2px; margin-bottom: 24px; flex-wrap: wrap; }
+.filters { display: flex; gap: 2px; margin-bottom: 16px; flex-wrap: wrap; }
 .filter-btn {
   padding: 8px 18px;
   font-family: 'Manrope', sans-serif;
@@ -109,7 +135,7 @@ table { width: 100%; border-collapse: collapse; }
 thead { background: var(--text); }
 th {
   padding: 14px 16px;
-  font-size: .65rem;
+  font-size: .62rem;
   letter-spacing: 2.5px;
   text-transform: uppercase;
   color: rgba(244,239,229,.6);
@@ -118,7 +144,7 @@ th {
   white-space: nowrap;
 }
 td {
-  padding: 14px 16px;
+  padding: 13px 16px;
   font-size: .82rem;
   color: var(--text);
   border-bottom: 1px solid rgba(91,29,42,.06);
@@ -127,16 +153,15 @@ td {
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: #fdf9f5; }
 
-.order-num { font-weight: 600; color: var(--wine); font-size: .78rem; letter-spacing: .5px; }
+.order-num   { font-weight: 600; color: var(--wine); font-size: .78rem; letter-spacing: .5px; }
 .order-email { color: #7a726c; font-size: .8rem; }
 .order-date  { color: #a09890; font-size: .78rem; white-space: nowrap; }
 .order-total { font-weight: 600; }
 
-/* Estado badges */
 .badge {
   display: inline-block;
   padding: 3px 10px;
-  font-size: .65rem;
+  font-size: .62rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   font-weight: 600;
@@ -160,23 +185,8 @@ tr:hover td { background: #fdf9f5; }
   outline: none;
 }
 .estado-select:focus { border-color: var(--wine); }
-
 .saving { opacity: .4; pointer-events: none; }
-
-/* ── Empty / loading ── */
-.admin-loading {
-  text-align: center;
-  padding: 80px 32px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.2rem;
-  color: #a09890;
-}
-.admin-empty {
-  text-align: center;
-  padding: 60px 32px;
-  color: #a09890;
-  font-size: .88rem;
-}
+.save-ok td { background: #f0fff4 !important; }
 
 /* ── Search ── */
 .search-bar { margin-bottom: 16px; }
@@ -194,7 +204,26 @@ tr:hover td { background: #fdf9f5; }
 .search-input:focus { border-color: var(--wine); }
 .search-input::placeholder { color: #c0b8b2; }
 
-@media (max-width: 768px) {
+/* ── Empty / loading ── */
+.admin-loading {
+  text-align: center;
+  padding: 80px 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: #a09890;
+}
+.admin-empty {
+  text-align: center;
+  padding: 40px 32px;
+  color: #a09890;
+  font-size: .88rem;
+}
+
+@media (max-width: 900px) {
+  .stats-grid  { grid-template-columns: repeat(3, 1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .admin-main { padding: 24px 16px 60px; }
 }
@@ -211,22 +240,32 @@ tr:hover td { background: #fdf9f5; }
 </div>
 
 <div class="admin-main" id="adminMain">
-  <div class="admin-loading" id="loadingMsg">Cargando pedidos…</div>
+  <div class="admin-loading" id="loadingMsg">Cargando…</div>
 </div>
 
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
+// Storage con fallback igual que supabase-client.js
+function makeStorage() {
+  const mem = {}
+  const tryLocal = () => { try { localStorage.setItem('_cg','1'); localStorage.removeItem('_cg'); return true } catch { return false } }
+  const trySession = () => { try { sessionStorage.setItem('_cg','1'); sessionStorage.removeItem('_cg'); return true } catch { return false } }
+  return tryLocal() ? localStorage : trySession() ? sessionStorage : { getItem: k => mem[k] ?? null, setItem: (k,v) => { mem[k]=v }, removeItem: k => { delete mem[k] } }
+}
+
 const supabase = createClient(
   'https://dzuymtiutglcyrdcxkaj.supabase.co',
-  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+  'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9',
+  { auth: { storage: makeStorage(), persistSession: true, detectSessionInUrl: true } }
 )
-const FN_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders'
-const ANON_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
+
+const FN_URL    = 'https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders'
+const ANON_KEY  = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
 const ADMIN_EMAIL = 'marchioripedro1@gmail.com'
 
 const { data: { session } } = await supabase.auth.getSession()
-if (!session) { window.location.href = 'login.html'; }
+if (!session) { window.location.href = 'login.html' }
 
 const user = session.user
 if (user.email !== ADMIN_EMAIL) {
@@ -245,9 +284,12 @@ const ESTADO_LABEL = {
   en_camino:'En camino', entregado:'Entregado', cancelado:'Cancelado',
 }
 
-let allPedidos = []
+let allPedidos  = []
+let userCount   = 0
 let activeFilter = 'todos'
-let searchQuery = ''
+let searchQuery  = ''
+let chartStatus  = null
+let chartRevenue = null
 
 async function fetchPedidos() {
   const res = await fetch(FN_URL, {
@@ -255,47 +297,118 @@ async function fetchPedidos() {
   })
   const data = await res.json()
   if (data.error) throw new Error(data.error)
+  userCount = data.user_count ?? 0
   return data.pedidos ?? []
 }
 
 async function updateEstado(id, estado, selectEl) {
-  selectEl.closest('tr').classList.add('saving')
-  const res = await fetch(FN_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`,
-      'apikey': ANON_KEY,
-    },
-    body: JSON.stringify({ id, estado }),
-  })
-  const data = await res.json()
-  selectEl.closest('tr').classList.remove('saving')
-  if (data.ok) {
-    const p = allPedidos.find(p => p.id === id)
-    if (p) p.estado = estado
-    renderBadge(selectEl.closest('tr'), estado)
-    renderStats()
-  }
-}
-
-function renderBadge(row, estado) {
-  const badgeEl = row.querySelector('.badge')
-  if (badgeEl) {
-    badgeEl.className = `badge badge-${estado}`
-    badgeEl.textContent = ESTADO_LABEL[estado] ?? estado
+  const row = selectEl.closest('tr')
+  row.classList.add('saving')
+  try {
+    const res = await fetch(FN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+        'apikey': ANON_KEY,
+      },
+      body: JSON.stringify({ id, estado }),
+    })
+    const data = await res.json()
+    if (data.ok) {
+      const p = allPedidos.find(p => p.id === id)
+      if (p) p.estado = estado
+      const badgeEl = row.querySelector('.badge')
+      if (badgeEl) { badgeEl.className = `badge badge-${estado}`; badgeEl.textContent = ESTADO_LABEL[estado] }
+      row.classList.add('save-ok')
+      setTimeout(() => row.classList.remove('save-ok'), 1200)
+      renderStats()
+      renderCharts()
+    } else {
+      alert('Error al guardar: ' + (data.error ?? 'desconocido'))
+      selectEl.value = allPedidos.find(p => p.id === id)?.estado ?? estado
+    }
+  } catch(e) {
+    alert('Error de conexión: ' + e.message)
+  } finally {
+    row.classList.remove('saving')
   }
 }
 
 function renderStats() {
   const total    = allPedidos.length
-  const revenue  = allPedidos.filter(p => p.estado !== 'cancelado').reduce((s, p) => s + Number(p.total ?? 0), 0)
+  const revenue  = allPedidos.filter(p => p.estado !== 'cancelado').reduce((s,p) => s + Number(p.total ?? 0), 0)
   const pending  = allPedidos.filter(p => p.estado === 'pendiente').length
   const shipped  = allPedidos.filter(p => p.estado === 'en_camino').length
+  document.getElementById('stat-users').textContent   = userCount
   document.getElementById('stat-total').textContent   = total
   document.getElementById('stat-revenue').textContent = '$' + revenue.toLocaleString('es-AR')
   document.getElementById('stat-pending').textContent = pending
   document.getElementById('stat-shipped').textContent = shipped
+}
+
+function renderCharts() {
+  // Doughnut: pedidos por estado
+  const statusCounts = ESTADOS.map(e => allPedidos.filter(p => p.estado === e).length)
+  const statusColors = ['#f0b429','#4caf7d','#5b8dd9','#9b59b6','#0a4020','#e74c3c']
+
+  if (chartStatus) chartStatus.destroy()
+  chartStatus = new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: ESTADOS.map(e => ESTADO_LABEL[e]),
+      datasets: [{ data: statusCounts, backgroundColor: statusColors, borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: {
+      plugins: { legend: { position: 'right', labels: { font: { family: 'Manrope', size: 11 }, padding: 12 } } },
+      cutout: '65%',
+    }
+  })
+
+  // Bar: facturación por mes (últimos 6 meses)
+  const now = new Date()
+  const months = []
+  const revenues = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const label = d.toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })
+    months.push(label)
+    const rev = allPedidos
+      .filter(p => {
+        if (p.estado === 'cancelado') return false
+        const pd = new Date(p.created_at)
+        return pd.getFullYear() === d.getFullYear() && pd.getMonth() === d.getMonth()
+      })
+      .reduce((s,p) => s + Number(p.total ?? 0), 0)
+    revenues.push(rev)
+  }
+
+  if (chartRevenue) chartRevenue.destroy()
+  chartRevenue = new Chart(document.getElementById('chartRevenue'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Facturación',
+        data: revenues,
+        backgroundColor: 'rgba(91,29,42,.75)',
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          ticks: {
+            font: { family: 'Manrope', size: 10 },
+            callback: v => '$' + Number(v).toLocaleString('es-AR'),
+          },
+          grid: { color: 'rgba(0,0,0,.05)' },
+        },
+        x: { ticks: { font: { family: 'Manrope', size: 11 } }, grid: { display: false } }
+      }
+    }
+  })
 }
 
 function filteredPedidos() {
@@ -329,7 +442,7 @@ function renderTable() {
       <td><div class="order-total">$${Number(p.total ?? 0).toLocaleString('es-AR')}</div></td>
       <td><span class="badge badge-${p.estado}">${ESTADO_LABEL[p.estado] ?? p.estado}</span></td>
       <td>
-        <select class="estado-select" onchange="handleEstado(this, '${p.id}')">
+        <select class="estado-select" data-id="${p.id}" onchange="handleEstado(this)">
           ${opts}
         </select>
       </td>
@@ -337,27 +450,34 @@ function renderTable() {
   }).join('')
 }
 
-window.handleEstado = (selectEl, id) => {
+window.handleEstado = (selectEl) => {
+  const id = selectEl.dataset.id
   updateEstado(id, selectEl.value, selectEl)
 }
 
-function render() {
-  renderStats()
+window.setFilter = (btn) => {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  activeFilter = btn.dataset.f
   renderTable()
 }
 
-// Build full UI
 function buildUI() {
   document.getElementById('adminMain').innerHTML = `
-    <!-- Stats -->
+    <div class="section-title">Estadísticas</div>
+
     <div class="stats-grid">
+      <div class="stat-card purple">
+        <div class="stat-label">Usuarios</div>
+        <div class="stat-value" id="stat-users">—</div>
+      </div>
       <div class="stat-card wine">
         <div class="stat-label">Total pedidos</div>
         <div class="stat-value" id="stat-total">—</div>
       </div>
       <div class="stat-card gold">
         <div class="stat-label">Facturación</div>
-        <div class="stat-value" id="stat-revenue">—</div>
+        <div class="stat-value" id="stat-revenue" style="font-size:1.4rem;">—</div>
       </div>
       <div class="stat-card green">
         <div class="stat-label">Pendientes</div>
@@ -369,12 +489,23 @@ function buildUI() {
       </div>
     </div>
 
-    <!-- Search -->
+    <div class="charts-grid" style="margin-bottom:40px;">
+      <div class="chart-card">
+        <div class="section-title">Pedidos por estado</div>
+        <canvas id="chartStatus"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="section-title">Facturación mensual</div>
+        <canvas id="chartRevenue"></canvas>
+      </div>
+    </div>
+
+    <div class="section-title">Pedidos</div>
+
     <div class="search-bar">
       <input class="search-input" id="searchInput" type="text" placeholder="Buscar por número de pedido o email…">
     </div>
 
-    <!-- Filters -->
     <div class="filters">
       <button class="filter-btn active" data-f="todos"      onclick="setFilter(this)">Todos</button>
       <button class="filter-btn"        data-f="pendiente"  onclick="setFilter(this)">Pendientes</button>
@@ -385,17 +516,11 @@ function buildUI() {
       <button class="filter-btn"        data-f="cancelado"  onclick="setFilter(this)">Cancelados</button>
     </div>
 
-    <!-- Table -->
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Pedido</th>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Cambiar estado</th>
+            <th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Cambiar estado</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -403,26 +528,20 @@ function buildUI() {
     </div>
   `
 
-  document.getElementById('searchInput').addEventListener('input', (e) => {
+  document.getElementById('searchInput').addEventListener('input', e => {
     searchQuery = e.target.value
     renderTable()
   })
 }
 
-window.setFilter = (btn) => {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
-  btn.classList.add('active')
-  activeFilter = btn.dataset.f
-  renderTable()
-}
-
-// Init
 try {
   allPedidos = await fetchPedidos()
   buildUI()
-  render()
+  renderStats()
+  renderCharts()
+  renderTable()
 } catch(e) {
-  document.getElementById('loadingMsg').textContent = 'Error al cargar pedidos. ' + e.message
+  document.getElementById('loadingMsg').textContent = 'Error al cargar: ' + e.message
 }
 </script>
 </body>

@@ -79,30 +79,33 @@ serve(async (req) => {
     })
   }
 
-  // GET → listar todos los pedidos
-  const { data: pedidos, error } = await admin
-    .from("pedidos")
-    .select("*")
-    .order("created_at", { ascending: false })
+  // GET → listar todos los pedidos + stats
+  const [pedidosRes, usersRes] = await Promise.all([
+    admin.from("pedidos").select("*").order("created_at", { ascending: false }),
+    admin.auth.admin.listUsers({ perPage: 1000 }),
+  ])
 
-  if (error) return new Response(JSON.stringify({ error: error.message }), {
+  if (pedidosRes.error) return new Response(JSON.stringify({ error: pedidosRes.error.message }), {
     status: 500, headers: { ...CORS, "Content-Type": "application/json" },
   })
 
+  const pedidos = pedidosRes.data ?? []
+  const userCount = usersRes.data?.users?.length ?? 0
+
   // Enriquecer con email del cliente
-  const uids = [...new Set((pedidos ?? []).map((p: Record<string, unknown>) => p.user_id as string))]
+  const uids = [...new Set(pedidos.map((p: Record<string, unknown>) => p.user_id as string))]
   const emailMap: Record<string, string> = {}
   await Promise.all(uids.map(async (uid) => {
     const { data } = await admin.auth.admin.getUserById(uid)
     if (data?.user) emailMap[uid] = data.user.email ?? "—"
   }))
 
-  const enriched = (pedidos ?? []).map((p: Record<string, unknown>) => ({
+  const enriched = pedidos.map((p: Record<string, unknown>) => ({
     ...p,
     cliente_email: emailMap[p.user_id as string] ?? "—",
   }))
 
-  return new Response(JSON.stringify({ pedidos: enriched }), {
+  return new Response(JSON.stringify({ pedidos: enriched, user_count: userCount }), {
     headers: { ...CORS, "Content-Type": "application/json" },
   })
 })
