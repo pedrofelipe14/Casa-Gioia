@@ -403,13 +403,16 @@
           <div id="shipping-preview" class="shipping-preview">
             <div class="shipping-preview-header">Estimado de envío</div>
             <div class="shipping-preview-row">
-              <span class="sp-carrier">Andreani / OCA</span>
+              <div>
+                <div class="sp-carrier">Andreani / OCA</div>
+                <div class="sp-days" id="sp-zone" style="font-size:.72rem;color:#a09890;margin-top:2px;"></div>
+              </div>
               <div style="text-align:right;">
                 <div class="sp-price" id="sp-price"></div>
                 <div class="sp-days" id="sp-days"></div>
               </div>
             </div>
-            <p class="shipping-preview-note">* Precio estimado. El costo final se coordina con vos antes del envío.</p>
+            <p class="shipping-preview-note">* Precio estimado según código postal. El costo final se coordina antes del envío.</p>
           </div>
         </div>
 
@@ -656,47 +659,44 @@ if (user) {
   }
 }
 
-/* ── Shipping zones (precios estimados Andreani/OCA) ── */
-const SHIPPING_ZONES = {
-  'CABA':                { precio: 4500,  dias: '1–2' },
-  'Buenos Aires':        { precio: 5200,  dias: '2–4' },
-  'Córdoba':             { precio: 6500,  dias: '3–4' },
-  'Santa Fe':            { precio: 6500,  dias: '3–4' },
-  'Mendoza':             { precio: 7500,  dias: '4–5' },
-  'Tucumán':             { precio: 8200,  dias: '4–6' },
-  'Entre Ríos':          { precio: 7000,  dias: '3–5' },
-  'Salta':               { precio: 9000,  dias: '5–7' },
-  'Misiones':            { precio: 9500,  dias: '5–7' },
-  'Chaco':               { precio: 9500,  dias: '5–7' },
-  'Corrientes':          { precio: 9000,  dias: '5–7' },
-  'Santiago del Estero': { precio: 9000,  dias: '5–7' },
-  'San Juan':            { precio: 8000,  dias: '4–6' },
-  'Jujuy':               { precio: 9500,  dias: '5–7' },
-  'Río Negro':           { precio: 11000, dias: '5–7' },
-  'Neuquén':             { precio: 10500, dias: '5–7' },
-  'Formosa':             { precio: 10000, dias: '6–8' },
-  'San Luis':            { precio: 7500,  dias: '4–6' },
-  'Catamarca':           { precio: 9000,  dias: '5–7' },
-  'La Rioja':            { precio: 8500,  dias: '5–7' },
-  'La Pampa':            { precio: 8000,  dias: '4–6' },
-  'Chubut':              { precio: 13000, dias: '6–8' },
-  'Santa Cruz':          { precio: 14500, dias: '7–9' },
-  'Tierra del Fuego':    { precio: 16000, dias: '8–12' },
+/* ── Shipping zones por código postal (Andreani / OCA estimado) ── */
+const CP_ZONES = [
+  { min: 1000, max: 1499, zona: 'CABA',                 precio: 4500,  dias: '1–2' },
+  { min: 1500, max: 1999, zona: 'Gran Buenos Aires',     precio: 5200,  dias: '2–3' },
+  { min: 2000, max: 2999, zona: 'Bs. As. / Santa Fe',   precio: 6500,  dias: '2–4' },
+  { min: 3000, max: 3499, zona: 'Santa Fe / Entre Ríos',precio: 7500,  dias: '3–5' },
+  { min: 3500, max: 3999, zona: 'NEA',                   precio: 9500,  dias: '5–7' },
+  { min: 4000, max: 4999, zona: 'NOA',                   precio: 9000,  dias: '5–7' },
+  { min: 5000, max: 5999, zona: 'Córdoba / Cuyo',        precio: 7000,  dias: '3–5' },
+  { min: 6000, max: 6999, zona: 'Buenos Aires oeste',    precio: 6000,  dias: '3–4' },
+  { min: 7000, max: 7599, zona: 'Buenos Aires costera',  precio: 5500,  dias: '2–4' },
+  { min: 7600, max: 7699, zona: 'Mar del Plata',         precio: 2500,  dias: '1' },
+  { min: 7700, max: 7999, zona: 'Buenos Aires sur',      precio: 6500,  dias: '3–5' },
+  { min: 8000, max: 8999, zona: 'Patagonia Norte',       precio: 11000, dias: '5–7' },
+  { min: 9000, max: 9419, zona: 'Patagonia Sur',         precio: 14500, dias: '7–9' },
+  { min: 9420, max: 9999, zona: 'Tierra del Fuego',      precio: 16000, dias: '8–12' },
+]
+
+function getShippingZone(cp) {
+  const num = parseInt(cp, 10)
+  if (isNaN(num) || cp.length < 4) return null
+  return CP_ZONES.find(z => num >= z.min && num <= z.max) ?? null
 }
 
-document.getElementById('s-provincia').addEventListener('change', (e) => {
-  const prov = e.target.value
+document.getElementById('s-cp').addEventListener('input', (e) => {
   const preview = document.getElementById('shipping-preview')
-  if (!prov || !SHIPPING_ZONES[prov]) {
+  if (shippingMode !== 'envio') return
+  const zone = getShippingZone(e.target.value.trim())
+  if (!zone) {
     preview.style.display = 'none'
     shippingCost = 0
     fillSummary('s')
     return
   }
-  const zone = SHIPPING_ZONES[prov]
   shippingCost = zone.precio
   document.getElementById('sp-price').textContent = '$' + zone.precio.toLocaleString('es-AR')
-  document.getElementById('sp-days').textContent  = zone.dias + ' días hábiles'
+  document.getElementById('sp-days').textContent  = zone.dias + (zone.dias === '1' ? ' día hábil' : ' días hábiles')
+  document.getElementById('sp-zone').textContent  = zone.zona
   preview.style.display = 'block'
   fillSummary('s')
 })
