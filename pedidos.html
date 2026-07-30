@@ -155,13 +155,21 @@ btn.textContent = `👤 ${nombre.split(' ')[0]}`
 btn.onclick = () => window.location.href = 'perfil.html'
 btn.style.opacity = '1'
 
+const ESTADOS = ['pendiente', 'confirmado', 'preparando', 'en_camino', 'entregado']
+const LABELS  = ['Recibido',  'Confirmado', 'Preparando', 'En camino', 'Entregado']
+const ESTADO_LABELS = {
+  pendiente:  'Pendiente',
+  confirmado: 'Confirmado',
+  preparando: 'Preparando',
+  en_camino:  'En camino',
+  entregado:  'Entregado'
+}
+
 const { data: pedidos, error } = await supabase
   .from('pedidos')
   .select('*')
   .eq('user_id', user.id)
   .order('created_at', { ascending: false })
-
-console.log('pedidos result:', { pedidos, error, userId: user.id })
 
 document.getElementById('loading').style.display = 'none'
 
@@ -172,16 +180,6 @@ if (error) {
   document.getElementById('empty').style.display = 'block'
 } else {
   renderPedidos(pedidos)
-}
-
-const ESTADOS = ['pendiente', 'confirmado', 'preparando', 'en_camino', 'entregado']
-const LABELS  = ['Recibido',  'Confirmado', 'Preparando', 'En camino', 'Entregado']
-const ESTADO_LABELS = {
-  pendiente:  'Pendiente',
-  confirmado: 'Confirmado',
-  preparando: 'Preparando',
-  en_camino:  'En camino',
-  entregado:  'Entregado'
 }
 
 function renderPedidos(list) {
