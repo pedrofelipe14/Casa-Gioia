@@ -150,7 +150,7 @@ function _carouselSet(wrap, idx) {
 function _initCarousels() {
   document.querySelectorAll('.card-has-carousel').forEach(wrap => {
     const slideW = wrap.clientWidth
-    const slideH = Math.round(slideW * 4 / 3)   // mismo ratio 3/4 que .card-img
+    const slideH = Math.round(slideW * 3 / 4)   // mismo ratio 4/3 que .card-img
     wrap.style.height = slideH + 'px'
     wrap.dataset.slideW = slideW
     const imgs  = wrap.querySelectorAll('.carousel-img')
