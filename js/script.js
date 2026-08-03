@@ -128,7 +128,7 @@ document.querySelectorAll('.marquee span').forEach(span => {
 /* ── Cart: localStorage helpers (global) ── */
 const _CART_KEY = 'casagioia_cart'
 window.cartGet  = () => JSON.parse(localStorage.getItem(_CART_KEY) || '[]')
-window.cartSave = (items) => { localStorage.setItem(_CART_KEY, JSON.stringify(items)); _cartBadge() }
+window.cartSave = (items) => { localStorage.setItem(_CART_KEY, JSON.stringify(items)); _cartBadge(); window._cartSyncFn?.() }
 
 function _cartBadge() {
     const n = window.cartGet().reduce((s, i) => s + i.qty, 0)

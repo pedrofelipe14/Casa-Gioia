@@ -84,7 +84,7 @@ serve(async (req) => {
 
   const { data: productos, error: dbError } = await adminClient
     .from("productos")
-    .select("id, precio")
+    .select("id, precio, stock")
     .in("id", productIds)
 
   if (dbError || !productos?.length) {
@@ -94,8 +94,11 @@ serve(async (req) => {
 
   let productTotal = 0
   for (const item of items) {
-    const producto = productos.find((p: { id: string; precio: number }) => p.id === item.id)
+    const producto = productos.find((p: { id: string; precio: number; stock: number | null }) => p.id === item.id)
     if (!producto) return bad(`Producto desconocido: ${item.id}`)
+    if (producto.stock !== null && producto.stock < item.qty) {
+      return bad(`Stock insuficiente para uno de los productos`)
+    }
     productTotal += producto.precio * item.qty
   }
 
@@ -158,12 +161,26 @@ serve(async (req) => {
     }
 
     const data = await res.json()
+
+    // Descontar stock si el pago fue aprobado
+    if (data.status === "approved") {
+      for (const item of items) {
+        const producto = productos.find((p: { id: string; precio: number; stock: number | null }) => p.id === item.id)
+        if (producto?.stock !== null && producto?.stock !== undefined) {
+          await adminClient
+            .from("productos")
+            .update({ stock: Math.max(0, producto.stock - item.qty) })
+            .eq("id", item.id)
+        }
+      }
+    }
+
     return new Response(JSON.stringify({
       id:            data.id,
       status:        data.status,
       status_detail: data.status_detail,
       ticket_url:    data.transaction_details?.external_resource_url ?? null,
-      total,  // devolvemos el total calculado por el servidor
+      total,
     }), { headers: { ...CORS, "Content-Type": "application/json" } })
 
   } catch (e: unknown) {

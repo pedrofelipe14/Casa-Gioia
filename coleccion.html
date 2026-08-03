@@ -120,6 +120,7 @@
 
 <script src="js/script.js"></script>
 <script type="module" src="js/newsletter.js"></script>
+<script type="module" src="js/cart-sync.js"></script>
 <script type="module">
 import { supabase } from './js/supabase-client.js'
 
@@ -141,7 +142,7 @@ const grid = document.getElementById('products-grid')
 
 const { data: productos, error } = await supabase
   .from('productos')
-  .select('id, nombre, precio, descripcion, categoria, imagen_url')
+  .select('id, nombre, precio, descripcion, categoria, imagen_url, stock, fotos')
   .eq('activo', true)
   .order('created_at', { ascending: false })
 
@@ -150,17 +151,22 @@ if (error || !productos?.length) {
 } else {
   grid.innerHTML = productos.map(p => {
     const cats = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
-    const img = p.imagen_url
-      ? `<img class="card-img" src="${p.imagen_url}" alt="${p.nombre}" loading="lazy">`
+    const agotado = p.stock !== null && p.stock !== undefined && p.stock === 0
+    const imgSrc = p.imagen_url || (Array.isArray(p.fotos) && p.fotos[0]) || null
+    const img = imgSrc
+      ? `<img class="card-img" src="${imgSrc}" alt="${p.nombre}" loading="lazy">`
       : `<div class="card-img" style="background:#f0ebe3;display:flex;align-items:center;justify-content:center;color:#c0b8b2;font-size:.8rem;">Sin imagen</div>`
+    const stockBadge = agotado ? `<span style="position:absolute;top:10px;left:10px;background:rgba(47,42,40,.8);color:#f4efe5;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;">Agotado</span>` : ''
     return `<div class="card filterable fade-in" data-cat="${(p.categoria ?? []).join(' ')}" data-id="${p.id}" data-nombre="${p.nombre}" data-precio="${p.precio}">
-      <div class="card-img-wrap">${img}</div>
+      <div class="card-img-wrap" style="position:relative;">${img}${stockBadge}</div>
       <div class="card-body">
         ${cats ? `<p class="card-cat">${cats}</p>` : ''}
         <h3 class="card-name">${p.nombre}</h3>
         ${p.descripcion ? `<p class="card-desc">${p.descripcion}</p>` : ''}
         <p class="card-price">$${Number(p.precio).toLocaleString('es-AR')}</p>
-        <button class="btn-agregar" onclick="cartAdd(this)">+ Agregar</button>
+        <button class="btn-agregar" onclick="cartAdd(this)" ${agotado ? 'disabled style="opacity:.45;cursor:not-allowed;"' : ''}>
+          ${agotado ? 'Sin stock' : '+ Agregar'}
+        </button>
       </div>
     </div>`
   }).join('')

@@ -9,10 +9,10 @@ const CORS = {
 
 const CATEGORIAS_VALIDAS = ["accesorios", "deco", "deli", "muebles"]
 
-function deny()  { return new Response(JSON.stringify({ error: "No autorizado" }),   { status: 401, headers: { ...CORS, "Content-Type": "application/json" } }) }
-function bad(m: string) { return new Response(JSON.stringify({ error: m }),          { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }) }
-function err()   { return new Response(JSON.stringify({ error: "Error interno" }),   { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }) }
-function ok(d: unknown) { return new Response(JSON.stringify(d),                     { headers: { ...CORS, "Content-Type": "application/json" } }) }
+function deny()         { return new Response(JSON.stringify({ error: "No autorizado" }),  { status: 401, headers: { ...CORS, "Content-Type": "application/json" } }) }
+function bad(m: string) { return new Response(JSON.stringify({ error: m }),                { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }) }
+function err()          { return new Response(JSON.stringify({ error: "Error interno" }),  { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }) }
+function ok(d: unknown) { return new Response(JSON.stringify(d),                           { headers: { ...CORS, "Content-Type": "application/json" } }) }
 
 async function verifyAdmin(req: Request): Promise<boolean> {
   const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
@@ -46,12 +46,13 @@ serve(async (req) => {
 
   // POST — crear producto
   if (req.method === "POST") {
-    const { nombre, precio, descripcion, categoria, imagen_url, activo } = body
+    const { nombre, precio, descripcion, categoria, imagen_url, fotos, activo, stock, dimensiones, peso } = body
 
     if (typeof nombre !== "string" || !nombre.trim()) return bad("Nombre requerido")
     if (!Number.isInteger(precio) || (precio as number) <= 0) return bad("Precio inválido")
     const cats = Array.isArray(categoria) ? categoria : []
     if (cats.some((c: unknown) => !CATEGORIAS_VALIDAS.includes(c as string))) return bad("Categoría inválida")
+    if (stock !== null && stock !== undefined && (!Number.isInteger(stock) || (stock as number) < 0)) return bad("Stock inválido")
 
     const { data, error } = await admin.from("productos").insert({
       nombre:      nombre.trim(),
@@ -59,7 +60,11 @@ serve(async (req) => {
       descripcion: typeof descripcion === "string" ? descripcion.trim() : null,
       categoria:   cats,
       imagen_url:  typeof imagen_url === "string" ? imagen_url.trim() : null,
+      fotos:       Array.isArray(fotos) ? fotos : [],
       activo:      activo !== false,
+      stock:       Number.isInteger(stock) ? Number(stock) : null,
+      dimensiones: typeof dimensiones === "string" ? dimensiones.trim() : null,
+      peso:        typeof peso === "string" ? peso.trim() : null,
     }).select().single()
 
     if (error) { console.error(error); return err() }
@@ -68,13 +73,14 @@ serve(async (req) => {
 
   // PUT — editar producto
   if (req.method === "PUT") {
-    const { id, nombre, precio, descripcion, categoria, imagen_url, activo } = body
+    const { id, nombre, precio, descripcion, categoria, imagen_url, fotos, activo, stock, dimensiones, peso } = body
 
     if (typeof id !== "string" || !id) return bad("ID requerido")
     if (typeof nombre !== "string" || !nombre.trim()) return bad("Nombre requerido")
     if (!Number.isInteger(precio) || (precio as number) <= 0) return bad("Precio inválido")
     const cats = Array.isArray(categoria) ? categoria : []
     if (cats.some((c: unknown) => !CATEGORIAS_VALIDAS.includes(c as string))) return bad("Categoría inválida")
+    if (stock !== null && stock !== undefined && (!Number.isInteger(stock) || (stock as number) < 0)) return bad("Stock inválido")
 
     const { data, error } = await admin.from("productos").update({
       nombre:      nombre.trim(),
@@ -82,7 +88,11 @@ serve(async (req) => {
       descripcion: typeof descripcion === "string" ? descripcion.trim() : null,
       categoria:   cats,
       imagen_url:  typeof imagen_url === "string" ? imagen_url.trim() : null,
+      fotos:       Array.isArray(fotos) ? fotos : [],
       activo:      activo !== false,
+      stock:       Number.isInteger(stock) ? Number(stock) : null,
+      dimensiones: typeof dimensiones === "string" ? dimensiones.trim() : null,
+      peso:        typeof peso === "string" ? peso.trim() : null,
       updated_at:  new Date().toISOString(),
     }).eq("id", id).select().single()
 
@@ -90,12 +100,12 @@ serve(async (req) => {
     return ok({ producto: data })
   }
 
-  // DELETE — baja lógica (activo = false)
+  // DELETE — eliminar producto definitivamente
   if (req.method === "DELETE") {
     const { id } = body
     if (typeof id !== "string" || !id) return bad("ID requerido")
 
-    const { error } = await admin.from("productos").update({ activo: false }).eq("id", id)
+    const { error } = await admin.from("productos").delete().eq("id", id)
     if (error) { console.error(error); return err() }
     return ok({ ok: true })
   }

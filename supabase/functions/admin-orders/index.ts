@@ -129,6 +129,35 @@ serve(async (req) => {
     })
   }
 
+  const url = new URL(req.url)
+  const scope = url.searchParams.get("scope")
+
+  // GET ?scope=carritos — carritos abandonados
+  if (scope === "carritos") {
+    const { data: carritos, error } = await admin
+      .from("carritos")
+      .select("*")
+      .order("updated_at", { ascending: false })
+
+    if (error) { console.error("fetch carritos error:", error); return serverError() }
+
+    const uids = (carritos ?? []).map((c: Record<string, unknown>) => c.user_id as string)
+    const emailMap: Record<string, string> = {}
+    await Promise.all(uids.map(async (uid: string) => {
+      const { data } = await admin.auth.admin.getUserById(uid)
+      if (data?.user) emailMap[uid] = data.user.email ?? "—"
+    }))
+
+    const enriched = (carritos ?? []).map((c: Record<string, unknown>) => ({
+      ...c,
+      cliente_email: emailMap[c.user_id as string] ?? "—",
+    }))
+
+    return new Response(JSON.stringify({ carritos: enriched }), {
+      headers: { ...CORS, "Content-Type": "application/json" },
+    })
+  }
+
   const [pedidosRes, usersRes] = await Promise.all([
     admin.from("pedidos").select("*").order("created_at", { ascending: false }),
     admin.auth.admin.listUsers({ perPage: 1000 }),

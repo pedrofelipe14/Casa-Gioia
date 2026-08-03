@@ -144,6 +144,21 @@ tr:hover td { background: #fdf9f5; }
 .btn-cancel-form { background: none; border: 1px solid rgba(91,29,42,.2); color: #7a726c; padding: 11px 20px; font-family: 'Manrope', sans-serif; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: border-color .2s; }
 .btn-cancel-form:hover { border-color: var(--wine); color: var(--wine); }
 
+/* ── Multiple photos ── */
+.fotos-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.foto-thumb-wrap { position: relative; width: 72px; height: 72px; }
+.foto-thumb { width: 72px; height: 72px; object-fit: cover; display: block; }
+.foto-thumb-remove { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: var(--wine); color: white; border: none; cursor: pointer; font-size: .7rem; line-height: 20px; text-align: center; padding: 0; }
+.btn-add-foto { border: 2px dashed rgba(91,29,42,.2); background: none; width: 72px; height: 72px; cursor: pointer; color: #a09890; font-size: 1.4rem; transition: border-color .2s; display: flex; align-items: center; justify-content: center; }
+.btn-add-foto:hover { border-color: var(--wine); color: var(--wine); }
+.btn-delete-prod { background: none; border: none; cursor: pointer; padding: 4px 8px; font-size: .78rem; color: #c0392b; transition: opacity .15s; }
+.btn-delete-prod:hover { opacity: .7; }
+
+/* ── Carritos tab ── */
+.carrito-email { color: #7a726c; font-size: .8rem; }
+.carrito-fecha  { color: #a09890; font-size: .78rem; white-space: nowrap; }
+.carrito-items  { font-size: .78rem; color: var(--text); }
+
 /* ── Misc ── */
 .admin-loading { text-align: center; padding: 80px 32px; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #a09890; }
 .admin-empty { text-align: center; padding: 40px 32px; color: #a09890; font-size: .88rem; }
@@ -171,6 +186,7 @@ tr:hover td { background: #fdf9f5; }
 <div class="admin-tabs">
   <button class="admin-tab active" data-tab="pedidos"   onclick="switchTab('pedidos')">Pedidos</button>
   <button class="admin-tab"        data-tab="productos" onclick="switchTab('productos')">Productos</button>
+  <button class="admin-tab"        data-tab="carritos"  onclick="switchTab('carritos')">Carritos</button>
 </div>
 
 <div class="admin-main">
@@ -181,6 +197,9 @@ tr:hover td { background: #fdf9f5; }
 
   <!-- ═══ TAB: PRODUCTOS ═══ -->
   <div class="tab-section" id="tab-productos"></div>
+
+  <!-- ═══ TAB: CARRITOS ═══ -->
+  <div class="tab-section" id="tab-carritos"></div>
 </div>
 
 <!-- ═══ FORMULARIO DE PRODUCTO (modal) ═══ -->
@@ -200,6 +219,30 @@ tr:hover td { background: #fdf9f5; }
       </div>
     </div>
 
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Stock (vacío = ilimitado)</label>
+        <input type="number" id="pf-stock" placeholder="Ej: 10" min="0" max="9999">
+      </div>
+      <div class="form-row" style="display:flex;flex-direction:column;justify-content:flex-end;">
+        <div class="toggle-row">
+          <div class="toggle on" id="pfToggle" onclick="toggleActivo()"></div>
+          <label>Activo (visible en tienda)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Dimensiones</label>
+        <input type="text" id="pf-dimensiones" placeholder="Ej: 40×30×20 cm" maxlength="80">
+      </div>
+      <div class="form-row">
+        <label>Peso</label>
+        <input type="text" id="pf-peso" placeholder="Ej: 1.2 kg" maxlength="40">
+      </div>
+    </div>
+
     <div class="form-row">
       <label>Descripción</label>
       <textarea id="pf-desc" rows="3" placeholder="Descripción del producto…" maxlength="1000"></textarea>
@@ -216,7 +259,7 @@ tr:hover td { background: #fdf9f5; }
     </div>
 
     <div class="form-row">
-      <label>Foto del producto</label>
+      <label>Foto principal</label>
       <div class="img-upload-area" id="imgDropArea">
         <input type="file" id="pf-img" accept="image/jpeg,image/png,image/webp">
         <div class="img-upload-hint">Hacé clic o arrastrá una imagen (JPG, PNG, WEBP · máx 5MB)</div>
@@ -231,10 +274,9 @@ tr:hover td { background: #fdf9f5; }
     </div>
 
     <div class="form-row">
-      <div class="toggle-row">
-        <div class="toggle on" id="pfToggle" onclick="toggleActivo()"></div>
-        <label>Producto activo (visible en tienda)</label>
-      </div>
+      <label>Fotos adicionales</label>
+      <div class="fotos-grid" id="fotosGrid"></div>
+      <input type="file" id="pf-fotos-input" accept="image/jpeg,image/png,image/webp" style="display:none;" multiple>
     </div>
 
     <div class="form-actions">
@@ -443,20 +485,24 @@ async function fetchProductos() {
 
 function renderProductTable() {
   const tbody = document.getElementById('tbody-prods')
-  if (!allProductos.length) { tbody.innerHTML = `<tr><td colspan="5" class="admin-empty">Sin productos. ¡Agregá el primero!</td></tr>`; return }
+  if (!allProductos.length) { tbody.innerHTML = `<tr><td colspan="6" class="admin-empty">Sin productos. ¡Agregá el primero!</td></tr>`; return }
   tbody.innerHTML = allProductos.map(p => {
-    const img = p.imagen_url
-      ? `<img class="prod-img-thumb" src="${p.imagen_url}" alt="${p.nombre}">`
+    const imgSrc = p.imagen_url || (Array.isArray(p.fotos) && p.fotos[0]) || null
+    const img = imgSrc
+      ? `<img class="prod-img-thumb" src="${imgSrc}" alt="${p.nombre}">`
       : `<div class="prod-img-placeholder">Sin img</div>`
-    const cats = (p.categoria ?? []).join(' · ') || '—'
+    const cats  = (p.categoria ?? []).join(' · ') || '—'
+    const stock = p.stock !== null && p.stock !== undefined ? p.stock : '∞'
     return `<tr data-id="${p.id}">
       <td>${img}</td>
       <td><div class="prod-name">${p.nombre}</div><div class="prod-cats">${cats}</div></td>
       <td><div class="prod-precio">$${Number(p.precio).toLocaleString('es-AR')}</div></td>
+      <td><span style="font-size:.78rem;">${stock}</span></td>
       <td><span class="activo-badge ${p.activo ? 'activo-si' : 'activo-no'}">${p.activo ? 'Activo' : 'Inactivo'}</span></td>
       <td>
         <button class="btn-icon" title="Editar" onclick="openProdForm('${p.id}')">✏️</button>
         <button class="btn-icon" title="${p.activo ? 'Desactivar' : 'Activar'}" onclick="toggleProdActivo('${p.id}', ${!p.activo})">${p.activo ? '🙈' : '👁️'}</button>
+        <button class="btn-delete-prod" title="Eliminar" onclick="deleteProd('${p.id}', '${p.nombre.replace(/'/g,"\\'")}')">🗑️</button>
       </td>
     </tr>`
   }).join('')
@@ -469,7 +515,7 @@ function buildProductosUI() {
       <button class="btn-add-prod" onclick="openProdForm(null)">+ Agregar producto</button>
     </div>
     <div class="table-wrap">
-      <table><thead><tr><th>Foto</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <table><thead><tr><th>Foto</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody id="tbody-prods"></tbody></table>
     </div>`
 }
@@ -478,17 +524,53 @@ function buildProductosUI() {
 let editingProdId  = null
 let pfActivo       = true
 let pendingFile    = null
+let existingFotos  = []   // URLs ya guardadas
+let pendingFotos   = []   // File objects por subir
+
+function renderFotosGrid() {
+  const grid = document.getElementById('fotosGrid')
+  grid.innerHTML = ''
+  existingFotos.forEach((url, i) => {
+    const wrap = document.createElement('div')
+    wrap.className = 'foto-thumb-wrap'
+    wrap.innerHTML = `<img class="foto-thumb" src="${url}" alt="foto ${i+1}"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoExistente(${i})">✕</button>`
+    grid.appendChild(wrap)
+  })
+  pendingFotos.forEach((file, i) => {
+    const wrap = document.createElement('div')
+    wrap.className = 'foto-thumb-wrap'
+    const urlObj = URL.createObjectURL(file)
+    wrap.innerHTML = `<img class="foto-thumb" src="${urlObj}" alt="nueva foto"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoPending(${i})">✕</button>`
+    grid.appendChild(wrap)
+  })
+  const addBtn = document.createElement('button')
+  addBtn.type = 'button'
+  addBtn.className = 'btn-add-foto'
+  addBtn.title = 'Agregar foto'
+  addBtn.textContent = '+'
+  addBtn.onclick = () => document.getElementById('pf-fotos-input').click()
+  grid.appendChild(addBtn)
+}
+
+window.removeFotoExistente = (i) => { existingFotos.splice(i, 1); renderFotosGrid() }
+window.removeFotoPending   = (i) => { pendingFotos.splice(i, 1);  renderFotosGrid() }
 
 window.openProdForm = (id) => {
   editingProdId = id
   pendingFile   = null
+  pendingFotos  = []
+  existingFotos = []
   pfActivo      = true
 
   document.getElementById('prodFormTitle').textContent = id ? 'Editar producto' : 'Nuevo producto'
-  document.getElementById('pf-nombre').value  = ''
-  document.getElementById('pf-precio').value  = ''
-  document.getElementById('pf-desc').value    = ''
-  document.getElementById('pf-img').value     = ''
+  document.getElementById('pf-nombre').value      = ''
+  document.getElementById('pf-precio').value      = ''
+  document.getElementById('pf-stock').value       = ''
+  document.getElementById('pf-dimensiones').value = ''
+  document.getElementById('pf-peso').value        = ''
+  document.getElementById('pf-desc').value        = ''
+  document.getElementById('pf-img').value         = ''
+  document.getElementById('pf-fotos-input').value = ''
   document.getElementById('imgPreviewWrap').style.display  = 'none'
   document.getElementById('imgCurrentWrap').style.display  = 'none'
   document.querySelectorAll('.cat-check input').forEach(c => c.checked = false)
@@ -498,8 +580,12 @@ window.openProdForm = (id) => {
     if (!p) return
     document.getElementById('pf-nombre').value = p.nombre
     document.getElementById('pf-precio').value = p.precio
-    document.getElementById('pf-desc').value   = p.descripcion ?? ''
+    document.getElementById('pf-stock').value  = p.stock !== null && p.stock !== undefined ? p.stock : ''
+    document.getElementById('pf-dimensiones').value = p.dimensiones ?? ''
+    document.getElementById('pf-peso').value        = p.peso ?? ''
+    document.getElementById('pf-desc').value        = p.descripcion ?? ''
     pfActivo = p.activo
+    existingFotos = Array.isArray(p.fotos) ? [...p.fotos] : []
     ;(p.categoria ?? []).forEach(c => {
       const cb = document.querySelector(`.cat-check input[value="${c}"]`)
       if (cb) cb.checked = true
@@ -510,6 +596,7 @@ window.openProdForm = (id) => {
     }
   }
 
+  renderFotosGrid()
   updateToggleUI()
   document.getElementById('prodFormOverlay').classList.add('open')
   document.body.style.overflow = 'hidden'
@@ -532,7 +619,7 @@ function updateToggleUI() {
   t.classList.toggle('on', pfActivo)
 }
 
-// Preview de imagen al seleccionar
+// Preview de imagen principal al seleccionar
 document.getElementById('pf-img').addEventListener('change', (e) => {
   const file = e.target.files?.[0]
   if (!file) return
@@ -547,40 +634,73 @@ document.getElementById('pf-img').addEventListener('change', (e) => {
   reader.readAsDataURL(file)
 })
 
-window.saveProd = async () => {
-  const nombre  = document.getElementById('pf-nombre').value.trim()
-  const precio  = parseInt(document.getElementById('pf-precio').value, 10)
-  const desc    = document.getElementById('pf-desc').value.trim()
-  const cats    = [...document.querySelectorAll('.cat-check input:checked')].map(c => c.value)
+// Fotos adicionales
+document.getElementById('pf-fotos-input').addEventListener('change', (e) => {
+  const files = [...(e.target.files ?? [])]
+  const oversized = files.filter(f => f.size > 5 * 1024 * 1024)
+  if (oversized.length) { alert('Algunas imágenes superan 5MB y no se agregarán.') }
+  pendingFotos.push(...files.filter(f => f.size <= 5 * 1024 * 1024))
+  e.target.value = ''
+  renderFotosGrid()
+})
 
-  if (!nombre)         { alert('Ingresá el nombre del producto.'); return }
+window.saveProd = async () => {
+  const nombre      = document.getElementById('pf-nombre').value.trim()
+  const precio      = parseInt(document.getElementById('pf-precio').value, 10)
+  const stockRaw    = document.getElementById('pf-stock').value.trim()
+  const dimensiones = document.getElementById('pf-dimensiones').value.trim() || null
+  const peso        = document.getElementById('pf-peso').value.trim() || null
+  const desc        = document.getElementById('pf-desc').value.trim()
+  const cats        = [...document.querySelectorAll('.cat-check input:checked')].map(c => c.value)
+
+  if (!nombre)            { alert('Ingresá el nombre del producto.'); return }
   if (!precio || precio <= 0) { alert('Ingresá un precio válido.'); return }
+  const stock = stockRaw === '' ? null : parseInt(stockRaw, 10)
+  if (stock !== null && (isNaN(stock) || stock < 0)) { alert('Stock inválido.'); return }
 
   const btn = document.getElementById('btnSaveProd')
   btn.disabled = true
   btn.textContent = 'Guardando…'
 
-  try {
-    // 1. Subir imagen si hay una nueva
-    let imagen_url = editingProdId ? (allProductos.find(p => p.id === editingProdId)?.imagen_url ?? null) : null
+  const prodId = editingProdId ?? crypto.randomUUID()
 
+  try {
+    // 1. Subir imagen principal si hay una nueva
+    let imagen_url = editingProdId ? (allProductos.find(p => p.id === editingProdId)?.imagen_url ?? null) : null
     if (pendingFile) {
       const ext  = pendingFile.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const path = `${editingProdId ?? crypto.randomUUID()}.${ext}`
+      const path = `${prodId}-main.${ext}`
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, pendingFile, { upsert: true, contentType: pendingFile.type })
       if (upErr) throw new Error('Error subiendo imagen: ' + upErr.message)
       const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
-      // Agregar cache buster para que se refresque si se reemplaza
       imagen_url = urlData.publicUrl + '?v=' + Date.now()
     }
 
-    // 2. Guardar producto
+    // 2. Subir fotos adicionales
+    const fotosSubidas = []
+    for (let i = 0; i < pendingFotos.length; i++) {
+      const file = pendingFotos[i]
+      const ext  = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const path = `${prodId}-foto-${Date.now()}-${i}.${ext}`
+      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type })
+      if (upErr) throw new Error('Error subiendo foto adicional: ' + upErr.message)
+      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
+      fotosSubidas.push(urlData.publicUrl)
+    }
+    const fotos = [...existingFotos, ...fotosSubidas]
+
+    // 3. Guardar producto
     const method  = editingProdId ? 'PUT' : 'POST'
-    const payload = { nombre, precio, descripcion: desc || null, categoria: cats, imagen_url, activo: pfActivo, ...(editingProdId ? { id: editingProdId } : {}) }
+    const payload = {
+      nombre, precio, descripcion: desc || null, categoria: cats,
+      imagen_url, fotos, activo: pfActivo,
+      stock, dimensiones, peso,
+      ...(editingProdId ? { id: editingProdId } : {}),
+    }
     const data = await apiFetch(FN_PRODUCTS, { method, body: JSON.stringify(payload) })
     if (data.error) throw new Error(data.error)
 
-    // 3. Actualizar lista local
+    // 4. Actualizar lista local
     if (editingProdId) {
       const idx = allProductos.findIndex(p => p.id === editingProdId)
       if (idx >= 0) allProductos[idx] = data.producto
@@ -601,35 +721,90 @@ window.saveProd = async () => {
 window.toggleProdActivo = async (id, nuevoActivo) => {
   const p = allProductos.find(p => p.id === id)
   if (!p) return
-  const data = await apiFetch(FN_PRODUCTS, { method: 'PUT', body: JSON.stringify({ id, nombre: p.nombre, precio: p.precio, descripcion: p.descripcion, categoria: p.categoria, imagen_url: p.imagen_url, activo: nuevoActivo }) })
+  const data = await apiFetch(FN_PRODUCTS, { method: 'PUT', body: JSON.stringify({
+    id, nombre: p.nombre, precio: p.precio, descripcion: p.descripcion,
+    categoria: p.categoria, imagen_url: p.imagen_url, fotos: p.fotos ?? [],
+    activo: nuevoActivo, stock: p.stock ?? null,
+    dimensiones: p.dimensiones ?? null, peso: p.peso ?? null,
+  }) })
   if (data.error) { alert('Error: ' + data.error); return }
   p.activo = nuevoActivo
   renderProductTable()
+}
+
+window.deleteProd = async (id, nombre) => {
+  if (!confirm(`¿Eliminar "${nombre}" definitivamente? Esta acción no se puede deshacer.`)) return
+  const data = await apiFetch(FN_PRODUCTS, { method: 'DELETE', body: JSON.stringify({ id }) })
+  if (data.error) { alert('Error: ' + data.error); return }
+  allProductos = allProductos.filter(p => p.id !== id)
+  renderProductTable()
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CARRITOS
+// ═══════════════════════════════════════════════════════════════════════
+let allCarritos = []
+
+async function fetchCarritos() {
+  const data = await apiFetch(FN_ORDERS + '?scope=carritos')
+  if (data.error) throw new Error(data.error)
+  return data.carritos ?? []
+}
+
+function buildCarritosUI() {
+  document.getElementById('tab-carritos').innerHTML = `
+    <div class="section-title" style="margin-bottom:16px;">Carritos abandonados</div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Cliente</th><th>Última actividad</th><th>Productos</th><th>Total aprox.</th></tr></thead>
+      <tbody id="tbody-carritos"></tbody></table>
+    </div>`
+}
+
+function renderCarritosTable() {
+  const tbody = document.getElementById('tbody-carritos')
+  if (!allCarritos.length) { tbody.innerHTML = `<tr><td colspan="4" class="admin-empty">No hay carritos activos.</td></tr>`; return }
+  tbody.innerHTML = allCarritos.map(c => {
+    const items  = Array.isArray(c.items) ? c.items : []
+    const total  = items.reduce((s, i) => s + (Number(i.precio) || 0) * (Number(i.qty) || 1), 0)
+    const lista  = items.map(i => `${i.nombre ?? i.id} ×${i.qty ?? 1}`).join(', ') || '—'
+    const fecha  = c.updated_at ? new Date(c.updated_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+    return `<tr>
+      <td><div class="carrito-email">${c.cliente_email ?? '—'}</div></td>
+      <td><div class="carrito-fecha">${fecha}</div></td>
+      <td><div class="carrito-items">${lista}</div></td>
+      <td>$${total.toLocaleString('es-AR')}</td>
+    </tr>`
+  }).join('')
 }
 
 // ═══════════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════════
 try {
-  const [pedidosResult, productosResult] = await Promise.allSettled([fetchPedidos(), fetchProductos()])
+  const [pedidosResult, productosResult, carritosResult] = await Promise.allSettled([
+    fetchPedidos(), fetchProductos(), fetchCarritos()
+  ])
 
-  allPedidos   = pedidosResult.status  === 'fulfilled' ? pedidosResult.value  : []
+  allPedidos   = pedidosResult.status   === 'fulfilled' ? pedidosResult.value   : []
   allProductos = productosResult.status === 'fulfilled' ? productosResult.value : []
+  allCarritos  = carritosResult.status  === 'fulfilled' ? carritosResult.value  : []
 
   document.getElementById('loadingMsg').style.display = 'none'
 
   buildPedidosUI()
   buildProductosUI()
+  buildCarritosUI()
   switchTab('pedidos')
 
   renderStats()
   renderCharts()
   renderOrderTable()
   renderProductTable()
+  renderCarritosTable()
 
   if (productosResult.status === 'rejected' && productosResult.reason?.message !== 'no auth') {
     document.getElementById('tbody-prods').innerHTML =
-      `<tr><td colspan="5" class="admin-empty">Error al cargar productos. Verificá que la tabla exista en Supabase.</td></tr>`
+      `<tr><td colspan="6" class="admin-empty">Error al cargar productos. Verificá que la tabla exista en Supabase.</td></tr>`
   }
 } catch(e) {
   if (e.message !== 'no auth') {
