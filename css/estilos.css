@@ -382,8 +382,7 @@ main{
 
 .hero{
 
-    height:780px;
-    overflow:hidden;
+    min-height:780px;
 
     display:grid;
     grid-template-columns:55% 45%;
@@ -611,12 +610,11 @@ main{
 
     .hero{
         grid-template-columns:1fr;
-        height:700px;
-        overflow:hidden;
+        min-height:0;
     }
 
     .hero-art{
-        min-height:500px;
+        display:none;
     }
 
     .slide h1{
@@ -868,7 +866,7 @@ main{
     }
 
     .hero{
-        height:620px;
+        min-height:0;
     }
 
     .hero-art{
