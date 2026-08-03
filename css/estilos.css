@@ -383,6 +383,7 @@ main{
 .hero{
 
     min-height:780px;
+    flex-shrink:0;
 
     display:grid;
     grid-template-columns:55% 45%;
@@ -395,6 +396,7 @@ main{
     display:flex;
     flex-direction:column;
     justify-content:center;
+    overflow:visible;
 }
 
 .breadcrumb{
