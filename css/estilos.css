@@ -794,13 +794,7 @@ main{
     }
 
     main > .luxury-band{
-        order:-1;
         z-index:1;
-        margin-top:0;
-    }
-
-    main > .hero{
-        order:0;
     }
 
     .submenu{
