@@ -337,7 +337,7 @@ main{
 
     overflow:hidden;
 
-    padding:9px 0;
+    padding:18px 0;
     margin-top:-10px;
 
     position:relative;
@@ -361,9 +361,9 @@ main{
 
     color:white;
 
-    letter-spacing:3px;
+    letter-spacing:5px;
 
-    font-size:.72rem;
+    font-size:.8rem;
 
     text-transform:uppercase;
 
