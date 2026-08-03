@@ -136,6 +136,26 @@ if (user) {
 }
 btn.style.opacity = '1'
 
+// ── Carousel ────────────────────────────────────────────────────────
+window.carouselNav = (btn, dir) => {
+  const wrap = btn.closest('.card-has-carousel')
+  const imgs = [...wrap.querySelectorAll('.carousel-img')]
+  const dots = [...wrap.querySelectorAll('.carousel-dot')]
+  let idx = imgs.findIndex(i => i.classList.contains('active'))
+  imgs[idx].classList.remove('active')
+  if (dots[idx]) dots[idx].classList.remove('active')
+  idx = (idx + dir + imgs.length) % imgs.length
+  imgs[idx].classList.add('active')
+  if (dots[idx]) dots[idx].classList.add('active')
+}
+window.carouselGoto = (dot, idx) => {
+  const wrap = dot.closest('.card-has-carousel')
+  const imgs = [...wrap.querySelectorAll('.carousel-img')]
+  const dots = [...wrap.querySelectorAll('.carousel-dot')]
+  imgs.forEach((i, n) => i.classList.toggle('active', n === idx))
+  dots.forEach((d, n) => d.classList.toggle('active', n === idx))
+}
+
 // ── Cargar productos desde Supabase ──────────────────────────────────
 const CAT_LABELS = { accesorios: 'Accesorios', deco: 'Deco', deli: 'Deli', muebles: 'Muebles' }
 const grid = document.getElementById('products-grid')
@@ -150,15 +170,39 @@ if (error || !productos?.length) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#a09890;font-family:'Cormorant Garamond',serif;font-size:1.1rem;">No hay productos disponibles por el momento.</div>`
 } else {
   grid.innerHTML = productos.map(p => {
-    const cats = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
+    const cats   = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
     const agotado = p.stock !== null && p.stock !== undefined && p.stock === 0
-    const imgSrc = p.imagen_url || (Array.isArray(p.fotos) && p.fotos[0]) || null
-    const img = imgSrc
-      ? `<img class="card-img" src="${imgSrc}" alt="${p.nombre}" loading="lazy">`
-      : `<div class="card-img" style="background:#f0ebe3;display:flex;align-items:center;justify-content:center;color:#c0b8b2;font-size:.8rem;">Sin imagen</div>`
-    const stockBadge = agotado ? `<span style="position:absolute;top:10px;left:10px;background:rgba(47,42,40,.8);color:#f4efe5;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;">Agotado</span>` : ''
+    const stockBadge = agotado
+      ? `<span style="position:absolute;top:10px;left:10px;background:rgba(47,42,40,.8);color:#f4efe5;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;z-index:4;">Agotado</span>`
+      : ''
+
+    // Armar array de todas las fotos del producto
+    const allPhotos = []
+    if (p.imagen_url) allPhotos.push(p.imagen_url)
+    if (Array.isArray(p.fotos)) p.fotos.forEach(f => { if (f && f !== p.imagen_url) allPhotos.push(f) })
+
+    let imgWrapClass = 'card-img-wrap'
+    let imgContent
+    if (allPhotos.length > 1) {
+      imgWrapClass += ' card-has-carousel'
+      const imgs = allPhotos.map((src, i) =>
+        `<img class="card-img carousel-img${i===0?' active':''}" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}">`
+      ).join('')
+      const dots = allPhotos.map((_, i) =>
+        `<span class="carousel-dot${i===0?' active':''}" onclick="carouselGoto(this,${i});event.stopPropagation()"></span>`
+      ).join('')
+      imgContent = `${imgs}
+        <button class="carousel-btn carousel-prev" onclick="carouselNav(this,-1);event.stopPropagation()">&#8249;</button>
+        <button class="carousel-btn carousel-next" onclick="carouselNav(this,1);event.stopPropagation()">&#8250;</button>
+        <div class="carousel-dots">${dots}</div>`
+    } else if (allPhotos.length === 1) {
+      imgContent = `<img class="card-img" src="${allPhotos[0]}" alt="${p.nombre}" loading="lazy">`
+    } else {
+      imgContent = `<div class="card-img" style="background:#f0ebe3;display:flex;align-items:center;justify-content:center;color:#c0b8b2;font-size:.8rem;">Sin imagen</div>`
+    }
+
     return `<div class="card filterable fade-in" data-cat="${(p.categoria ?? []).join(' ')}" data-id="${p.id}" data-nombre="${p.nombre}" data-precio="${p.precio}">
-      <div class="card-img-wrap" style="position:relative;">${img}${stockBadge}</div>
+      <div class="${imgWrapClass}">${imgContent}${stockBadge}</div>
       <div class="card-body">
         ${cats ? `<p class="card-cat">${cats}</p>` : ''}
         <h3 class="card-name">${p.nombre}</h3>

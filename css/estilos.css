@@ -1034,6 +1034,38 @@ main{
 }
 .card:hover .card-img { transform: scale(1.04); }
 .card-img-wrap { overflow: hidden; position: relative; }
+
+/* ── Card carousel (múltiples fotos) ── */
+.card-has-carousel { aspect-ratio: 4/3; }
+.card-has-carousel .carousel-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity .35s, transform .55s ease;
+    aspect-ratio: unset;
+}
+.card-has-carousel .carousel-img.active { opacity: 1; }
+.card:hover .card-has-carousel .carousel-img { transform: none; }
+.card:hover .card-has-carousel .carousel-img.active { transform: scale(1.04); }
+.carousel-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,.35); color: white; border: none;
+    cursor: pointer; padding: 10px 13px; font-size: 1.1rem;
+    z-index: 3; opacity: 0; transition: opacity .2s; line-height: 1;
+}
+.card-has-carousel:hover .carousel-btn { opacity: 1; }
+.carousel-prev { left: 0; }
+.carousel-next { right: 0; }
+.carousel-dots {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 5px; z-index: 3;
+}
+.carousel-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,.5); cursor: pointer; transition: background .2s;
+}
+.carousel-dot.active { background: white; }
 .card-badge {
     position: absolute;
     top: 14px; left: 14px;
