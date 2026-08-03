@@ -138,15 +138,23 @@ btn.style.opacity = '1'
 
 // ── Carousel ────────────────────────────────────────────────────────
 function _carouselSet(wrap, idx) {
-  const track = wrap.querySelector('.carousel-track')
-  const total = wrap.querySelectorAll('.carousel-img').length
-  const dots  = [...wrap.querySelectorAll('.carousel-dot')]
+  const track  = wrap.querySelector('.carousel-track')
+  const total  = wrap.querySelectorAll('.carousel-img').length
+  const dots   = [...wrap.querySelectorAll('.carousel-dot')]
   idx = (idx + total) % total
   wrap.dataset.idx = idx
-  track.style.transform = `translateX(-${idx * 100}%)`
+  const slideW = parseInt(wrap.dataset.slideW || wrap.clientWidth)
+  track.style.transform = `translateX(-${idx * slideW}px)`
   dots.forEach((d, n) => d.classList.toggle('active', n === idx))
 }
-window.carouselNav  = (btn, dir) => { const w = btn.closest('.card-has-carousel'); _carouselSet(w, (parseInt(w.dataset.idx||0) + dir)) }
+function _initCarousels() {
+  document.querySelectorAll('.card-has-carousel').forEach(wrap => {
+    const slideW = wrap.clientWidth
+    wrap.dataset.slideW = slideW
+    wrap.querySelectorAll('.carousel-img').forEach(img => { img.style.width = slideW + 'px' })
+  })
+}
+window.carouselNav  = (btn, dir) => { const w = btn.closest('.card-has-carousel'); _carouselSet(w, parseInt(w.dataset.idx||0) + dir) }
 window.carouselGoto = (dot, idx) => _carouselSet(dot.closest('.card-has-carousel'), idx)
 
 // ── Cargar productos desde Supabase ──────────────────────────────────
@@ -216,6 +224,8 @@ if (error || !productos?.length) {
     const show = activeFilter === 'all' || card.dataset.cat.includes(activeFilter)
     card.style.display = show ? '' : 'none'
   })
+
+  _initCarousels()
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } })
