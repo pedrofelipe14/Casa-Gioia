@@ -612,6 +612,9 @@ main{
 
     .hero{
         grid-template-columns:1fr;
+        height:auto;
+        min-height:0;
+        overflow:visible;
     }
 
     .hero-art{
