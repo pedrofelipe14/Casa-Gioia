@@ -612,9 +612,9 @@ main{
 
     .hero{
         grid-template-columns:1fr;
-        height:auto;
-        min-height:0;
-        overflow:visible;
+        height:calc(100vh - 80px);
+        min-height:600px;
+        overflow:hidden;
     }
 
     .hero-art{
@@ -870,8 +870,8 @@ main{
     }
 
     .hero{
-        height:auto;
-        min-height:0;
+        height:calc(100vh - 60px);
+        min-height:560px;
     }
 
     .hero-art{
