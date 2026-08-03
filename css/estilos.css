@@ -1036,16 +1036,19 @@ main{
 .card-img-wrap { overflow: hidden; position: relative; }
 
 /* ── Card carousel (múltiples fotos) ── */
-.card:hover .card-has-carousel .carousel-img { transform: none; }
+.card-has-carousel {
+    aspect-ratio: 4/3;
+}
 .carousel-track {
     display: flex;
     width: 100%;
+    height: 100%;
     transition: transform .42s cubic-bezier(.25,.46,.45,.94);
 }
 .carousel-img {
     flex: 0 0 100%;
     width: 100%;
-    aspect-ratio: 4/3;
+    height: 100%;
     object-fit: cover;
     display: block;
 }
