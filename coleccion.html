@@ -151,7 +151,10 @@ function _initCarousels() {
   document.querySelectorAll('.card-has-carousel').forEach(wrap => {
     const slideW = wrap.clientWidth
     wrap.dataset.slideW = slideW
-    wrap.querySelectorAll('.carousel-img').forEach(img => { img.style.width = slideW + 'px' })
+    const imgs  = wrap.querySelectorAll('.carousel-img')
+    const track = wrap.querySelector('.carousel-track')
+    imgs.forEach(img => { img.style.width = slideW + 'px' })
+    track.style.width = (slideW * imgs.length) + 'px'
   })
 }
 window.carouselNav  = (btn, dir) => { const w = btn.closest('.card-has-carousel'); _carouselSet(w, parseInt(w.dataset.idx||0) + dir) }
