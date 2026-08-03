@@ -382,8 +382,7 @@ main{
 
 .hero{
 
-    height:calc(100vh - 170px);
-    min-height:500px;
+    height:780px;
     overflow:hidden;
 
     display:grid;
@@ -612,8 +611,7 @@ main{
 
     .hero{
         grid-template-columns:1fr;
-        height:calc(100vh - 80px);
-        min-height:600px;
+        height:700px;
         overflow:hidden;
     }
 
@@ -870,8 +868,7 @@ main{
     }
 
     .hero{
-        height:calc(100vh - 60px);
-        min-height:560px;
+        height:620px;
     }
 
     .hero-art{
