@@ -150,10 +150,11 @@ function _carouselSet(wrap, idx) {
 function _initCarousels() {
   document.querySelectorAll('.card-has-carousel').forEach(wrap => {
     const slideW = wrap.clientWidth
+    const slideH = wrap.clientHeight
     wrap.dataset.slideW = slideW
     const imgs  = wrap.querySelectorAll('.carousel-img')
     const track = wrap.querySelector('.carousel-track')
-    imgs.forEach(img => { img.style.width = slideW + 'px' })
+    imgs.forEach(img => { img.style.width = slideW + 'px'; img.style.height = slideH + 'px' })
     track.style.width = (slideW * imgs.length) + 'px'
   })
 }
