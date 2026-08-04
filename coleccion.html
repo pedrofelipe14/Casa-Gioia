@@ -136,23 +136,22 @@ if (user) {
 }
 btn.style.opacity = '1'
 
-// ── Carousel (scroll-snap, estilo Instagram) ─────────────────────────
+// ── Carousel ─────────────────────────────────────────────────────────
 function _updateDots(wrap, idx) {
   wrap.querySelectorAll('.carousel-dot').forEach((d, n) => d.classList.toggle('active', n === idx))
 }
 window.carouselNav = (btn, dir) => {
-  const wrap   = btn.closest('.card-has-carousel')
-  const inner  = wrap.querySelector('.carousel-inner')
-  const slideW = inner.clientWidth
-  const total  = inner.querySelectorAll('.carousel-img').length
-  const newIdx = Math.max(0, Math.min(Math.round(inner.scrollLeft / slideW) + dir, total - 1))
-  inner.scrollTo({ left: newIdx * slideW, behavior: 'smooth' })
-  _updateDots(wrap, newIdx)
+  const wrap = btn.closest('.card-has-carousel')
+  const imgs = [...wrap.querySelectorAll('.carousel-img')]
+  const curr = imgs.findIndex(img => img.classList.contains('active'))
+  const next = (curr + dir + imgs.length) % imgs.length
+  imgs[curr].classList.remove('active')
+  imgs[next].classList.add('active')
+  _updateDots(wrap, next)
 }
 window.carouselGoto = (dot, idx) => {
-  const wrap  = dot.closest('.card-has-carousel')
-  const inner = wrap.querySelector('.carousel-inner')
-  inner.scrollTo({ left: idx * inner.clientWidth, behavior: 'smooth' })
+  const wrap = dot.closest('.card-has-carousel')
+  wrap.querySelectorAll('.carousel-img').forEach((img, i) => img.classList.toggle('active', i === idx))
   _updateDots(wrap, idx)
 }
 
@@ -192,7 +191,7 @@ if (error || !productos?.length) {
     if (allPhotos.length > 1) {
       imgWrapClass += ' card-has-carousel'
       const imgs = allPhotos.map((src, i) =>
-        `<img class="carousel-img" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}" style="object-position:${allFocals[i]}">`
+        `<img class="carousel-img${i===0?' active':''}" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}" style="object-position:${allFocals[i]}">`
       ).join('')
       const dots = allPhotos.map((_, i) =>
         `<span class="carousel-dot${i===0?' active':''}" onclick="carouselGoto(this,${i});event.stopPropagation()"></span>`
