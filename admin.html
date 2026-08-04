@@ -285,7 +285,7 @@ tr:hover td { background: #fdf9f5; }
 <div class="crop-overlay" id="cropOverlay">
   <div class="crop-box">
     <div class="crop-box-title">Elegí el área que se va a mostrar</div>
-    <div class="crop-box-hint">El recuadro blanco representa exactamente lo que se va a ver en la tienda. Arrastralo para reposicionarlo.</div>
+    <div class="crop-box-hint">Posicioná el recuadro sobre el área que querés mostrar y confirmá. La imagen se va a recortar y redimensionar a ese encuadre exacto antes de subirse.</div>
     <div class="crop-picker-area" id="cropPickerArea">
       <img id="cropImg" src="" alt="">
       <div class="crop-rect" id="cropRect"></div>
@@ -606,15 +606,40 @@ document.addEventListener('touchmove', (e) => {
 document.addEventListener('touchend', () => { _cropDrag = null })
 
 window.confirmCrop = () => {
-  const rect = document.getElementById('cropRect')
-  const area = document.getElementById('cropPickerArea')
-  const maxL = area.offsetWidth  - rect.offsetWidth
-  const maxT = area.offsetHeight - rect.offsetHeight
-  const xP   = maxL > 0 ? Math.round((parseInt(rect.style.left) || 0) / maxL * 100) : 50
-  const yP   = maxT > 0 ? Math.round((parseInt(rect.style.top)  || 0) / maxT * 100) : 50
-  photos[_cropIdx].focal = `${xP}% ${yP}%`
-  closeCropPicker()
-  renderPhotoList()
+  const rectEl = document.getElementById('cropRect')
+  const area   = document.getElementById('cropPickerArea')
+  const img    = document.getElementById('cropImg')
+
+  const rL = parseInt(rectEl.style.left) || 0
+  const rT = parseInt(rectEl.style.top)  || 0
+  const rW = rectEl.offsetWidth
+  const rH = rectEl.offsetHeight
+
+  const ph = photos[_cropIdx]
+
+  if (ph.file) {
+    // Foto nueva: recortar y redimensionar a 1200×900 (4:3) con Canvas
+    const scX = img.naturalWidth  / img.offsetWidth
+    const scY = img.naturalHeight / img.offsetHeight
+    const canvas = document.createElement('canvas')
+    canvas.width = 1200; canvas.height = 900
+    canvas.getContext('2d').drawImage(img, rL*scX, rT*scY, rW*scX, rH*scY, 0, 0, 1200, 900)
+    canvas.toBlob(blob => {
+      photos[_cropIdx].file  = new File([blob], 'photo.jpg', { type: 'image/jpeg' })
+      photos[_cropIdx].focal = null
+      closeCropPicker()
+      renderPhotoList()
+    }, 'image/jpeg', 0.88)
+  } else {
+    // Foto ya guardada: guardar como focal point (object-position)
+    const maxL = area.offsetWidth  - rW
+    const maxT = area.offsetHeight - rH
+    const xP   = maxL > 0 ? Math.round(rL / maxL * 100) : 50
+    const yP   = maxT > 0 ? Math.round(rT / maxT * 100) : 50
+    photos[_cropIdx].focal = `${xP}% ${yP}%`
+    closeCropPicker()
+    renderPhotoList()
+  }
 }
 
 window.closeCropPicker = () => {
