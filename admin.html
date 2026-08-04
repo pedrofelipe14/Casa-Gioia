@@ -121,14 +121,6 @@ tr:hover td { background: #fdf9f5; }
 .cat-check { display: flex; align-items: center; gap: 6px; font-size: .8rem; cursor: pointer; }
 .cat-check input { accent-color: var(--wine); width: 14px; height: 14px; }
 
-/* Image upload */
-.img-upload-area { border: 2px dashed rgba(91,29,42,.2); padding: 24px; text-align: center; cursor: pointer; transition: border-color .2s; position: relative; }
-.img-upload-area:hover { border-color: var(--wine); }
-.img-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-.img-upload-hint { font-size: .75rem; color: #a09890; }
-.img-preview { max-width: 100%; max-height: 200px; display: block; margin: 12px auto 0; object-fit: contain; }
-.img-preview-wrap { margin-top: 12px; }
-
 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .toggle-row { display: flex; align-items: center; gap: 12px; }
 .toggle-row label { font-size: .65rem; letter-spacing: 2px; text-transform: uppercase; color: #a09890; margin: 0; }
@@ -144,27 +136,32 @@ tr:hover td { background: #fdf9f5; }
 .btn-cancel-form { background: none; border: 1px solid rgba(91,29,42,.2); color: #7a726c; padding: 11px 20px; font-family: 'Manrope', sans-serif; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: border-color .2s; }
 .btn-cancel-form:hover { border-color: var(--wine); color: var(--wine); }
 
-/* ── Focal point picker ── */
-.focal-picker-wrap { margin-top: 10px; cursor: crosshair; position: relative; line-height: 0; display: none; }
-.focal-picker-wrap img { width: 100%; max-height: 200px; object-fit: contain; display: block; background: #f0ebe3; }
-.focal-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px var(--wine); transform: translate(-50%,-50%); pointer-events: none; display: none; }
-.focal-hint { font-size: .68rem; color: #a09890; padding: 6px 0 0; cursor: default; line-height: 1.5; }
-.focal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 600; align-items: center; justify-content: center; }
-.focal-overlay.open { display: flex; }
-.focal-overlay-box { background: white; padding: 24px; width: 90%; max-width: 520px; }
-.focal-overlay-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; margin-bottom: 12px; }
-.focal-overlay-picker { position: relative; cursor: crosshair; line-height: 0; }
-.focal-overlay-picker img { width: 100%; max-height: 400px; object-fit: contain; display: block; background: #f0ebe3; }
-
-/* ── Multiple photos ── */
-.fotos-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.foto-thumb-wrap { position: relative; width: 72px; height: 72px; }
-.foto-thumb { width: 72px; height: 72px; object-fit: cover; display: block; }
-.foto-thumb-remove { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: var(--wine); color: white; border: none; cursor: pointer; font-size: .7rem; line-height: 20px; text-align: center; padding: 0; }
-.btn-add-foto { border: 2px dashed rgba(91,29,42,.2); background: none; width: 72px; height: 72px; cursor: pointer; color: #a09890; font-size: 1.4rem; transition: border-color .2s; display: flex; align-items: center; justify-content: center; }
+/* ── Photos list ── */
+.fotos-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.foto-item { display: flex; align-items: center; gap: 10px; background: #fdf9f5; padding: 8px; border: 1px solid rgba(91,29,42,.07); }
+.foto-item-num { font-family: 'Cormorant Garamond',serif; font-size: .95rem; color: #a09890; min-width: 18px; text-align: center; flex-shrink: 0; }
+.foto-item-thumb { width: 54px; height: 54px; object-fit: cover; flex-shrink: 0; display: block; }
+.foto-item-actions { display: flex; gap: 5px; margin-left: auto; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+.btn-foto-act { border: 1px solid rgba(91,29,42,.15); background: white; cursor: pointer; padding: 4px 9px; font-size: .7rem; color: #7a726c; transition: background .15s, border-color .15s; white-space: nowrap; font-family: 'Manrope',sans-serif; }
+.btn-foto-act:hover:not(:disabled) { background: var(--cream); color: var(--wine); border-color: var(--wine); }
+.btn-foto-act:disabled { opacity: .22; cursor: default; }
+.btn-foto-del { border-color: rgba(192,57,43,.18); color: #c0392b; }
+.btn-foto-del:hover:not(:disabled) { background: #fdf0f0 !important; border-color: #c0392b !important; color: #c0392b !important; }
+.btn-add-foto { border: 2px dashed rgba(91,29,42,.2); background: none; padding: 10px; cursor: pointer; color: #a09890; font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase; transition: border-color .2s, color .2s; width: 100%; margin-top: 8px; font-family: 'Manrope',sans-serif; }
 .btn-add-foto:hover { border-color: var(--wine); color: var(--wine); }
 .btn-delete-prod { background: none; border: none; cursor: pointer; padding: 4px 8px; font-size: .78rem; color: #c0392b; transition: opacity .15s; }
 .btn-delete-prod:hover { opacity: .7; }
+
+/* ── Crop picker modal ── */
+.crop-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 700; align-items: center; justify-content: center; padding: 20px; }
+.crop-overlay.open { display: flex; }
+.crop-box { background: white; padding: 24px; width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column; gap: 0; }
+.crop-box-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; margin-bottom: 4px; flex-shrink: 0; }
+.crop-box-hint { font-size: .68rem; color: #a09890; margin-bottom: 14px; line-height: 1.5; flex-shrink: 0; }
+.crop-picker-area { position: relative; line-height: 0; overflow: hidden; user-select: none; flex: 1; min-height: 80px; }
+.crop-picker-area img { width: 100%; height: auto; display: block; pointer-events: none; }
+.crop-rect { position: absolute; border: 2px solid white; box-shadow: 0 0 0 9999px rgba(0,0,0,.52); cursor: grab; box-sizing: border-box; }
+.crop-rect:active { cursor: grabbing; }
 
 /* ── Carritos tab ── */
 .carrito-email { color: #7a726c; font-size: .8rem; }
@@ -271,28 +268,9 @@ tr:hover td { background: #fdf9f5; }
     </div>
 
     <div class="form-row">
-      <label>Foto principal</label>
-      <div class="img-upload-area" id="imgDropArea">
-        <input type="file" id="pf-img" accept="image/jpeg,image/png,image/webp">
-        <div class="img-upload-hint">Hacé clic o arrastrá una imagen (JPG, PNG, WEBP · máx 5MB)</div>
-        <div class="img-preview-wrap" id="imgPreviewWrap" style="display:none;">
-          <img class="img-preview" id="imgPreview" src="" alt="preview">
-        </div>
-      </div>
-      <div id="imgCurrentWrap" style="margin-top:8px;display:none;">
-        <img id="imgCurrent" src="" style="max-height:80px;display:block;" alt="imagen actual">
-        <span style="font-size:.72rem;color:#a09890;">Imagen actual — subí una nueva para reemplazarla</span>
-      </div>
-      <div class="focal-picker-wrap" id="mainFocalWrap" onclick="setMainFocal(event)">
-        <img id="mainFocalImg" src="" alt="focal">
-        <div class="focal-dot" id="mainFocalDot"></div>
-        <div class="focal-hint">Hacé clic en la imagen para elegir qué parte se muestra en la tienda</div>
-      </div>
-    </div>
-
-    <div class="form-row">
-      <label>Fotos adicionales</label>
-      <div class="fotos-grid" id="fotosGrid"></div>
+      <label>Fotos</label>
+      <div class="fotos-list" id="fotosGrid"></div>
+      <button type="button" class="btn-add-foto" onclick="document.getElementById('pf-fotos-input').click()">+ Agregar foto</button>
       <input type="file" id="pf-fotos-input" accept="image/jpeg,image/png,image/webp" style="display:none;" multiple>
     </div>
 
@@ -303,17 +281,18 @@ tr:hover td { background: #fdf9f5; }
   </div>
 </div>
 
-<!-- Modal focal picker para fotos adicionales -->
-<div class="focal-overlay" id="fotoFocalOverlay">
-  <div class="focal-overlay-box">
-    <div class="focal-overlay-title">Elegí el área principal de la foto</div>
-    <div class="focal-overlay-picker" id="fotoFocalPicker" onclick="setFotoFocal(event)">
-      <img id="fotoFocalImg" src="" alt="focal">
-      <div class="focal-dot" id="fotoFocalDot"></div>
+<!-- Crop picker modal -->
+<div class="crop-overlay" id="cropOverlay">
+  <div class="crop-box">
+    <div class="crop-box-title">Elegí el área que se va a mostrar</div>
+    <div class="crop-box-hint">El recuadro blanco representa exactamente lo que se va a ver en la tienda. Arrastralo para reposicionarlo.</div>
+    <div class="crop-picker-area" id="cropPickerArea">
+      <img id="cropImg" src="" alt="">
+      <div class="crop-rect" id="cropRect"></div>
     </div>
-    <div class="focal-hint" style="margin-top:8px;">Hacé clic en la imagen para definir qué parte se muestra en la tienda</div>
-    <div style="margin-top:16px;text-align:right;">
-      <button class="btn-cancel-form" onclick="closeFotoFocalOverlay()">Listo</button>
+    <div style="margin-top:16px;display:flex;gap:12px;justify-content:flex-end;flex-shrink:0;">
+      <button class="btn-cancel-form" onclick="closeCropPicker()">Cancelar</button>
+      <button class="btn-save" onclick="confirmCrop()">Confirmar</button>
     </div>
   </div>
 </div>
@@ -553,109 +532,130 @@ function buildProductosUI() {
 }
 
 // ── Formulario de producto ─────────────────────────────────────────────
-let editingProdId        = null
-let pfActivo             = true
-let pendingFile          = null
-let mainFocal            = null   // "X% Y%"
-let existingFotos        = []
-let pendingFotos         = []
-let existingFocalsFotos  = []     // paralelo a existingFotos
-let pendingFocalsFotos   = []     // paralelo a pendingFotos
-let _fotoFocalCtx        = null   // { type: 'existing'|'pending', idx }
+let editingProdId = null
+let pfActivo      = true
+let photos        = []   // [{ url, focal, file }]  url=null si nueva, file=null si existente
 
-// ── Focal: imagen principal ──────────────────────────────────────────
-window.setMainFocal = (e) => {
-  const img  = document.getElementById('mainFocalImg')
-  const rect = img.getBoundingClientRect()
-  const x = Math.round(((e.clientX - rect.left)  / rect.width)  * 100)
-  const y = Math.round(((e.clientY - rect.top)   / rect.height) * 100)
-  mainFocal = `${x}% ${y}%`
-  const dot = document.getElementById('mainFocalDot')
-  dot.style.left = x + '%'; dot.style.top = y + '%'; dot.style.display = 'block'
-}
-function _showMainFocalPicker(src, existingFocal) {
-  const wrap = document.getElementById('mainFocalWrap')
-  document.getElementById('mainFocalImg').src = src
-  wrap.style.display = 'block'
-  const dot = document.getElementById('mainFocalDot')
-  if (existingFocal) {
-    mainFocal = existingFocal
-    const parts = existingFocal.split(' ')
-    dot.style.left = parts[0]; dot.style.top = parts[1]; dot.style.display = 'block'
-  } else { mainFocal = null; dot.style.display = 'none' }
+// ── Crop picker ──────────────────────────────────────────────────────
+let _cropIdx  = null
+let _cropDrag = null
+
+window.openCropPicker = (idx) => {
+  _cropIdx = idx
+  const ph  = photos[idx]
+  const src = ph.file ? URL.createObjectURL(ph.file) : ph.url
+  const img = document.getElementById('cropImg')
+  img.src   = src
+  document.getElementById('cropOverlay').classList.add('open')
+  if (img.complete && img.naturalWidth) _initCropRect(ph.focal)
+  else img.onload = () => _initCropRect(ph.focal)
 }
 
-// ── Focal: fotos adicionales ─────────────────────────────────────────
-window.openFotoFocalPicker = (type, idx) => {
-  const src = type === 'existing' ? existingFotos[idx] : URL.createObjectURL(pendingFotos[idx])
-  document.getElementById('fotoFocalImg').src = src
-  _fotoFocalCtx = { type, idx }
-  const existing = type === 'existing' ? existingFocalsFotos[idx] : pendingFocalsFotos[idx]
-  const dot = document.getElementById('fotoFocalDot')
-  if (existing) {
-    const parts = existing.split(' ')
-    dot.style.left = parts[0]; dot.style.top = parts[1]; dot.style.display = 'block'
-  } else { dot.style.display = 'none' }
-  document.getElementById('fotoFocalOverlay').classList.add('open')
-}
-window.setFotoFocal = (e) => {
-  const img  = document.getElementById('fotoFocalImg')
-  const rect = img.getBoundingClientRect()
-  const x = Math.round(((e.clientX - rect.left)  / rect.width)  * 100)
-  const y = Math.round(((e.clientY - rect.top)   / rect.height) * 100)
-  const focalStr = `${x}% ${y}%`
-  const { type, idx } = _fotoFocalCtx
-  if (type === 'existing') existingFocalsFotos[idx] = focalStr
-  else pendingFocalsFotos[idx] = focalStr
-  const dot = document.getElementById('fotoFocalDot')
-  dot.style.left = x + '%'; dot.style.top = y + '%'; dot.style.display = 'block'
-}
-window.closeFotoFocalOverlay = () => {
-  document.getElementById('fotoFocalOverlay').classList.remove('open')
-  _fotoFocalCtx = null
+function _initCropRect(focal) {
+  const img  = document.getElementById('cropImg')
+  const area = document.getElementById('cropPickerArea')
+  const rect = document.getElementById('cropRect')
+  const aW = area.offsetWidth
+  const aH = img.offsetHeight
+  const ir = img.naturalWidth / img.naturalHeight
+  const br = 4 / 3
+  let rW, rH
+  if (ir > br) { rH = aH; rW = aH * br } else { rW = aW; rH = aW / br }
+  rW = Math.min(Math.round(rW), aW)
+  rH = Math.min(Math.round(rH), aH)
+  rect.style.width  = rW + 'px'
+  rect.style.height = rH + 'px'
+  const maxL = aW - rW
+  const maxT = aH - rH
+  let xP = 50, yP = 50
+  if (focal) { const [xs, ys] = focal.split(' '); xP = parseFloat(xs); yP = parseFloat(ys) }
+  rect.style.left = Math.round(xP / 100 * maxL) + 'px'
+  rect.style.top  = Math.round(yP / 100 * maxT) + 'px'
 }
 
-function renderFotosGrid() {
-  const grid = document.getElementById('fotosGrid')
-  grid.innerHTML = ''
-  existingFotos.forEach((url, i) => {
-    const wrap = document.createElement('div')
-    wrap.className = 'foto-thumb-wrap'
-    const hasFocal = existingFocalsFotos[i]
-    wrap.innerHTML = `<img class="foto-thumb" src="${url}" alt="foto ${i+1}"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoExistente(${i})">✕</button><button class="foto-thumb-remove" style="right:22px;background:${hasFocal?'#4caf7d':'#a09890'}" title="Elegir área" onclick="openFotoFocalPicker('existing',${i});event.stopPropagation()">⊕</button>`
-    grid.appendChild(wrap)
+document.getElementById('cropRect').addEventListener('mousedown', (e) => {
+  e.preventDefault()
+  const rect = document.getElementById('cropRect')
+  const area = document.getElementById('cropPickerArea')
+  const aR   = area.getBoundingClientRect()
+  const rR   = rect.getBoundingClientRect()
+  _cropDrag  = { sx: e.clientX, sy: e.clientY, sl: rR.left - aR.left, st: rR.top - aR.top, maxL: aR.width - rR.width, maxT: aR.height - rR.height }
+})
+document.addEventListener('mousemove', (e) => {
+  if (!_cropDrag) return
+  const rect = document.getElementById('cropRect')
+  rect.style.left = Math.max(0, Math.min(_cropDrag.maxL, _cropDrag.sl + e.clientX - _cropDrag.sx)) + 'px'
+  rect.style.top  = Math.max(0, Math.min(_cropDrag.maxT, _cropDrag.st + e.clientY - _cropDrag.sy)) + 'px'
+})
+document.addEventListener('mouseup', () => { _cropDrag = null })
+document.getElementById('cropRect').addEventListener('touchstart', (e) => {
+  const t = e.touches[0]; e.preventDefault()
+  const rect = document.getElementById('cropRect')
+  const area = document.getElementById('cropPickerArea')
+  const aR   = area.getBoundingClientRect()
+  const rR   = rect.getBoundingClientRect()
+  _cropDrag  = { sx: t.clientX, sy: t.clientY, sl: rR.left - aR.left, st: rR.top - aR.top, maxL: aR.width - rR.width, maxT: aR.height - rR.height }
+}, { passive: false })
+document.addEventListener('touchmove', (e) => {
+  if (!_cropDrag) return; e.preventDefault()
+  const t    = e.touches[0]
+  const rect = document.getElementById('cropRect')
+  rect.style.left = Math.max(0, Math.min(_cropDrag.maxL, _cropDrag.sl + t.clientX - _cropDrag.sx)) + 'px'
+  rect.style.top  = Math.max(0, Math.min(_cropDrag.maxT, _cropDrag.st + t.clientY - _cropDrag.sy)) + 'px'
+}, { passive: false })
+document.addEventListener('touchend', () => { _cropDrag = null })
+
+window.confirmCrop = () => {
+  const rect = document.getElementById('cropRect')
+  const area = document.getElementById('cropPickerArea')
+  const maxL = area.offsetWidth  - rect.offsetWidth
+  const maxT = area.offsetHeight - rect.offsetHeight
+  const xP   = maxL > 0 ? Math.round((parseInt(rect.style.left) || 0) / maxL * 100) : 50
+  const yP   = maxT > 0 ? Math.round((parseInt(rect.style.top)  || 0) / maxT * 100) : 50
+  photos[_cropIdx].focal = `${xP}% ${yP}%`
+  closeCropPicker()
+  renderPhotoList()
+}
+
+window.closeCropPicker = () => {
+  document.getElementById('cropOverlay').classList.remove('open')
+  _cropIdx = null; _cropDrag = null
+}
+
+// ── Photo list ───────────────────────────────────────────────────────
+function renderPhotoList() {
+  const list = document.getElementById('fotosGrid')
+  list.innerHTML = ''
+  photos.forEach((ph, i) => {
+    const src = ph.file ? URL.createObjectURL(ph.file) : ph.url
+    const item = document.createElement('div')
+    item.className = 'foto-item'
+    item.innerHTML = `
+      <span class="foto-item-num">${i + 1}</span>
+      <img class="foto-item-thumb" src="${src}" alt="foto ${i+1}">
+      <div class="foto-item-actions">
+        <button type="button" class="btn-foto-act" ${i===0?'disabled':''} onclick="moveFoto(${i},-1)" title="Mover arriba">↑</button>
+        <button type="button" class="btn-foto-act" ${i===photos.length-1?'disabled':''} onclick="moveFoto(${i},1)" title="Mover abajo">↓</button>
+        <button type="button" class="btn-foto-act" style="${ph.focal?'border-color:#4caf7d;color:#4caf7d;':''}" onclick="openCropPicker(${i})">Encuadre${ph.focal?' ✓':''}</button>
+        <button type="button" class="btn-foto-act btn-foto-del" onclick="removeFoto(${i})">✕</button>
+      </div>`
+    list.appendChild(item)
   })
-  pendingFotos.forEach((file, i) => {
-    const wrap = document.createElement('div')
-    wrap.className = 'foto-thumb-wrap'
-    const urlObj = URL.createObjectURL(file)
-    const hasFocal = pendingFocalsFotos[i]
-    wrap.innerHTML = `<img class="foto-thumb" src="${urlObj}" alt="nueva foto"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoPending(${i})">✕</button><button class="foto-thumb-remove" style="right:22px;background:${hasFocal?'#4caf7d':'#a09890'}" title="Elegir área" onclick="openFotoFocalPicker('pending',${i});event.stopPropagation()">⊕</button>`
-    grid.appendChild(wrap)
-  })
-  const addBtn = document.createElement('button')
-  addBtn.type = 'button'
-  addBtn.className = 'btn-add-foto'
-  addBtn.title = 'Agregar foto'
-  addBtn.textContent = '+'
-  addBtn.onclick = () => document.getElementById('pf-fotos-input').click()
-  grid.appendChild(addBtn)
 }
 
-window.removeFotoExistente = (i) => { existingFotos.splice(i, 1); renderFotosGrid() }
-window.removeFotoPending   = (i) => { pendingFotos.splice(i, 1);  renderFotosGrid() }
+window.moveFoto = (i, dir) => {
+  const j = i + dir
+  if (j < 0 || j >= photos.length) return
+  ;[photos[i], photos[j]] = [photos[j], photos[i]]
+  renderPhotoList()
+}
+
+window.removeFoto = (i) => { photos.splice(i, 1); renderPhotoList() }
 
 window.openProdForm = (id) => {
-  editingProdId       = id
-  pendingFile         = null
-  pendingFotos        = []
-  existingFotos       = []
-  mainFocal           = null
-  existingFocalsFotos = []
-  pendingFocalsFotos  = []
-  pfActivo            = true
-  document.getElementById('mainFocalWrap').style.display = 'none'
-  document.getElementById('mainFocalDot').style.display  = 'none'
+  editingProdId = id
+  photos        = []
+  pfActivo      = true
 
   document.getElementById('prodFormTitle').textContent = id ? 'Editar producto' : 'Nuevo producto'
   document.getElementById('pf-nombre').value      = ''
@@ -664,37 +664,31 @@ window.openProdForm = (id) => {
   document.getElementById('pf-dimensiones').value = ''
   document.getElementById('pf-peso').value        = ''
   document.getElementById('pf-desc').value        = ''
-  document.getElementById('pf-img').value         = ''
   document.getElementById('pf-fotos-input').value = ''
-  document.getElementById('imgPreviewWrap').style.display  = 'none'
-  document.getElementById('imgCurrentWrap').style.display  = 'none'
   document.querySelectorAll('.cat-check input').forEach(c => c.checked = false)
 
   if (id) {
     const p = allProductos.find(p => p.id === id)
     if (!p) return
-    document.getElementById('pf-nombre').value = p.nombre
-    document.getElementById('pf-precio').value = p.precio
-    document.getElementById('pf-stock').value  = p.stock !== null && p.stock !== undefined ? p.stock : ''
+    document.getElementById('pf-nombre').value      = p.nombre
+    document.getElementById('pf-precio').value      = p.precio
+    document.getElementById('pf-stock').value       = p.stock !== null && p.stock !== undefined ? p.stock : ''
     document.getElementById('pf-dimensiones').value = p.dimensiones ?? ''
     document.getElementById('pf-peso').value        = p.peso ?? ''
     document.getElementById('pf-desc').value        = p.descripcion ?? ''
-    pfActivo            = p.activo
-    existingFotos       = Array.isArray(p.fotos) ? [...p.fotos] : []
-    existingFocalsFotos = Array.isArray(p.fotos_focal) ? [...p.fotos_focal] : []
-    mainFocal           = p.imagen_focal ?? null
+    pfActivo = p.activo
     ;(p.categoria ?? []).forEach(c => {
       const cb = document.querySelector(`.cat-check input[value="${c}"]`)
       if (cb) cb.checked = true
     })
-    if (p.imagen_url) {
-      document.getElementById('imgCurrent').src = p.imagen_url
-      document.getElementById('imgCurrentWrap').style.display = 'block'
-      _showMainFocalPicker(p.imagen_url, p.imagen_focal)
-    }
+    // Build unified photos: imagen_url first, then fotos[]
+    if (p.imagen_url) photos.push({ url: p.imagen_url, focal: p.imagen_focal ?? null, file: null })
+    const fotos      = Array.isArray(p.fotos)       ? p.fotos       : []
+    const fotoFocals = Array.isArray(p.fotos_focal) ? p.fotos_focal : []
+    fotos.forEach((url, i) => { if (url) photos.push({ url, focal: fotoFocals[i] ?? null, file: null }) })
   }
 
-  renderFotosGrid()
+  renderPhotoList()
   updateToggleUI()
   document.getElementById('prodFormOverlay').classList.add('open')
   document.body.style.overflow = 'hidden'
@@ -704,7 +698,7 @@ window.closeProdForm = () => {
   document.getElementById('prodFormOverlay').classList.remove('open')
   document.body.style.overflow = ''
   editingProdId = null
-  pendingFile   = null
+  photos = []
 }
 
 window.toggleActivo = () => {
@@ -717,30 +711,14 @@ function updateToggleUI() {
   t.classList.toggle('on', pfActivo)
 }
 
-// Preview de imagen principal al seleccionar
-document.getElementById('pf-img').addEventListener('change', (e) => {
-  const file = e.target.files?.[0]
-  if (!file) return
-  if (file.size > 5 * 1024 * 1024) { alert('La imagen no puede superar 5MB.'); e.target.value = ''; return }
-  pendingFile = file
-  const reader = new FileReader()
-  reader.onload = ev => {
-    document.getElementById('imgPreview').src = ev.target.result
-    document.getElementById('imgPreviewWrap').style.display = 'block'
-    document.getElementById('imgCurrentWrap').style.display = 'none'
-    _showMainFocalPicker(ev.target.result, null)
-  }
-  reader.readAsDataURL(file)
-})
-
-// Fotos adicionales
+// Agregar fotos
 document.getElementById('pf-fotos-input').addEventListener('change', (e) => {
-  const files = [...(e.target.files ?? [])]
+  const files    = [...(e.target.files ?? [])]
   const oversized = files.filter(f => f.size > 5 * 1024 * 1024)
-  if (oversized.length) { alert('Algunas imágenes superan 5MB y no se agregarán.') }
-  pendingFotos.push(...files.filter(f => f.size <= 5 * 1024 * 1024))
+  if (oversized.length) alert('Algunas imágenes superan 5MB y no se agregarán.')
+  files.filter(f => f.size <= 5 * 1024 * 1024).forEach(file => photos.push({ url: null, focal: null, file }))
   e.target.value = ''
-  renderFotosGrid()
+  renderPhotoList()
 })
 
 window.saveProd = async () => {
@@ -752,50 +730,44 @@ window.saveProd = async () => {
   const desc        = document.getElementById('pf-desc').value.trim()
   const cats        = [...document.querySelectorAll('.cat-check input:checked')].map(c => c.value)
 
-  if (!nombre)            { alert('Ingresá el nombre del producto.'); return }
+  if (!nombre)              { alert('Ingresá el nombre del producto.'); return }
   if (!precio || precio <= 0) { alert('Ingresá un precio válido.'); return }
   const stock = stockRaw === '' ? null : parseInt(stockRaw, 10)
   if (stock !== null && (isNaN(stock) || stock < 0)) { alert('Stock inválido.'); return }
 
   const btn = document.getElementById('btnSaveProd')
-  btn.disabled = true
-  btn.textContent = 'Guardando…'
+  btn.disabled = true; btn.textContent = 'Guardando…'
 
   const prodId = editingProdId ?? crypto.randomUUID()
+  const ts     = Date.now()
 
   try {
-    // 1. Subir imagen principal si hay una nueva
-    let imagen_url = editingProdId ? (allProductos.find(p => p.id === editingProdId)?.imagen_url ?? null) : null
-    if (pendingFile) {
-      const ext  = pendingFile.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const path = `${prodId}-main.${ext}`
-      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, pendingFile, { upsert: true, contentType: pendingFile.type })
-      if (upErr) throw new Error('Error subiendo imagen: ' + upErr.message)
-      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
-      imagen_url = urlData.publicUrl + '?v=' + Date.now()
+    // Subir fotos nuevas y construir array final en orden
+    const resolved = []
+    for (let i = 0; i < photos.length; i++) {
+      const ph = photos[i]
+      if (ph.file) {
+        const ext  = ph.file.name.split('.').pop()?.toLowerCase() || 'jpg'
+        const path = `${prodId}-foto-${ts}-${i}.${ext}`
+        const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, ph.file, { upsert: true, contentType: ph.file.type })
+        if (upErr) throw new Error('Error subiendo foto: ' + upErr.message)
+        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
+        resolved.push({ url: urlData.publicUrl, focal: ph.focal })
+      } else {
+        resolved.push({ url: ph.url, focal: ph.focal })
+      }
     }
 
-    // 2. Subir fotos adicionales
-    const fotosSubidas      = []
-    const fotosSubidasFocal = []
-    for (let i = 0; i < pendingFotos.length; i++) {
-      const file = pendingFotos[i]
-      const ext  = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const path = `${prodId}-foto-${Date.now()}-${i}.${ext}`
-      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type })
-      if (upErr) throw new Error('Error subiendo foto adicional: ' + upErr.message)
-      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
-      fotosSubidas.push(urlData.publicUrl)
-      fotosSubidasFocal.push(pendingFocalsFotos[i] || null)
-    }
-    const fotos       = [...existingFotos, ...fotosSubidas]
-    const fotos_focal = [...existingFocalsFotos, ...fotosSubidasFocal]
+    // Primera foto → imagen_url, resto → fotos[]
+    const imagen_url   = resolved[0]?.url   ?? null
+    const imagen_focal = resolved[0]?.focal ?? null
+    const fotos        = resolved.slice(1).map(p => p.url)
+    const fotos_focal  = resolved.slice(1).map(p => p.focal ?? null)
 
-    // 3. Guardar producto
     const method  = editingProdId ? 'PUT' : 'POST'
     const payload = {
       nombre, precio, descripcion: desc || null, categoria: cats,
-      imagen_url, imagen_focal: mainFocal ?? null,
+      imagen_url, imagen_focal,
       fotos, fotos_focal,
       activo: pfActivo, stock, dimensiones, peso,
       ...(editingProdId ? { id: editingProdId } : {}),
@@ -803,7 +775,6 @@ window.saveProd = async () => {
     const data = await apiFetch(FN_PRODUCTS, { method, body: JSON.stringify(payload) })
     if (data.error) throw new Error(data.error)
 
-    // 4. Actualizar lista local
     if (editingProdId) {
       const idx = allProductos.findIndex(p => p.id === editingProdId)
       if (idx >= 0) allProductos[idx] = data.producto
@@ -816,8 +787,7 @@ window.saveProd = async () => {
   } catch(e) {
     alert('Error: ' + e.message)
   } finally {
-    btn.disabled = false
-    btn.textContent = 'Guardar producto'
+    btn.disabled = false; btn.textContent = 'Guardar producto'
   }
 }
 
@@ -826,7 +796,8 @@ window.toggleProdActivo = async (id, nuevoActivo) => {
   if (!p) return
   const data = await apiFetch(FN_PRODUCTS, { method: 'PUT', body: JSON.stringify({
     id, nombre: p.nombre, precio: p.precio, descripcion: p.descripcion,
-    categoria: p.categoria, imagen_url: p.imagen_url, fotos: p.fotos ?? [],
+    categoria: p.categoria, imagen_url: p.imagen_url, imagen_focal: p.imagen_focal ?? null,
+    fotos: p.fotos ?? [], fotos_focal: p.fotos_focal ?? [],
     activo: nuevoActivo, stock: p.stock ?? null,
     dimensiones: p.dimensiones ?? null, peso: p.peso ?? null,
   }) })
