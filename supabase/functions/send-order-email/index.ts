@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -8,6 +9,24 @@ const CORS = {
 
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? ""
 const FROM       = Deno.env.get("EMAIL_FROM") ?? "Casa Gioia <onboarding@resend.dev>"
+
+function deny(msg = "No autorizado") {
+  return new Response(JSON.stringify({ error: msg }), {
+    status: 401, headers: { ...CORS, "Content-Type": "application/json" },
+  })
+}
+
+function bad(msg: string) {
+  return new Response(JSON.stringify({ error: msg }), {
+    status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+  })
+}
+
+function esc(s: unknown): string {
+  return String(s ?? "").replace(/[&<>"']/g, c => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!
+  ))
+}
 
 function fmt(n: number) {
   return "$" + Number(n).toLocaleString("es-AR")
@@ -19,7 +38,7 @@ function itemsHtml(items: Array<{ nombre: string; qty: number; precio: number }>
   <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:24px 0 8px;">
     ${items.map(i => `
     <tr>
-      <td style="padding:8px 0;border-bottom:1px solid #f0ebe3;font-size:14px;color:#5a5450;">${i.nombre} <span style="color:#a09890;">×${i.qty}</span></td>
+      <td style="padding:8px 0;border-bottom:1px solid #f0ebe3;font-size:14px;color:#5a5450;">${esc(i.nombre)} <span style="color:#a09890;">×${esc(i.qty)}</span></td>
       <td style="padding:8px 0;border-bottom:1px solid #f0ebe3;font-size:14px;color:#2F2A28;text-align:right;white-space:nowrap;">${fmt(i.precio * i.qty)}</td>
     </tr>`).join("")}
     <tr>
@@ -67,7 +86,7 @@ function btnLink(url: string, label: string) {
 function orderBox(numero: string) {
   return `<div style="background:#F4EFE5;border-left:3px solid #891A55;padding:18px 22px;margin:24px 0;">
     <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#891A55;margin-bottom:4px;">Número de pedido</div>
-    <div style="font-size:18px;color:#2F2A28;">${numero}</div>
+    <div style="font-size:18px;color:#2F2A28;">${esc(numero)}</div>
   </div>`
 }
 
@@ -75,7 +94,41 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS })
 
   try {
-    const { type, email, data } = await req.json()
+    // ── 1. Autorizar: llamada interna (service role) o usuario dueño del pedido ──
+    const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
+    if (!token) return deny()
+
+    const SUPABASE_URL   = Deno.env.get("SUPABASE_URL")!
+    const SUPABASE_ANON  = Deno.env.get("SUPABASE_ANON_KEY")!
+    const SUPABASE_ADMIN = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+
+    let { type, email, data } = await req.json()
+
+    if (token === SUPABASE_ADMIN) {
+      // admin-orders y mp-webhook llaman server-to-server con la service role key —
+      // ya validaron el pedido y el email del lado del servidor.
+    } else {
+      if (token === SUPABASE_ANON) return deny("Se requiere sesión de usuario")
+
+      const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false } })
+      const { data: { user }, error: authError } = await anonClient.auth.getUser(token)
+      if (authError || !user) return deny("Sesión inválida")
+
+      const numeroPedido = data?.numero_pedido
+      if (typeof numeroPedido !== "string" || !numeroPedido) return bad("Falta numero_pedido")
+
+      const adminClient = createClient(SUPABASE_URL, SUPABASE_ADMIN, { auth: { persistSession: false } })
+      const { data: pedido } = await adminClient
+        .from("pedidos")
+        .select("id")
+        .eq("numero_pedido", numeroPedido)
+        .eq("user_id", user.id)
+        .maybeSingle()
+      if (!pedido) return deny("Pedido no encontrado")
+
+      // Ignorar el email que mande el cliente — usar el de la sesión verificada
+      email = user.email
+    }
 
     if (!RESEND_KEY) {
       console.error("RESEND_API_KEY not set")
@@ -104,7 +157,7 @@ serve(async (req) => {
       subject = `¡Pago confirmado! Pedido ${data.numero_pedido} — Casa Gioia`
       const envioInfo = data.envio?.tipo === "retiro"
         ? `<p style="font-size:14px;color:#5a5450;line-height:1.8;margin:16px 0 0;">📍 <strong>Retiro en tienda</strong><br>Alsina 3364, Mar del Plata · Te avisamos cuando esté listo.</p>`
-        : `<p style="font-size:14px;color:#5a5450;line-height:1.8;margin:16px 0 0;">📦 <strong>Envío a domicilio</strong><br>${data.envio?.calle ?? ""} ${data.envio?.numero ?? ""}, ${data.envio?.ciudad ?? ""}, ${data.envio?.provincia ?? ""}</p>`
+        : `<p style="font-size:14px;color:#5a5450;line-height:1.8;margin:16px 0 0;">📦 <strong>Envío a domicilio</strong><br>${esc(data.envio?.calle)} ${esc(data.envio?.numero)}, ${esc(data.envio?.ciudad)}, ${esc(data.envio?.provincia)}</p>`
       html = wrap(`
         <h1 style="font-size:26px;font-weight:400;color:#2F2A28;margin:0 0 12px;line-height:1.3;">¡Gracias<br>por tu compra!</h1>
         <p style="font-size:14px;color:#5a5450;line-height:1.8;margin:0;">Tu pago fue confirmado. Ya estamos preparando tu pedido.</p>

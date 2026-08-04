@@ -752,9 +752,10 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
   showSection('payment-section')
 
   // Crear preferencia (necesaria para wallet + ticket)
+  const { data: { session: prefSession } } = await supabase.auth.getSession()
   const prefRes = await fetch(`${SUPABASE_URL}/functions/v1/create-preference`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${prefSession?.access_token ?? SUPABASE_KEY}` },
     body: JSON.stringify({ items, origin: window.location.origin }),
   })
   const prefData = await prefRes.json()
@@ -871,9 +872,11 @@ async function enviarEmailPedido(numero, items, total, ticketUrl) {
   if (!user?.email) return
   const isEfectivo = !!ticketUrl
   try {
+    const { data: { session: emailSession } } = await supabase.auth.getSession()
+    if (!emailSession) return
     const res = await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${emailSession.access_token}` },
       body: JSON.stringify({
         type:  isEfectivo ? 'efectivo_created' : 'payment_confirmed',
         email: user.email,

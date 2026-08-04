@@ -1,9 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
+}
+
+function deny(msg = "No autorizado") {
+  return new Response(JSON.stringify({ error: msg }), {
+    status: 401, headers: { ...CORS, "Content-Type": "application/json" },
+  })
+}
+
+function bad(msg: string) {
+  return new Response(JSON.stringify({ error: msg }), {
+    status: 400, headers: { ...CORS, "Content-Type": "application/json" },
+  })
 }
 
 serve(async (req) => {
@@ -12,19 +25,58 @@ serve(async (req) => {
   }
 
   try {
-    const { items, origin } = await req.json()
-    const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN")!
+    // ── 1. Verificar sesión de usuario ──────────────────────────────────────
+    const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
+    if (!token) return deny()
 
+    const SUPABASE_URL   = Deno.env.get("SUPABASE_URL")!
+    const SUPABASE_ANON  = Deno.env.get("SUPABASE_ANON_KEY")!
+    const SUPABASE_ADMIN = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+
+    // No aceptar el anon key como token de usuario
+    if (token === SUPABASE_ANON) return deny("Se requiere sesión de usuario")
+
+    const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false } })
+    const { data: { user }, error: authError } = await anonClient.auth.getUser(token)
+    if (authError || !user) return deny("Sesión inválida")
+
+    // ── 2. Parsear y validar el body ────────────────────────────────────────
+    const { items, origin } = await req.json()
+    if (!Array.isArray(items) || items.length === 0)        return bad("Sin productos")
+    if (items.some((i: { id: unknown }) => typeof i.id !== "string" || !i.id)) return bad("IDs de productos inválidos")
+    if (items.some((i: { qty: unknown }) => !Number.isInteger(i.qty) || (i.qty as number) < 1 || (i.qty as number) > 99)) {
+      return bad("Cantidades inválidas")
+    }
+
+    // ── 3. Recalcular precios server-side contra la tabla productos ──────────
+    const adminClient = createClient(SUPABASE_URL, SUPABASE_ADMIN, { auth: { persistSession: false } })
+    const productIds = (items as Array<{ id: string }>).map(i => i.id)
+
+    const { data: productos, error: dbError } = await adminClient
+      .from("productos")
+      .select("id, nombre, precio")
+      .in("id", productIds)
+
+    if (dbError || !productos?.length) return bad("Productos no encontrados")
+
+    const preferenceItems: Array<{ id: string; title: string; quantity: number; unit_price: number; currency_id: string }> = []
+    for (const item of items as Array<{ id: string; qty: number }>) {
+      const producto = productos.find((p: { id: string; nombre: string; precio: number }) => p.id === item.id)
+      if (!producto) return bad(`Producto desconocido: ${item.id}`)
+      preferenceItems.push({
+        id:          String(producto.id),
+        title:       String(producto.nombre),
+        quantity:    Number(item.qty),
+        unit_price:  Number(producto.precio),
+        currency_id: "ARS",
+      })
+    }
+
+    const ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN")!
     const base = origin ?? "http://127.0.0.1:5500"
 
     const preference = {
-      items: items.map((item: { id: string; nombre: string; qty: number; precio: number }) => ({
-        id: String(item.id),
-        title: String(item.nombre),
-        quantity: Number(item.qty),
-        unit_price: Number(item.precio),
-        currency_id: "ARS",
-      })),
+      items: preferenceItems,
       back_urls: {
         success: `${base}/pago-exitoso.html`,
         failure: `${base}/pago-fallido.html`,
