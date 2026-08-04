@@ -41,13 +41,18 @@ async function getAdminClient() {
   )
 }
 
-// Verifica que el token pertenezca al admin configurado en ADMIN_EMAIL (secret)
+// Verifica que el token pertenezca a alguno de los admins configurados
+// en ADMIN_EMAILS (secret, separado por comas). Mantiene ADMIN_EMAIL
+// (singular) como fallback por compatibilidad.
 async function verifyAdmin(req: Request): Promise<boolean> {
   const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
   if (!token) return false
 
-  const adminEmail = Deno.env.get("ADMIN_EMAIL")
-  if (!adminEmail) return false
+  const adminEmails = (Deno.env.get("ADMIN_EMAILS") ?? Deno.env.get("ADMIN_EMAIL") ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+  if (!adminEmails.length) return false
 
   const anonClient = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -55,13 +60,23 @@ async function verifyAdmin(req: Request): Promise<boolean> {
     { auth: { persistSession: false } }
   )
   const { data: { user }, error } = await anonClient.auth.getUser(token)
-  if (error || !user) return false
-  return user.email === adminEmail
+  if (error || !user?.email) return false
+  return adminEmails.includes(user.email.toLowerCase())
 }
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: CORS })
+  }
+
+  // GET ?scope=whoami — cualquier usuario logueado puede preguntar si es
+  // admin (para mostrar/ocultar el botón al panel en el perfil). No es
+  // información sensible: la autorización real sigue en cada endpoint.
+  if (req.method === "GET" && new URL(req.url).searchParams.get("scope") === "whoami") {
+    const isAdmin = await verifyAdmin(req)
+    return new Response(JSON.stringify({ isAdmin }), {
+      headers: { ...CORS, "Content-Type": "application/json" },
+    })
   }
 
   if (!await verifyAdmin(req)) return deny()

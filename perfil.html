@@ -52,6 +52,7 @@
 
     <div class="perfil-actions">
       <a href="pedidos" class="btn-ghost perfil-action-btn">◈ &nbsp;Mis pedidos</a>
+      <a href="admin" id="adminBtn" class="btn-ghost perfil-action-btn" style="display:none;">⚙ &nbsp;Panel de administración</a>
       <button id="logoutBtn" class="btn-ghost perfil-action-btn">Cerrar sesión</button>
     </div>
 
@@ -177,6 +178,24 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   window.cartSave([])
   window.location.href = '/'
 })
+
+/* ── Botón al panel de admin, solo si corresponde ── */
+;(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+  try {
+    const res = await fetch('https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders?scope=whoami', {
+      headers: {
+        'apikey': 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+    })
+    const data = await res.json()
+    if (data.isAdmin) document.getElementById('adminBtn').style.display = ''
+  } catch (e) {
+    console.error('whoami check error:', e)
+  }
+})()
 
 /* ── Dirección de envío ── */
 const { data: perfil } = await supabase

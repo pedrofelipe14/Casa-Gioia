@@ -327,6 +327,13 @@ const BUCKET      = 'product-images'
 const { data: { session } } = await supabase.auth.getSession()
 if (!session) { window.location.href = 'login' }
 
+if (session) {
+  const who = await fetch('https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders?scope=whoami', {
+    headers: { 'Authorization': `Bearer ${session.access_token}`, 'apikey': 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9' },
+  }).then(r => r.json()).catch(() => ({ isAdmin: false }))
+  if (!who.isAdmin) { window.location.href = '/' }
+}
+
 document.getElementById('logoutBtn').onclick = async () => {
   await supabase.auth.signOut()
   window.location.href = '/'

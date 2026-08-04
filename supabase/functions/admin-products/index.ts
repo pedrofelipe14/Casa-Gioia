@@ -17,11 +17,14 @@ function ok(d: unknown) { return new Response(JSON.stringify(d),                
 async function verifyAdmin(req: Request): Promise<boolean> {
   const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
   if (!token) return false
-  const adminEmail = Deno.env.get("ADMIN_EMAIL")
-  if (!adminEmail) return false
+  const adminEmails = (Deno.env.get("ADMIN_EMAILS") ?? Deno.env.get("ADMIN_EMAIL") ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+  if (!adminEmails.length) return false
   const client = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false } })
   const { data: { user }, error } = await client.auth.getUser(token)
-  return !error && user?.email === adminEmail
+  return !error && !!user?.email && adminEmails.includes(user.email.toLowerCase())
 }
 
 function getAdmin() {
