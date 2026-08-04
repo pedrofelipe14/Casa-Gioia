@@ -165,7 +165,7 @@ serve(async (req) => {
         ${itemsHtml(data.items ?? [])}
         <p style="font-size:15px;font-weight:600;color:#891A55;text-align:right;margin:0 0 16px;">Total: ${fmt(data.total)}</p>
         ${envioInfo}
-        ${btnLink("https://casagioia.com.ar/pedidos.html", "Ver mis pedidos")}
+        ${btnLink("https://casagioia.com.ar/pedidos", "Ver mis pedidos")}
       `)
 
     } else if (type === "status_update") {
@@ -194,7 +194,7 @@ serve(async (req) => {
           <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#891A55;">Estado: </span>
           <span style="font-size:14px;color:#2F2A28;text-transform:capitalize;">${label}</span>
         </div>
-        ${btnLink("https://casagioia.com.ar/pedidos.html", "Ver mis pedidos")}
+        ${btnLink("https://casagioia.com.ar/pedidos", "Ver mis pedidos")}
       `)
     }
 

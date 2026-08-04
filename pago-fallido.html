@@ -33,13 +33,13 @@
 <header>
 <nav class="navbar" id="navbar">
   <div class="logo">
-    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <a href="/" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
     <span>Moda • Hogar • Design</span>
   </div>
   <button class="mobile-toggle" id="mobileToggle">☰</button>
   <ul class="menu" id="menu">
     <li class="has-submenu">
-      <a href="coleccion.html">Collezione <span class="submenu-arrow">▾</span></a>
+      <a href="coleccion">Collezione <span class="submenu-arrow">▾</span></a>
       <ul class="submenu">
         <li><button class="submenu-btn">Deco</button></li>
         <li><button class="submenu-btn">Accesorios</button></li>
@@ -47,10 +47,10 @@
         <li><button class="submenu-btn">Deli</button></li>
       </ul>
     </li>
-    <li><a href="la-casa.html">Interiorismo</a></li>
-    <li><a href="journal.html">Storia</a></li>
-    <li><a href="novita.html">Novità</a></li>
-    <li><a href="contacto.html">Contacto</a></li>
+    <li><a href="la-casa">Interiorismo</a></li>
+    <li><a href="journal">Storia</a></li>
+    <li><a href="novita">Novità</a></li>
+    <li><a href="contacto">Contacto</a></li>
   </ul>
   <button class="btn-nav" id="userBtn">Ingresar</button>
 </nav>
@@ -61,31 +61,31 @@
   <h1 class="result-title">Pago no <span>procesado.</span></h1>
   <p class="result-sub">El pago no pudo completarse. Tu carrito sigue guardado y podés intentarlo de nuevo cuando quieras.</p>
   <div class="result-actions">
-    <a href="carrito.html" class="btn-primary">VOLVER AL CARRITO</a>
-    <a href="contacto.html" class="btn-ghost">Contactarnos</a>
+    <a href="carrito" class="btn-primary">VOLVER AL CARRITO</a>
+    <a href="contacto" class="btn-ghost">Contactarnos</a>
   </div>
 </div>
 
 <footer>
   <div class="footer-grid">
     <div>
-      <a href="coleccion.html">Collezione</a>
-      <a href="la-casa.html">Interiorismo</a>
-      <a href="journal.html">Storia</a>
-      <a href="novita.html">Novità</a>
-      <a href="contacto.html">Contacto</a>
+      <a href="coleccion">Collezione</a>
+      <a href="la-casa">Interiorismo</a>
+      <a href="journal">Storia</a>
+      <a href="novita">Novità</a>
+      <a href="contacto">Contacto</a>
     </div>
     <div>
-      <a href="terminos-y-condiciones.html">Términos y Condiciones</a>
+      <a href="terminos-y-condiciones">Términos y Condiciones</a>
       <a href="#">Envíos</a>
       <a href="#">Cambios y devolución</a>
-      <a href="politicas-de-privacidad.html">Políticas de privacidad</a>
+      <a href="politicas-de-privacidad">Políticas de privacidad</a>
     </div>
     <div>
       <a href="mailto:casagioia@gmail.com">casagioia@gmail.com</a>
       <a href="#">@casagioia</a>
       <a href="#">+54 11 5580–6377</a>
-      <a href="contacto.html#faq">Preguntas frecuentes</a>
+      <a href="contacto#faq">Preguntas frecuentes</a>
     </div>
     <div class="footer-newsletter">
       <h4>Comunidad Casa Gioia</h4>
@@ -110,9 +110,9 @@ const btn = document.getElementById('userBtn')
 if (user) {
   const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
   btn.textContent = `👤 ${nombre.split(' ')[0]}`
-  btn.onclick = () => window.location.href = 'perfil.html'
+  btn.onclick = () => window.location.href = 'perfil'
 } else {
-  btn.onclick = () => window.location.href = 'login.html'
+  btn.onclick = () => window.location.href = 'login'
 }
 btn.style.opacity = '1'
 </script>

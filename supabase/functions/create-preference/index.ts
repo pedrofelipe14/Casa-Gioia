@@ -78,9 +78,9 @@ serve(async (req) => {
     const preference = {
       items: preferenceItems,
       back_urls: {
-        success: `${base}/pago-exitoso.html`,
-        failure: `${base}/pago-fallido.html`,
-        pending: `${base}/pago-exitoso.html`,
+        success: `${base}/pago-exitoso`,
+        failure: `${base}/pago-fallido`,
+        pending: `${base}/pago-exitoso`,
       },
       auto_return: "approved",
       statement_descriptor: "Casa Gioia",

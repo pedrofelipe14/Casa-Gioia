@@ -192,7 +192,7 @@ tr:hover td { background: #fdf9f5; }
 <body>
 
 <div class="admin-bar">
-  <a class="admin-bar-brand" href="index.html" style="text-decoration:none;"><span>◆</span>Admin · Casa Gioia</a>
+  <a class="admin-bar-brand" href="/" style="text-decoration:none;"><span>◆</span>Admin · Casa Gioia</a>
   <div class="admin-bar-right">
     <button class="admin-logout" id="logoutBtn">Salir</button>
   </div>
@@ -325,11 +325,11 @@ const ANON_KEY    = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
 const BUCKET      = 'product-images'
 
 const { data: { session } } = await supabase.auth.getSession()
-if (!session) { window.location.href = 'login.html' }
+if (!session) { window.location.href = 'login' }
 
 document.getElementById('logoutBtn').onclick = async () => {
   await supabase.auth.signOut()
-  window.location.href = 'index.html'
+  window.location.href = '/'
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -341,7 +341,7 @@ function authHeaders(extra = {}) {
 
 async function apiFetch(url, opts = {}) {
   const res = await fetch(url, { headers: authHeaders(), ...opts })
-  if (res.status === 401) { window.location.href = 'index.html'; throw new Error('no auth') }
+  if (res.status === 401) { window.location.href = '/'; throw new Error('no auth') }
   return res.json()
 }
 

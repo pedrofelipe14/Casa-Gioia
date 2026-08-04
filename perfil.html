@@ -13,13 +13,13 @@
 <header>
 <nav class="navbar" id="navbar">
   <div class="logo">
-    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <a href="/" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
     <span>Moda • Hogar • Design</span>
   </div>
   <button class="mobile-toggle" id="mobileToggle">☰</button>
   <ul class="menu" id="menu">
     <li class="has-submenu">
-      <a href="coleccion.html">Collezione <span class="submenu-arrow">▾</span></a>
+      <a href="coleccion">Collezione <span class="submenu-arrow">▾</span></a>
       <ul class="submenu">
         <li><button class="submenu-btn">Deco</button></li>
         <li><button class="submenu-btn">Accesorios</button></li>
@@ -27,10 +27,10 @@
         <li><button class="submenu-btn">Deli</button></li>
       </ul>
     </li>
-    <li><a href="la-casa.html">Interiorismo</a></li>
-    <li><a href="journal.html">Storia</a></li>
-    <li><a href="novita.html">Novità</a></li>
-    <li><a href="contacto.html">Contacto</a></li>
+    <li><a href="la-casa">Interiorismo</a></li>
+    <li><a href="journal">Storia</a></li>
+    <li><a href="novita">Novità</a></li>
+    <li><a href="contacto">Contacto</a></li>
   </ul>
   <button class="btn-nav" id="userBtn">Mi cuenta</button>
 </nav>
@@ -51,7 +51,7 @@
     <div class="divider-ornament" style="margin:40px 0;">◆</div>
 
     <div class="perfil-actions">
-      <a href="pedidos.html" class="btn-ghost perfil-action-btn">◈ &nbsp;Mis pedidos</a>
+      <a href="pedidos" class="btn-ghost perfil-action-btn">◈ &nbsp;Mis pedidos</a>
       <button id="logoutBtn" class="btn-ghost perfil-action-btn">Cerrar sesión</button>
     </div>
 
@@ -98,7 +98,7 @@
     <div class="perfil-section">
       <div class="historial-header">
         <h3 class="perfil-section-title" style="margin:0;">Últimos pedidos</h3>
-        <a href="pedidos.html" class="historial-ver-todos">Ver todos →</a>
+        <a href="pedidos" class="historial-ver-todos">Ver todos →</a>
       </div>
       <div id="historial-list"><p style="color:#aaa; font-size:.9rem;">Cargando…</p></div>
     </div>
@@ -110,23 +110,23 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <a href="coleccion.html">Collezione</a>
-      <a href="la-casa.html">Interiorismo</a>
-      <a href="journal.html">Storia</a>
-      <a href="novita.html">Novità</a>
-      <a href="contacto.html">Contacto</a>
+      <a href="coleccion">Collezione</a>
+      <a href="la-casa">Interiorismo</a>
+      <a href="journal">Storia</a>
+      <a href="novita">Novità</a>
+      <a href="contacto">Contacto</a>
     </div>
     <div>
-      <a href="terminos-y-condiciones.html">Términos y Condiciones</a>
+      <a href="terminos-y-condiciones">Términos y Condiciones</a>
       <a href="#">Envíos</a>
       <a href="#">Cambios y devolución</a>
-      <a href="politicas-de-privacidad.html">Políticas de privacidad</a>
+      <a href="politicas-de-privacidad">Políticas de privacidad</a>
     </div>
     <div>
       <a href="mailto:casagioia@gmail.com">casagioia@gmail.com</a>
       <a href="#">@casagioia</a>
       <a href="#">+54 11 5580–6377</a>
-      <a href="contacto.html#faq">Preguntas frecuentes</a>
+      <a href="contacto#faq">Preguntas frecuentes</a>
     </div>
     <div class="footer-newsletter">
       <h4>Comunidad Casa Gioia</h4>
@@ -151,7 +151,7 @@ import { supabase } from './js/supabase-client.js'
 const { data: { user } } = await supabase.auth.getUser()
 
 if (!user) {
-  window.location.href = 'login.html'
+  window.location.href = 'login'
 }
 
 const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
@@ -175,7 +175,7 @@ if (user.user_metadata?.avatar_url) {
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await supabase.auth.signOut()
   window.cartSave([])
-  window.location.href = 'index.html'
+  window.location.href = '/'
 })
 
 /* ── Dirección de envío ── */

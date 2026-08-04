@@ -82,7 +82,7 @@ document.querySelectorAll('.has-submenu > a').forEach(link => {
 document.querySelectorAll('.submenu-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const f = btn.textContent.trim().toLowerCase();
-        window.location.href = `coleccion.html?filter=${f}`;
+        window.location.href = `coleccion?filter=${f}`;
     });
 });
 
@@ -115,7 +115,7 @@ document.querySelectorAll('.marquee span').forEach(span => {
     cartBtn.className = 'cart-btn'
     cartBtn.id = 'cartBtn'
     cartBtn.setAttribute('aria-label', 'Ver carrito')
-    cartBtn.onclick = () => { window.location.href = 'carrito.html' }
+    cartBtn.onclick = () => { window.location.href = 'carrito' }
     cartBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span class="cart-badge"></span>`
 
     const wrap = document.createElement('div')

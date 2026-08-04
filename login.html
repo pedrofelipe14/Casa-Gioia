@@ -94,13 +94,13 @@
 <header>
 <nav class="navbar" id="navbar">
   <div class="logo">
-    <a href="index.html" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <a href="/" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
     <span>Moda • Hogar • Design</span>
   </div>
   <button class="mobile-toggle" id="mobileToggle">☰</button>
   <ul class="menu" id="menu">
     <li class="has-submenu">
-      <a href="coleccion.html">Collezione <span class="submenu-arrow">▾</span></a>
+      <a href="coleccion">Collezione <span class="submenu-arrow">▾</span></a>
       <ul class="submenu">
         <li><button class="submenu-btn">Deco</button></li>
         <li><button class="submenu-btn">Accesorios</button></li>
@@ -108,10 +108,10 @@
         <li><button class="submenu-btn">Deli</button></li>
       </ul>
     </li>
-    <li><a href="la-casa.html">Interiorismo</a></li>
-    <li><a href="journal.html">Storia</a></li>
-    <li><a href="novita.html">Novità</a></li>
-    <li><a href="contacto.html">Contacto</a></li>
+    <li><a href="la-casa">Interiorismo</a></li>
+    <li><a href="journal">Storia</a></li>
+    <li><a href="novita">Novità</a></li>
+    <li><a href="contacto">Contacto</a></li>
   </ul>
   <button class="btn-nav" id="userBtn" style="opacity:1;">Ingresar</button>
 </nav>
@@ -203,10 +203,10 @@
 import { supabase } from './js/supabase-client.js'
 
 const { data:{ session } } = await supabase.auth.getSession()
-if(session) window.location.href = 'index.html'
+if(session) window.location.href = '/'
 
 supabase.auth.onAuthStateChange((event, session) => {
-    if(session) window.location.href = 'index.html'
+    if(session) window.location.href = '/'
 })
 
 /* ── Popup ── */
