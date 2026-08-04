@@ -169,11 +169,14 @@ if (error || !productos?.length) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#a09890;font-family:'Cormorant Garamond',serif;font-size:1.1rem;">No hay productos disponibles por el momento.</div>`
 } else {
   grid.innerHTML = productos.map(p => {
-    const cats    = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
-    const agotado = p.stock !== null && p.stock !== undefined && p.stock === 0
+    const cats     = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
+    const agotado  = p.stock !== null && p.stock !== undefined && p.stock === 0
+    const stockBajo = !agotado && p.stock !== null && p.stock !== undefined && p.stock <= 5
     const stockBadge = agotado
       ? `<span style="position:absolute;top:10px;left:10px;background:rgba(47,42,40,.8);color:#f4efe5;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;z-index:4;">Agotado</span>`
-      : ''
+      : stockBajo
+        ? `<span style="position:absolute;top:10px;left:10px;background:rgba(139,26,85,.92);color:#f4efe5;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;z-index:4;">¡Quedan ${p.stock}!</span>`
+        : ''
 
     // Fotos + focales en orden
     const allPhotos = []

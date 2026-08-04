@@ -100,6 +100,9 @@ tr:hover td { background: #fdf9f5; }
 .activo-badge { display: inline-block; padding: 2px 8px; font-size: .6rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
 .activo-si  { background: #d4edda; color: #155724; }
 .activo-no  { background: #f8d7da; color: #721c24; }
+.stock-low td { background: #fdf3f2; }
+.stock-low td:first-child { box-shadow: inset 4px 0 0 #c0392b; }
+.stock-badge-low { color: #c0392b; font-weight: 700; }
 .btn-icon { background: none; border: none; cursor: pointer; padding: 4px 8px; font-size: .78rem; color: #a09890; transition: color .15s; }
 .btn-icon:hover { color: var(--wine); }
 
@@ -496,6 +499,7 @@ function buildPedidosUI() {
 //  PRODUCTOS
 // ═══════════════════════════════════════════════════════════════════════
 let allProductos = []
+const LOW_STOCK = 5
 
 async function fetchProductos() {
   const data = await apiFetch(FN_PRODUCTS)
@@ -511,13 +515,15 @@ function renderProductTable() {
     const img = imgSrc
       ? `<img class="prod-img-thumb" src="${imgSrc}" alt="${p.nombre}">`
       : `<div class="prod-img-placeholder">Sin img</div>`
-    const cats  = (p.categoria ?? []).join(' · ') || '—'
-    const stock = p.stock !== null && p.stock !== undefined ? p.stock : '∞'
-    return `<tr data-id="${p.id}">
+    const cats     = (p.categoria ?? []).join(' · ') || '—'
+    const stockNum = p.stock !== null && p.stock !== undefined ? p.stock : null
+    const stockBajo = stockNum !== null && stockNum <= LOW_STOCK
+    const stock    = stockNum !== null ? stockNum : '∞'
+    return `<tr data-id="${p.id}" class="${stockBajo ? 'stock-low' : ''}">
       <td>${img}</td>
       <td><div class="prod-name">${p.nombre}</div><div class="prod-cats">${cats}</div></td>
       <td><div class="prod-precio">$${Number(p.precio).toLocaleString('es-AR')}</div></td>
-      <td><span style="font-size:.78rem;">${stock}</span></td>
+      <td><span class="${stockBajo ? 'stock-badge-low' : ''}" style="font-size:.78rem;">${stock}${stockBajo ? ' ⚠️' : ''}</span></td>
       <td><span class="activo-badge ${p.activo ? 'activo-si' : 'activo-no'}">${p.activo ? 'Activo' : 'Inactivo'}</span></td>
       <td>
         <button class="btn-icon" title="Editar" onclick="openProdForm('${p.id}')">✏️</button>
