@@ -1524,6 +1524,14 @@ main{
 .perfil-action-btn {
     justify-content: center;
 }
+.btn-admin-yellow {
+    border-color: #D9A521;
+    color: #B8860B;
+}
+.btn-admin-yellow:hover {
+    background: #D9A521;
+    color: #2F2A28;
+}
 
 /* =============================================
    PEDIDOS / TRACKING
