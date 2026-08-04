@@ -144,6 +144,18 @@ tr:hover td { background: #fdf9f5; }
 .btn-cancel-form { background: none; border: 1px solid rgba(91,29,42,.2); color: #7a726c; padding: 11px 20px; font-family: 'Manrope', sans-serif; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: border-color .2s; }
 .btn-cancel-form:hover { border-color: var(--wine); color: var(--wine); }
 
+/* ── Focal point picker ── */
+.focal-picker-wrap { margin-top: 10px; cursor: crosshair; position: relative; line-height: 0; display: none; }
+.focal-picker-wrap img { width: 100%; max-height: 200px; object-fit: contain; display: block; background: #f0ebe3; }
+.focal-dot { position: absolute; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px var(--wine); transform: translate(-50%,-50%); pointer-events: none; display: none; }
+.focal-hint { font-size: .68rem; color: #a09890; padding: 6px 0 0; cursor: default; line-height: 1.5; }
+.focal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 600; align-items: center; justify-content: center; }
+.focal-overlay.open { display: flex; }
+.focal-overlay-box { background: white; padding: 24px; width: 90%; max-width: 520px; }
+.focal-overlay-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; margin-bottom: 12px; }
+.focal-overlay-picker { position: relative; cursor: crosshair; line-height: 0; }
+.focal-overlay-picker img { width: 100%; max-height: 400px; object-fit: contain; display: block; background: #f0ebe3; }
+
 /* ── Multiple photos ── */
 .fotos-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 .foto-thumb-wrap { position: relative; width: 72px; height: 72px; }
@@ -271,6 +283,11 @@ tr:hover td { background: #fdf9f5; }
         <img id="imgCurrent" src="" style="max-height:80px;display:block;" alt="imagen actual">
         <span style="font-size:.72rem;color:#a09890;">Imagen actual — subí una nueva para reemplazarla</span>
       </div>
+      <div class="focal-picker-wrap" id="mainFocalWrap" onclick="setMainFocal(event)">
+        <img id="mainFocalImg" src="" alt="focal">
+        <div class="focal-dot" id="mainFocalDot"></div>
+        <div class="focal-hint">Hacé clic en la imagen para elegir qué parte se muestra en la tienda</div>
+      </div>
     </div>
 
     <div class="form-row">
@@ -282,6 +299,21 @@ tr:hover td { background: #fdf9f5; }
     <div class="form-actions">
       <button class="btn-cancel-form" onclick="closeProdForm()">Cancelar</button>
       <button class="btn-save" id="btnSaveProd" onclick="saveProd()">Guardar producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal focal picker para fotos adicionales -->
+<div class="focal-overlay" id="fotoFocalOverlay">
+  <div class="focal-overlay-box">
+    <div class="focal-overlay-title">Elegí el área principal de la foto</div>
+    <div class="focal-overlay-picker" id="fotoFocalPicker" onclick="setFotoFocal(event)">
+      <img id="fotoFocalImg" src="" alt="focal">
+      <div class="focal-dot" id="fotoFocalDot"></div>
+    </div>
+    <div class="focal-hint" style="margin-top:8px;">Hacé clic en la imagen para definir qué parte se muestra en la tienda</div>
+    <div style="margin-top:16px;text-align:right;">
+      <button class="btn-cancel-form" onclick="closeFotoFocalOverlay()">Listo</button>
     </div>
   </div>
 </div>
@@ -521,11 +553,67 @@ function buildProductosUI() {
 }
 
 // ── Formulario de producto ─────────────────────────────────────────────
-let editingProdId  = null
-let pfActivo       = true
-let pendingFile    = null
-let existingFotos  = []   // URLs ya guardadas
-let pendingFotos   = []   // File objects por subir
+let editingProdId        = null
+let pfActivo             = true
+let pendingFile          = null
+let mainFocal            = null   // "X% Y%"
+let existingFotos        = []
+let pendingFotos         = []
+let existingFocalsFotos  = []     // paralelo a existingFotos
+let pendingFocalsFotos   = []     // paralelo a pendingFotos
+let _fotoFocalCtx        = null   // { type: 'existing'|'pending', idx }
+
+// ── Focal: imagen principal ──────────────────────────────────────────
+window.setMainFocal = (e) => {
+  const img  = document.getElementById('mainFocalImg')
+  const rect = img.getBoundingClientRect()
+  const x = Math.round(((e.clientX - rect.left)  / rect.width)  * 100)
+  const y = Math.round(((e.clientY - rect.top)   / rect.height) * 100)
+  mainFocal = `${x}% ${y}%`
+  const dot = document.getElementById('mainFocalDot')
+  dot.style.left = x + '%'; dot.style.top = y + '%'; dot.style.display = 'block'
+}
+function _showMainFocalPicker(src, existingFocal) {
+  const wrap = document.getElementById('mainFocalWrap')
+  document.getElementById('mainFocalImg').src = src
+  wrap.style.display = 'block'
+  const dot = document.getElementById('mainFocalDot')
+  if (existingFocal) {
+    mainFocal = existingFocal
+    const parts = existingFocal.split(' ')
+    dot.style.left = parts[0]; dot.style.top = parts[1]; dot.style.display = 'block'
+  } else { mainFocal = null; dot.style.display = 'none' }
+}
+
+// ── Focal: fotos adicionales ─────────────────────────────────────────
+window.openFotoFocalPicker = (type, idx) => {
+  const src = type === 'existing' ? existingFotos[idx] : URL.createObjectURL(pendingFotos[idx])
+  document.getElementById('fotoFocalImg').src = src
+  _fotoFocalCtx = { type, idx }
+  const existing = type === 'existing' ? existingFocalsFotos[idx] : pendingFocalsFotos[idx]
+  const dot = document.getElementById('fotoFocalDot')
+  if (existing) {
+    const parts = existing.split(' ')
+    dot.style.left = parts[0]; dot.style.top = parts[1]; dot.style.display = 'block'
+  } else { dot.style.display = 'none' }
+  document.getElementById('fotoFocalOverlay').classList.add('open')
+}
+window.setFotoFocal = (e) => {
+  const img  = document.getElementById('fotoFocalImg')
+  const rect = img.getBoundingClientRect()
+  const x = Math.round(((e.clientX - rect.left)  / rect.width)  * 100)
+  const y = Math.round(((e.clientY - rect.top)   / rect.height) * 100)
+  const focalStr = `${x}% ${y}%`
+  const { type, idx } = _fotoFocalCtx
+  if (type === 'existing') existingFocalsFotos[idx] = focalStr
+  else pendingFocalsFotos[idx] = focalStr
+  const dot = document.getElementById('fotoFocalDot')
+  dot.style.left = x + '%'; dot.style.top = y + '%'; dot.style.display = 'block'
+}
+window.closeFotoFocalOverlay = () => {
+  document.getElementById('fotoFocalOverlay').classList.remove('open')
+  _fotoFocalCtx = null
+}
 
 function renderFotosGrid() {
   const grid = document.getElementById('fotosGrid')
@@ -533,14 +621,16 @@ function renderFotosGrid() {
   existingFotos.forEach((url, i) => {
     const wrap = document.createElement('div')
     wrap.className = 'foto-thumb-wrap'
-    wrap.innerHTML = `<img class="foto-thumb" src="${url}" alt="foto ${i+1}"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoExistente(${i})">✕</button>`
+    const hasFocal = existingFocalsFotos[i]
+    wrap.innerHTML = `<img class="foto-thumb" src="${url}" alt="foto ${i+1}"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoExistente(${i})">✕</button><button class="foto-thumb-remove" style="right:22px;background:${hasFocal?'#4caf7d':'#a09890'}" title="Elegir área" onclick="openFotoFocalPicker('existing',${i});event.stopPropagation()">⊕</button>`
     grid.appendChild(wrap)
   })
   pendingFotos.forEach((file, i) => {
     const wrap = document.createElement('div')
     wrap.className = 'foto-thumb-wrap'
     const urlObj = URL.createObjectURL(file)
-    wrap.innerHTML = `<img class="foto-thumb" src="${urlObj}" alt="nueva foto"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoPending(${i})">✕</button>`
+    const hasFocal = pendingFocalsFotos[i]
+    wrap.innerHTML = `<img class="foto-thumb" src="${urlObj}" alt="nueva foto"><button class="foto-thumb-remove" title="Quitar" onclick="removeFotoPending(${i})">✕</button><button class="foto-thumb-remove" style="right:22px;background:${hasFocal?'#4caf7d':'#a09890'}" title="Elegir área" onclick="openFotoFocalPicker('pending',${i});event.stopPropagation()">⊕</button>`
     grid.appendChild(wrap)
   })
   const addBtn = document.createElement('button')
@@ -556,11 +646,16 @@ window.removeFotoExistente = (i) => { existingFotos.splice(i, 1); renderFotosGri
 window.removeFotoPending   = (i) => { pendingFotos.splice(i, 1);  renderFotosGrid() }
 
 window.openProdForm = (id) => {
-  editingProdId = id
-  pendingFile   = null
-  pendingFotos  = []
-  existingFotos = []
-  pfActivo      = true
+  editingProdId       = id
+  pendingFile         = null
+  pendingFotos        = []
+  existingFotos       = []
+  mainFocal           = null
+  existingFocalsFotos = []
+  pendingFocalsFotos  = []
+  pfActivo            = true
+  document.getElementById('mainFocalWrap').style.display = 'none'
+  document.getElementById('mainFocalDot').style.display  = 'none'
 
   document.getElementById('prodFormTitle').textContent = id ? 'Editar producto' : 'Nuevo producto'
   document.getElementById('pf-nombre').value      = ''
@@ -584,8 +679,10 @@ window.openProdForm = (id) => {
     document.getElementById('pf-dimensiones').value = p.dimensiones ?? ''
     document.getElementById('pf-peso').value        = p.peso ?? ''
     document.getElementById('pf-desc').value        = p.descripcion ?? ''
-    pfActivo = p.activo
-    existingFotos = Array.isArray(p.fotos) ? [...p.fotos] : []
+    pfActivo            = p.activo
+    existingFotos       = Array.isArray(p.fotos) ? [...p.fotos] : []
+    existingFocalsFotos = Array.isArray(p.fotos_focal) ? [...p.fotos_focal] : []
+    mainFocal           = p.imagen_focal ?? null
     ;(p.categoria ?? []).forEach(c => {
       const cb = document.querySelector(`.cat-check input[value="${c}"]`)
       if (cb) cb.checked = true
@@ -593,6 +690,7 @@ window.openProdForm = (id) => {
     if (p.imagen_url) {
       document.getElementById('imgCurrent').src = p.imagen_url
       document.getElementById('imgCurrentWrap').style.display = 'block'
+      _showMainFocalPicker(p.imagen_url, p.imagen_focal)
     }
   }
 
@@ -630,6 +728,7 @@ document.getElementById('pf-img').addEventListener('change', (e) => {
     document.getElementById('imgPreview').src = ev.target.result
     document.getElementById('imgPreviewWrap').style.display = 'block'
     document.getElementById('imgCurrentWrap').style.display = 'none'
+    _showMainFocalPicker(ev.target.result, null)
   }
   reader.readAsDataURL(file)
 })
@@ -677,7 +776,8 @@ window.saveProd = async () => {
     }
 
     // 2. Subir fotos adicionales
-    const fotosSubidas = []
+    const fotosSubidas      = []
+    const fotosSubidasFocal = []
     for (let i = 0; i < pendingFotos.length; i++) {
       const file = pendingFotos[i]
       const ext  = file.name.split('.').pop()?.toLowerCase() || 'jpg'
@@ -686,15 +786,18 @@ window.saveProd = async () => {
       if (upErr) throw new Error('Error subiendo foto adicional: ' + upErr.message)
       const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
       fotosSubidas.push(urlData.publicUrl)
+      fotosSubidasFocal.push(pendingFocalsFotos[i] || null)
     }
-    const fotos = [...existingFotos, ...fotosSubidas]
+    const fotos       = [...existingFotos, ...fotosSubidas]
+    const fotos_focal = [...existingFocalsFotos, ...fotosSubidasFocal]
 
     // 3. Guardar producto
     const method  = editingProdId ? 'PUT' : 'POST'
     const payload = {
       nombre, precio, descripcion: desc || null, categoria: cats,
-      imagen_url, fotos, activo: pfActivo,
-      stock, dimensiones, peso,
+      imagen_url, imagen_focal: mainFocal ?? null,
+      fotos, fotos_focal,
+      activo: pfActivo, stock, dimensiones, peso,
       ...(editingProdId ? { id: editingProdId } : {}),
     }
     const data = await apiFetch(FN_PRODUCTS, { method, body: JSON.stringify(payload) })

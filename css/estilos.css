@@ -1036,19 +1036,25 @@ main{
 .card-img-wrap { overflow: hidden; position: relative; }
 
 /* ── Card carousel (múltiples fotos) ── */
-.card-has-carousel { aspect-ratio: 4/3; }
-.carousel-track {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
+/* ── Card carousel estilo Instagram ── */
+.card-has-carousel {
     display: flex;
-    transition: transform .42s cubic-bezier(.25,.46,.45,.94);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    aspect-ratio: 4/3;
 }
+.card-has-carousel::-webkit-scrollbar { display: none; }
 .carousel-img {
-    flex-shrink: 0;
+    min-width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    flex-shrink: 0;
+    scroll-snap-align: start;
 }
 .carousel-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
@@ -1061,11 +1067,12 @@ main{
 .carousel-next { right: 0; }
 .carousel-dots {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 5px; z-index: 3;
+    display: flex; gap: 5px; z-index: 3; pointer-events: none;
 }
 .carousel-dot {
     width: 6px; height: 6px; border-radius: 50%;
-    background: rgba(255,255,255,.5); cursor: pointer; transition: background .2s;
+    background: rgba(255,255,255,.5); pointer-events: all;
+    cursor: pointer; transition: background .2s;
 }
 .carousel-dot.active { background: white; }
 .card-badge {

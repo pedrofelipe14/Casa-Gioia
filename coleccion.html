@@ -136,32 +136,23 @@ if (user) {
 }
 btn.style.opacity = '1'
 
-// ── Carousel ────────────────────────────────────────────────────────
-function _carouselSet(wrap, idx) {
-  const track  = wrap.querySelector('.carousel-track')
+// ── Carousel (scroll-snap, estilo Instagram) ─────────────────────────
+function _updateDots(wrap, idx) {
+  wrap.querySelectorAll('.carousel-dot').forEach((d, n) => d.classList.toggle('active', n === idx))
+}
+window.carouselNav = (btn, dir) => {
+  const wrap   = btn.closest('.card-has-carousel')
+  const slideW = wrap.clientWidth
   const total  = wrap.querySelectorAll('.carousel-img').length
-  const dots   = [...wrap.querySelectorAll('.carousel-dot')]
-  idx = (idx + total) % total
-  wrap.dataset.idx = idx
-  const slideW = parseInt(wrap.dataset.slideW || wrap.clientWidth)
-  track.style.transform = `translateX(-${idx * slideW}px)`
-  dots.forEach((d, n) => d.classList.toggle('active', n === idx))
+  const newIdx = Math.max(0, Math.min(Math.round(wrap.scrollLeft / slideW) + dir, total - 1))
+  wrap.scrollTo({ left: newIdx * slideW, behavior: 'smooth' })
+  _updateDots(wrap, newIdx)
 }
-function _initCarousels() {
-  document.querySelectorAll('.card-has-carousel').forEach(wrap => {
-    const slideW = wrap.clientWidth
-    const slideH = Math.round(slideW * 3 / 4)   // mismo ratio 4/3 que .card-img
-    wrap.style.height = slideH + 'px'
-    wrap.dataset.slideW = slideW
-    const imgs  = wrap.querySelectorAll('.carousel-img')
-    const track = wrap.querySelector('.carousel-track')
-    imgs.forEach(img => { img.style.width = slideW + 'px'; img.style.height = slideH + 'px' })
-    track.style.width  = (slideW * imgs.length) + 'px'
-    track.style.height = slideH + 'px'
-  })
+window.carouselGoto = (dot, idx) => {
+  const wrap = dot.closest('.card-has-carousel')
+  wrap.scrollTo({ left: idx * wrap.clientWidth, behavior: 'smooth' })
+  _updateDots(wrap, idx)
 }
-window.carouselNav  = (btn, dir) => { const w = btn.closest('.card-has-carousel'); _carouselSet(w, parseInt(w.dataset.idx||0) + dir) }
-window.carouselGoto = (dot, idx) => _carouselSet(dot.closest('.card-has-carousel'), idx)
 
 // ── Cargar productos desde Supabase ──────────────────────────────────
 const CAT_LABELS = { accesorios: 'Accesorios', deco: 'Deco', deli: 'Deli', muebles: 'Muebles' }
@@ -169,7 +160,7 @@ const grid = document.getElementById('products-grid')
 
 const { data: productos, error } = await supabase
   .from('productos')
-  .select('id, nombre, precio, descripcion, categoria, imagen_url, stock, fotos')
+  .select('id, nombre, precio, descripcion, categoria, imagen_url, stock, fotos, imagen_focal, fotos_focal')
   .eq('activo', true)
   .order('created_at', { ascending: false })
 
@@ -177,33 +168,39 @@ if (error || !productos?.length) {
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#a09890;font-family:'Cormorant Garamond',serif;font-size:1.1rem;">No hay productos disponibles por el momento.</div>`
 } else {
   grid.innerHTML = productos.map(p => {
-    const cats   = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
+    const cats    = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ') || ''
     const agotado = p.stock !== null && p.stock !== undefined && p.stock === 0
     const stockBadge = agotado
       ? `<span style="position:absolute;top:10px;left:10px;background:rgba(47,42,40,.8);color:#f4efe5;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;z-index:4;">Agotado</span>`
       : ''
 
-    // Armar array de todas las fotos del producto
+    // Fotos + focales en orden
     const allPhotos = []
-    if (p.imagen_url) allPhotos.push(p.imagen_url)
-    if (Array.isArray(p.fotos)) p.fotos.forEach(f => { if (f && f !== p.imagen_url) allPhotos.push(f) })
+    const allFocals = []
+    if (p.imagen_url) { allPhotos.push(p.imagen_url); allFocals.push(p.imagen_focal || '50% 50%') }
+    if (Array.isArray(p.fotos)) p.fotos.forEach((f, i) => {
+      if (f && f !== p.imagen_url) {
+        allPhotos.push(f)
+        allFocals.push((Array.isArray(p.fotos_focal) && p.fotos_focal[i]) || '50% 50%')
+      }
+    })
 
     let imgWrapClass = 'card-img-wrap'
     let imgContent
     if (allPhotos.length > 1) {
       imgWrapClass += ' card-has-carousel'
       const imgs = allPhotos.map((src, i) =>
-        `<img class="carousel-img" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}">`
+        `<img class="carousel-img" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}" style="object-position:${allFocals[i]}">`
       ).join('')
       const dots = allPhotos.map((_, i) =>
         `<span class="carousel-dot${i===0?' active':''}" onclick="carouselGoto(this,${i});event.stopPropagation()"></span>`
       ).join('')
-      imgContent = `<div class="carousel-track">${imgs}</div>
+      imgContent = `${imgs}
         <button class="carousel-btn carousel-prev" onclick="carouselNav(this,-1);event.stopPropagation()">&#8249;</button>
         <button class="carousel-btn carousel-next" onclick="carouselNav(this,1);event.stopPropagation()">&#8250;</button>
         <div class="carousel-dots">${dots}</div>`
     } else if (allPhotos.length === 1) {
-      imgContent = `<img class="card-img" src="${allPhotos[0]}" alt="${p.nombre}" loading="lazy">`
+      imgContent = `<img class="card-img" src="${allPhotos[0]}" alt="${p.nombre}" loading="lazy" style="object-position:${allFocals[0]}">`
     } else {
       imgContent = `<div class="card-img" style="background:#f0ebe3;display:flex;align-items:center;justify-content:center;color:#c0b8b2;font-size:.8rem;">Sin imagen</div>`
     }
@@ -222,7 +219,7 @@ if (error || !productos?.length) {
     </div>`
   }).join('')
 
-  // Re-aplicar filtro activo (pudo llegarse desde navbar con ?filter=xxx)
+  // Re-aplicar filtro activo
   const activeFilter = new URLSearchParams(window.location.search).get('filter')
     || document.querySelector('.pill.active')?.dataset.filter
     || 'all'
@@ -230,8 +227,6 @@ if (error || !productos?.length) {
     const show = activeFilter === 'all' || card.dataset.cat.includes(activeFilter)
     card.style.display = show ? '' : 'none'
   })
-
-  _initCarousels()
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target) } })

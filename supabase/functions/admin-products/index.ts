@@ -46,7 +46,7 @@ serve(async (req) => {
 
   // POST — crear producto
   if (req.method === "POST") {
-    const { nombre, precio, descripcion, categoria, imagen_url, fotos, activo, stock, dimensiones, peso } = body
+    const { nombre, precio, descripcion, categoria, imagen_url, imagen_focal, fotos, fotos_focal, activo, stock, dimensiones, peso } = body
 
     if (typeof nombre !== "string" || !nombre.trim()) return bad("Nombre requerido")
     if (!Number.isInteger(precio) || (precio as number) <= 0) return bad("Precio inválido")
@@ -55,16 +55,18 @@ serve(async (req) => {
     if (stock !== null && stock !== undefined && (!Number.isInteger(stock) || (stock as number) < 0)) return bad("Stock inválido")
 
     const { data, error } = await admin.from("productos").insert({
-      nombre:      nombre.trim(),
-      precio:      Number(precio),
-      descripcion: typeof descripcion === "string" ? descripcion.trim() : null,
-      categoria:   cats,
-      imagen_url:  typeof imagen_url === "string" ? imagen_url.trim() : null,
-      fotos:       Array.isArray(fotos) ? fotos : [],
-      activo:      activo !== false,
-      stock:       Number.isInteger(stock) ? Number(stock) : null,
-      dimensiones: typeof dimensiones === "string" ? dimensiones.trim() : null,
-      peso:        typeof peso === "string" ? peso.trim() : null,
+      nombre:       nombre.trim(),
+      precio:       Number(precio),
+      descripcion:  typeof descripcion === "string" ? descripcion.trim() : null,
+      categoria:    cats,
+      imagen_url:   typeof imagen_url === "string" ? imagen_url.trim() : null,
+      imagen_focal: typeof imagen_focal === "string" ? imagen_focal : null,
+      fotos:        Array.isArray(fotos) ? fotos : [],
+      fotos_focal:  Array.isArray(fotos_focal) ? fotos_focal : [],
+      activo:       activo !== false,
+      stock:        Number.isInteger(stock) ? Number(stock) : null,
+      dimensiones:  typeof dimensiones === "string" ? dimensiones.trim() : null,
+      peso:         typeof peso === "string" ? peso.trim() : null,
     }).select().single()
 
     if (error) { console.error(error); return err() }
@@ -73,7 +75,7 @@ serve(async (req) => {
 
   // PUT — editar producto
   if (req.method === "PUT") {
-    const { id, nombre, precio, descripcion, categoria, imagen_url, fotos, activo, stock, dimensiones, peso } = body
+    const { id, nombre, precio, descripcion, categoria, imagen_url, imagen_focal, fotos, fotos_focal, activo, stock, dimensiones, peso } = body
 
     if (typeof id !== "string" || !id) return bad("ID requerido")
     if (typeof nombre !== "string" || !nombre.trim()) return bad("Nombre requerido")
@@ -83,17 +85,19 @@ serve(async (req) => {
     if (stock !== null && stock !== undefined && (!Number.isInteger(stock) || (stock as number) < 0)) return bad("Stock inválido")
 
     const { data, error } = await admin.from("productos").update({
-      nombre:      nombre.trim(),
-      precio:      Number(precio),
-      descripcion: typeof descripcion === "string" ? descripcion.trim() : null,
-      categoria:   cats,
-      imagen_url:  typeof imagen_url === "string" ? imagen_url.trim() : null,
-      fotos:       Array.isArray(fotos) ? fotos : [],
-      activo:      activo !== false,
-      stock:       Number.isInteger(stock) ? Number(stock) : null,
-      dimensiones: typeof dimensiones === "string" ? dimensiones.trim() : null,
-      peso:        typeof peso === "string" ? peso.trim() : null,
-      updated_at:  new Date().toISOString(),
+      nombre:       nombre.trim(),
+      precio:       Number(precio),
+      descripcion:  typeof descripcion === "string" ? descripcion.trim() : null,
+      categoria:    cats,
+      imagen_url:   typeof imagen_url === "string" ? imagen_url.trim() : null,
+      imagen_focal: typeof imagen_focal === "string" ? imagen_focal : null,
+      fotos:        Array.isArray(fotos) ? fotos : [],
+      fotos_focal:  Array.isArray(fotos_focal) ? fotos_focal : [],
+      activo:       activo !== false,
+      stock:        Number.isInteger(stock) ? Number(stock) : null,
+      dimensiones:  typeof dimensiones === "string" ? dimensiones.trim() : null,
+      peso:         typeof peso === "string" ? peso.trim() : null,
+      updated_at:   new Date().toISOString(),
     }).eq("id", id).select().single()
 
     if (error) { console.error(error); return err() }
