@@ -92,6 +92,9 @@ tr:hover td { background: #fdf9f5; }
 .prod-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .btn-add-prod { background: var(--wine); color: white; border: none; padding: 10px 22px; font-family: 'Manrope', sans-serif; font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: opacity .2s; }
 .btn-add-prod:hover { opacity: .85; }
+.toolbar-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.btn-export { background: none; border: 1px solid var(--wine); color: var(--wine); padding: 9px 18px; font-family: 'Manrope', sans-serif; font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s; white-space: nowrap; }
+.btn-export:hover { background: var(--wine); color: white; }
 .prod-img-thumb { width: 48px; height: 48px; object-fit: cover; display: block; }
 .prod-img-placeholder { width: 48px; height: 48px; background: #f0ebe3; display: flex; align-items: center; justify-content: center; color: #c0b8b2; font-size: .7rem; }
 .prod-name { font-weight: 500; }
@@ -477,7 +480,10 @@ function buildPedidosUI() {
       <div class="chart-card"><div class="section-title">Por estado</div><canvas id="chartStatus"></canvas></div>
       <div class="chart-card"><div class="section-title">Facturación mensual</div><canvas id="chartRevenue"></canvas></div>
     </div>
-    <div class="section-title" style="margin-bottom:16px;">Pedidos</div>
+    <div class="toolbar-row" style="margin-bottom:16px;">
+      <div class="section-title" style="margin:0;border:none;padding:0;">Pedidos</div>
+      <button class="btn-export" onclick="exportPedidos()">⬇ Exportar CSV</button>
+    </div>
     <div class="search-bar"><input class="search-input" id="searchInput" type="text" placeholder="Buscar por número o email…"></div>
     <div class="filters">
       <button class="filter-btn active" data-f="todos"      onclick="setFilter(this)">Todos</button>
@@ -538,7 +544,10 @@ function buildProductosUI() {
   document.getElementById('tab-productos').innerHTML = `
     <div class="prod-toolbar">
       <div class="section-title" style="margin:0;border:none;padding:0;">Productos</div>
-      <button class="btn-add-prod" onclick="openProdForm(null)">+ Agregar producto</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-export" onclick="exportProductos()">⬇ Exportar CSV</button>
+        <button class="btn-add-prod" onclick="openProdForm(null)">+ Agregar producto</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table><thead><tr><th>Foto</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
@@ -867,7 +876,10 @@ async function fetchCarritos() {
 
 function buildCarritosUI() {
   document.getElementById('tab-carritos').innerHTML = `
-    <div class="section-title" style="margin-bottom:16px;">Carritos abandonados</div>
+    <div class="toolbar-row" style="margin-bottom:16px;">
+      <div class="section-title" style="margin:0;border:none;padding:0;">Carritos abandonados</div>
+      <button class="btn-export" onclick="exportCarritos()">⬇ Exportar CSV</button>
+    </div>
     <div class="table-wrap">
       <table><thead><tr><th>Cliente</th><th>Abandonado hace</th><th>Productos</th><th>Total aprox.</th><th></th></tr></thead>
       <tbody id="tbody-carritos"></tbody></table>
@@ -908,6 +920,65 @@ function renderCarritosTable() {
       <td>${email ? `<a class="btn-foto-act" style="display:inline-block;text-decoration:none;" href="mailto:${email}?subject=${asunto}&body=${cuerpo}">Contactar</a>` : ''}</td>
     </tr>`
   }).join('')
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  EXPORTAR CSV
+// ═══════════════════════════════════════════════════════════════════════
+// Separador ";" y BOM UTF-8: así Excel en es-AR lo abre bien de una,
+// sin que el usuario tenga que usar "Datos > Desde texto/CSV".
+function exportCSV(filename, headers, rows) {
+  const esc = (v) => {
+    const s = String(v ?? '')
+    return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+  }
+  const lines = [headers, ...rows].map(r => r.map(esc).join(';')).join('\r\n')
+  const blob  = new Blob(['﻿' + lines], { type: 'text/csv;charset=utf-8;' })
+  const url   = URL.createObjectURL(blob)
+  const a     = document.createElement('a')
+  a.href = url; a.download = filename
+  document.body.appendChild(a); a.click(); a.remove()
+  URL.revokeObjectURL(url)
+}
+
+window.exportPedidos = () => {
+  const rows = filteredPedidos().map(p => [
+    p.numero_pedido ?? '',
+    p.cliente_email ?? '',
+    p.created_at ? new Date(p.created_at).toLocaleString('es-AR') : '',
+    Number(p.total ?? 0),
+    ESTADO_LABEL[p.estado] ?? p.estado ?? '',
+    (Array.isArray(p.items) ? p.items : []).map(i => `${i.nombre ?? i.id} x${i.qty ?? 1}`).join(' | '),
+  ])
+  exportCSV(`pedidos-${new Date().toISOString().slice(0,10)}.csv`,
+    ['Número', 'Cliente', 'Fecha', 'Total', 'Estado', 'Productos'], rows)
+}
+
+window.exportProductos = () => {
+  const rows = allProductos.map(p => [
+    p.nombre ?? '',
+    (p.categoria ?? []).join(' · '),
+    Number(p.precio ?? 0),
+    p.stock !== null && p.stock !== undefined ? p.stock : '∞',
+    p.activo ? 'Activo' : 'Inactivo',
+  ])
+  exportCSV(`productos-${new Date().toISOString().slice(0,10)}.csv`,
+    ['Nombre', 'Categorías', 'Precio', 'Stock', 'Estado'], rows)
+}
+
+window.exportCarritos = () => {
+  const rows = allCarritos.map(c => {
+    const items = Array.isArray(c.items) ? c.items : []
+    const total = items.reduce((s, i) => s + (Number(i.precio) || 0) * (Number(i.qty) || 1), 0)
+    return [
+      c.cliente_email ?? '',
+      c.updated_at ? new Date(c.updated_at).toLocaleString('es-AR') : '',
+      items.map(i => `${i.nombre ?? i.id} x${i.qty ?? 1}`).join(' | '),
+      total,
+    ]
+  })
+  exportCSV(`carritos-abandonados-${new Date().toISOString().slice(0,10)}.csv`,
+    ['Cliente', 'Última actividad', 'Productos', 'Total aprox.'], rows)
 }
 
 // ═══════════════════════════════════════════════════════════════════════
