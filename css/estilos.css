@@ -1036,10 +1036,11 @@ main{
 .card-img-wrap { overflow: hidden; position: relative; }
 
 /* ── Card carousel estilo Instagram ── */
-.card-has-carousel { aspect-ratio: 4/3; }
-.carousel-inner { position: absolute; inset: 0; }
+.card-has-carousel { padding-top: 75%; }
 .carousel-img {
     display: none;
+    position: absolute;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;

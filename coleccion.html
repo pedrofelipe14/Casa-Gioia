@@ -196,7 +196,7 @@ if (error || !productos?.length) {
       const dots = allPhotos.map((_, i) =>
         `<span class="carousel-dot${i===0?' active':''}" onclick="carouselGoto(this,${i});event.stopPropagation()"></span>`
       ).join('')
-      imgContent = `<div class="carousel-inner">${imgs}</div>
+      imgContent = `${imgs}
         <button class="carousel-btn carousel-prev" onclick="carouselNav(this,-1);event.stopPropagation()">&#8249;</button>
         <button class="carousel-btn carousel-next" onclick="carouselNav(this,1);event.stopPropagation()">&#8250;</button>
         <div class="carousel-dots">${dots}</div>`
