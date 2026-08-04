@@ -1037,17 +1037,19 @@ main{
 
 /* ── Card carousel (múltiples fotos) ── */
 /* ── Card carousel estilo Instagram ── */
-.card-has-carousel {
+.card-has-carousel { aspect-ratio: 4/3; }
+.carousel-inner {
     display: flex;
+    width: 100%;
+    height: 100%;
     overflow-x: scroll;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    aspect-ratio: 4/3;
 }
-.card-has-carousel::-webkit-scrollbar { display: none; }
+.carousel-inner::-webkit-scrollbar { display: none; }
 .carousel-img {
     min-width: 100%;
     height: 100%;

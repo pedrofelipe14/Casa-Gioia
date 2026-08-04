@@ -142,15 +142,17 @@ function _updateDots(wrap, idx) {
 }
 window.carouselNav = (btn, dir) => {
   const wrap   = btn.closest('.card-has-carousel')
-  const slideW = wrap.clientWidth
-  const total  = wrap.querySelectorAll('.carousel-img').length
-  const newIdx = Math.max(0, Math.min(Math.round(wrap.scrollLeft / slideW) + dir, total - 1))
-  wrap.scrollTo({ left: newIdx * slideW, behavior: 'smooth' })
+  const inner  = wrap.querySelector('.carousel-inner')
+  const slideW = inner.clientWidth
+  const total  = inner.querySelectorAll('.carousel-img').length
+  const newIdx = Math.max(0, Math.min(Math.round(inner.scrollLeft / slideW) + dir, total - 1))
+  inner.scrollTo({ left: newIdx * slideW, behavior: 'smooth' })
   _updateDots(wrap, newIdx)
 }
 window.carouselGoto = (dot, idx) => {
-  const wrap = dot.closest('.card-has-carousel')
-  wrap.scrollTo({ left: idx * wrap.clientWidth, behavior: 'smooth' })
+  const wrap  = dot.closest('.card-has-carousel')
+  const inner = wrap.querySelector('.carousel-inner')
+  inner.scrollTo({ left: idx * inner.clientWidth, behavior: 'smooth' })
   _updateDots(wrap, idx)
 }
 
@@ -195,7 +197,7 @@ if (error || !productos?.length) {
       const dots = allPhotos.map((_, i) =>
         `<span class="carousel-dot${i===0?' active':''}" onclick="carouselGoto(this,${i});event.stopPropagation()"></span>`
       ).join('')
-      imgContent = `${imgs}
+      imgContent = `<div class="carousel-inner">${imgs}</div>
         <button class="carousel-btn carousel-prev" onclick="carouselNav(this,-1);event.stopPropagation()">&#8249;</button>
         <button class="carousel-btn carousel-next" onclick="carouselNav(this,1);event.stopPropagation()">&#8250;</button>
         <div class="carousel-dots">${dots}</div>`
