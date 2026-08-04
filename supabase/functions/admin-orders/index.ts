@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
 }
 
@@ -117,6 +117,32 @@ serve(async (req) => {
         console.error("email on status update:", e)
       }
     })()
+
+    return new Response(JSON.stringify({ ok: true }), {
+      headers: { ...CORS, "Content-Type": "application/json" },
+    })
+  }
+
+  // DELETE → eliminar un pedido definitivamente
+  if (req.method === "DELETE") {
+    let body: Record<string, unknown>
+    try {
+      body = await req.json()
+    } catch {
+      return badRequest("Cuerpo inválido")
+    }
+
+    const { id } = body
+    if (typeof id !== "string" || !UUID_RE.test(id)) {
+      return badRequest("ID inválido")
+    }
+
+    const { error, count } = await admin.from("pedidos").delete({ count: "exact" }).eq("id", id)
+    if (error) {
+      console.error("delete pedido error:", error)
+      return serverError()
+    }
+    if (!count) return badRequest("Pedido no encontrado")
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...CORS, "Content-Type": "application/json" },

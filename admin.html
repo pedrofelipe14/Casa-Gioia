@@ -430,7 +430,7 @@ function filteredPedidos() {
 function renderOrderTable() {
   const list = filteredPedidos()
   const tbody = document.getElementById('tbody-orders')
-  if (!list.length) { tbody.innerHTML = `<tr><td colspan="6" class="admin-empty">Sin resultados.</td></tr>`; return }
+  if (!list.length) { tbody.innerHTML = `<tr><td colspan="7" class="admin-empty">Sin resultados.</td></tr>`; return }
   tbody.innerHTML = list.map(p => {
     const fecha = p.created_at ? new Date(p.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric' }) : '—'
     const opts = ESTADOS.map(e => `<option value="${e}" ${p.estado===e?'selected':''}>${ESTADO_LABEL[e]}</option>`).join('')
@@ -441,11 +441,20 @@ function renderOrderTable() {
       <td><div class="order-total">$${Number(p.total ?? 0).toLocaleString('es-AR')}</div></td>
       <td><span class="badge badge-${p.estado}">${ESTADO_LABEL[p.estado] ?? p.estado}</span></td>
       <td><select class="estado-select" data-id="${p.id}" onchange="handleEstado(this)">${opts}</select></td>
+      <td><button class="btn-delete-prod" title="Eliminar pedido" onclick="deletePedido('${p.id}', '${(p.numero_pedido ?? '').replace(/'/g,"\\'")}')">🗑️</button></td>
     </tr>`
   }).join('')
 }
 
 window.handleEstado = (sel) => updateEstado(sel.dataset.id, sel.value, sel)
+
+window.deletePedido = async (id, numero) => {
+  if (!confirm(`¿Eliminar el pedido #${numero} definitivamente? Esta acción no se puede deshacer.`)) return
+  const data = await apiFetch(FN_ORDERS, { method: 'DELETE', body: JSON.stringify({ id }) })
+  if (data.error) { alert('Error: ' + data.error); return }
+  allPedidos = allPedidos.filter(p => p.id !== id)
+  renderOrderTable(); renderStats(); renderCharts()
+}
 window.setFilter    = (btn) => {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
   btn.classList.add('active'); activeFilter = btn.dataset.f; renderOrderTable()
@@ -477,7 +486,7 @@ function buildPedidosUI() {
       <button class="filter-btn"        data-f="cancelado"  onclick="setFilter(this)">Cancelados</button>
     </div>
     <div class="table-wrap">
-      <table><thead><tr><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Cambiar estado</th></tr></thead>
+      <table><thead><tr><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Cambiar estado</th><th></th></tr></thead>
       <tbody id="tbody-orders"></tbody></table>
     </div>`
   document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value; renderOrderTable() })
