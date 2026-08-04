@@ -133,7 +133,8 @@ serve(async (req) => {
   const url = new URL(req.url)
   const scope = url.searchParams.get("scope")
 
-  // GET ?scope=carritos — carritos abandonados
+  // GET ?scope=carritos — carritos abandonados (nunca se borra nada acá,
+  // solo se descartan del reporte los que ya se convirtieron en compra)
   if (scope === "carritos") {
     const { data: carritos, error } = await admin
       .from("carritos")
@@ -142,19 +143,41 @@ serve(async (req) => {
 
     if (error) { console.error("fetch carritos error:", error); return serverError() }
 
-    const uids = (carritos ?? []).map((c: Record<string, unknown>) => c.user_id as string)
+    const uids = [...new Set((carritos ?? []).map((c: Record<string, unknown>) => c.user_id as string))]
+
     const emailMap: Record<string, string> = {}
     await Promise.all(uids.map(async (uid: string) => {
       const { data } = await admin.auth.admin.getUserById(uid)
       if (data?.user) emailMap[uid] = data.user.email ?? "—"
     }))
 
-    const enriched = (carritos ?? []).map((c: Record<string, unknown>) => ({
-      ...c,
-      cliente_email: emailMap[c.user_id as string] ?? "—",
-    }))
+    // Última compra de cada usuario, para descartar los que ya convirtieron
+    const lastPurchaseMap: Record<string, string> = {}
+    if (uids.length) {
+      const { data: pedidosUsuarios, error: pedidosErr } = await admin
+        .from("pedidos")
+        .select("user_id, created_at")
+        .in("user_id", uids)
 
-    return new Response(JSON.stringify({ carritos: enriched }), {
+      if (pedidosErr) console.error("fetch pedidos for carritos error:", pedidosErr)
+      for (const p of pedidosUsuarios ?? []) {
+        const prev = lastPurchaseMap[p.user_id as string]
+        if (!prev || (p.created_at as string) > prev) lastPurchaseMap[p.user_id as string] = p.created_at as string
+      }
+    }
+
+    const abandonados = (carritos ?? [])
+      .filter((c: Record<string, unknown>) => {
+        const lastPurchase = lastPurchaseMap[c.user_id as string]
+        // Si compró después de la última vez que tocó el carrito, ya no está "abandonado"
+        return !lastPurchase || lastPurchase < (c.updated_at as string)
+      })
+      .map((c: Record<string, unknown>) => ({
+        ...c,
+        cliente_email: emailMap[c.user_id as string] ?? "—",
+      }))
+
+    return new Response(JSON.stringify({ carritos: abandonados }), {
       headers: { ...CORS, "Content-Type": "application/json" },
     })
   }

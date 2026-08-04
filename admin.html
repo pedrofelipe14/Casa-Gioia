@@ -854,24 +854,43 @@ function buildCarritosUI() {
   document.getElementById('tab-carritos').innerHTML = `
     <div class="section-title" style="margin-bottom:16px;">Carritos abandonados</div>
     <div class="table-wrap">
-      <table><thead><tr><th>Cliente</th><th>Última actividad</th><th>Productos</th><th>Total aprox.</th></tr></thead>
+      <table><thead><tr><th>Cliente</th><th>Abandonado hace</th><th>Productos</th><th>Total aprox.</th><th></th></tr></thead>
       <tbody id="tbody-carritos"></tbody></table>
     </div>`
 }
 
+function _tiempoDesde(fechaStr) {
+  if (!fechaStr) return '—'
+  const ms   = Date.now() - new Date(fechaStr).getTime()
+  const min  = Math.floor(ms / 60000)
+  if (min < 1)   return 'recién'
+  if (min < 60)  return `hace ${min} min`
+  const hs = Math.floor(min / 60)
+  if (hs < 24)   return `hace ${hs} h`
+  const dias = Math.floor(hs / 24)
+  if (dias < 30) return `hace ${dias} d`
+  const meses = Math.floor(dias / 30)
+  return `hace ${meses} mes${meses > 1 ? 'es' : ''}`
+}
+
 function renderCarritosTable() {
   const tbody = document.getElementById('tbody-carritos')
-  if (!allCarritos.length) { tbody.innerHTML = `<tr><td colspan="4" class="admin-empty">No hay carritos activos.</td></tr>`; return }
+  if (!allCarritos.length) { tbody.innerHTML = `<tr><td colspan="5" class="admin-empty">No hay carritos abandonados por el momento.</td></tr>`; return }
   tbody.innerHTML = allCarritos.map(c => {
-    const items  = Array.isArray(c.items) ? c.items : []
-    const total  = items.reduce((s, i) => s + (Number(i.precio) || 0) * (Number(i.qty) || 1), 0)
-    const lista  = items.map(i => `${i.nombre ?? i.id} ×${i.qty ?? 1}`).join(', ') || '—'
-    const fecha  = c.updated_at ? new Date(c.updated_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+    const items    = Array.isArray(c.items) ? c.items : []
+    const total    = items.reduce((s, i) => s + (Number(i.precio) || 0) * (Number(i.qty) || 1), 0)
+    const lista    = items.map(i => `${i.nombre ?? i.id} ×${i.qty ?? 1}`).join(', ') || '—'
+    const relativo = _tiempoDesde(c.updated_at)
+    const absoluto  = c.updated_at ? new Date(c.updated_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
+    const email    = c.cliente_email ?? null
+    const asunto   = encodeURIComponent('¿Te olvidaste algo en tu carrito? — Casa Gioia')
+    const cuerpo   = encodeURIComponent(`¡Hola! Vimos que dejaste ${items.length === 1 ? 'un producto' : 'unos productos'} en tu carrito de Casa Gioia:\n${items.map(i => `- ${i.nombre ?? i.id} ×${i.qty ?? 1}`).join('\n')}\n\n¿Te ayudamos a completar la compra?`)
     return `<tr>
-      <td><div class="carrito-email">${c.cliente_email ?? '—'}</div></td>
-      <td><div class="carrito-fecha">${fecha}</div></td>
+      <td><div class="carrito-email">${email ?? '—'}</div></td>
+      <td><div class="carrito-fecha" title="${absoluto}">${relativo}</div></td>
       <td><div class="carrito-items">${lista}</div></td>
       <td>$${total.toLocaleString('es-AR')}</td>
+      <td>${email ? `<a class="btn-foto-act" style="display:inline-block;text-decoration:none;" href="mailto:${email}?subject=${asunto}&body=${cuerpo}">Contactar</a>` : ''}</td>
     </tr>`
   }).join('')
 }
