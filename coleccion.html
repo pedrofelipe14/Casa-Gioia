@@ -137,22 +137,22 @@ if (user) {
 btn.style.opacity = '1'
 
 // ── Carousel ─────────────────────────────────────────────────────────
-function _updateDots(wrap, idx) {
-  wrap.querySelectorAll('.carousel-dot').forEach((d, n) => d.classList.toggle('active', n === idx))
+function _setCarouselIndex(wrap, idx) {
+  const track  = wrap.querySelector('.carousel-track')
+  const slides = wrap.querySelectorAll('.carousel-slide')
+  const n = slides.length
+  idx = (idx + n) % n
+  track.style.transform = `translateX(-${idx * 100}%)`
+  wrap.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx))
+  wrap.dataset.idx = idx
 }
 window.carouselNav = (btn, dir) => {
   const wrap = btn.closest('.card-has-carousel')
-  const imgs = [...wrap.querySelectorAll('.carousel-img')]
-  const curr = imgs.findIndex(img => img.classList.contains('active'))
-  const next = (curr + dir + imgs.length) % imgs.length
-  imgs[curr].classList.remove('active')
-  imgs[next].classList.add('active')
-  _updateDots(wrap, next)
+  _setCarouselIndex(wrap, Number(wrap.dataset.idx || 0) + dir)
 }
 window.carouselGoto = (dot, idx) => {
   const wrap = dot.closest('.card-has-carousel')
-  wrap.querySelectorAll('.carousel-img').forEach((img, i) => img.classList.toggle('active', i === idx))
-  _updateDots(wrap, idx)
+  _setCarouselIndex(wrap, idx)
 }
 
 // ── Cargar productos desde Supabase ──────────────────────────────────
@@ -190,13 +190,13 @@ if (error || !productos?.length) {
     let imgContent
     if (allPhotos.length > 1) {
       imgWrapClass += ' card-has-carousel'
-      const imgs = allPhotos.map((src, i) =>
-        `<img class="carousel-img${i===0?' active':''}" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}" style="object-position:${allFocals[i]}">`
+      const slides = allPhotos.map((src, i) =>
+        `<div class="carousel-slide"><img class="carousel-img" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}" style="object-position:${allFocals[i]}"></div>`
       ).join('')
       const dots = allPhotos.map((_, i) =>
         `<span class="carousel-dot${i===0?' active':''}" onclick="carouselGoto(this,${i});event.stopPropagation()"></span>`
       ).join('')
-      imgContent = `${imgs}
+      imgContent = `<div class="carousel-track">${slides}</div>
         <button class="carousel-btn carousel-prev" onclick="carouselNav(this,-1);event.stopPropagation()">&#8249;</button>
         <button class="carousel-btn carousel-next" onclick="carouselNav(this,1);event.stopPropagation()">&#8250;</button>
         <div class="carousel-dots">${dots}</div>`
