@@ -149,10 +149,13 @@
 
 import { supabase } from './js/supabase-client.js'
 
+;(async () => {
+
 const { data: { user } } = await supabase.auth.getUser()
 
 if (!user) {
   window.location.href = 'login'
+  return
 }
 
 const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
@@ -308,6 +311,8 @@ if (!pedidos?.length) {
     </div>`
   }).join('')
 }
+
+})()
 
 </script>
 </body>
