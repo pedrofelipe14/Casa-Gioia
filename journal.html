@@ -5,7 +5,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Journal — Casa Gioia</title>
-<link rel="stylesheet" href="css/estilos.css?v=20260806">
+<link rel="stylesheet" href="css/estilos.css?v=20260807">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   .journal-featured {
@@ -270,14 +270,7 @@
 import { supabase } from './js/supabase-client.js'
 const { data: { user } } = await supabase.auth.getUser()
 const btn = document.getElementById('userBtn')
-if (user) {
-  const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
-  btn.textContent = `👤 ${nombre.split(' ')[0]}`
-  btn.onclick = () => window.location.href = 'perfil'
-} else {
-  btn.onclick = () => window.location.href = 'login'
-}
-btn.style.opacity = '1'
+window.renderAccountBtn(btn, user)
 
 // Newsletter Storia
 const nlBtn   = document.querySelector('#journal-nl button')

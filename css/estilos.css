@@ -198,6 +198,10 @@ main{
 
 .btn-nav{
 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     background: var(--wine);
     color: white;
 
@@ -221,6 +225,27 @@ main{
         transform .35s ease,
         box-shadow .35s ease,
         background .35s ease;
+}
+
+/* ── Avatar / inicial (reemplaza el rectángulo con texto en mobile) ── */
+.btn-nav-avatar{ display:none; }
+.btn-nav-initial{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    height:100%;
+    background:var(--gold);
+    color:var(--text);
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.1rem;
+    font-weight:600;
+}
+.btn-nav-avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
 }
 
 .btn-nav::before{
@@ -770,9 +795,9 @@ main{
         flex:1;
     }
 
-    /* Logo más chico para que entren el botón de cuenta + el carrito */
+    /* Logo un poco más chico para que entren el botón de cuenta + el carrito */
     .logo{
-        font-size:1.9rem;
+        font-size:2.4rem;
     }
 
     .menu{
@@ -801,6 +826,18 @@ main{
         letter-spacing:1px;
         white-space:nowrap;
     }
+
+    /* Logueado: círculo con foto/inicial en vez del rectángulo con nombre */
+    .btn-nav.btn-nav-logged{
+        width:38px;
+        height:38px;
+        padding:0;
+        border-radius:50%;
+        background:none;
+        overflow:hidden;
+    }
+    .btn-nav.btn-nav-logged .btn-nav-full{ display:none; }
+    .btn-nav.btn-nav-logged .btn-nav-avatar{ display:block; width:100%; height:100%; }
 
     main > .luxury-band{
         z-index:1;
@@ -852,16 +889,11 @@ main{
     }
 
     .logo{
-        font-size:1.5rem;
+        font-size:1.9rem;
     }
 
     .navbar-actions{
         gap:2px;
-    }
-
-    .btn-nav{
-        padding:8px 12px;
-        font-size:.6rem;
     }
 
     .hero{

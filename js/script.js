@@ -150,3 +150,28 @@ window.cartAdd = (btn) => {
     setTimeout(() => { btn.textContent = '+ Agregar'; btn.disabled = false }, 1500)
 }
 
+/* ── Botón de cuenta (navbar): texto completo en desktop, avatar/inicial
+   en círculo en la versión con hamburguesa. Usado por todas las páginas
+   para no duplicar esta lógica en cada una. ── */
+window.renderAccountBtn = (btn, user) => {
+    if (!user) {
+        btn.classList.remove('btn-nav-logged')
+        btn.innerHTML = 'Ingresar'
+        btn.onclick   = () => { window.location.href = 'login' }
+        btn.style.opacity = '1'
+        return
+    }
+    const nombre  = user.user_metadata?.full_name || user.user_metadata?.name || user.email
+    const primero = nombre.split(' ')[0]
+    const avatar  = user.user_metadata?.avatar_url
+    const inicial = primero.charAt(0).toUpperCase()
+
+    btn.classList.add('btn-nav-logged')
+    btn.innerHTML = `
+        <span class="btn-nav-full">👤 ${primero}</span>
+        <span class="btn-nav-avatar">${avatar ? `<img src="${avatar}" alt="">` : `<span class="btn-nav-initial">${inicial}</span>`}</span>
+    `
+    btn.onclick = () => { window.location.href = 'perfil' }
+    btn.style.opacity = '1'
+}
+

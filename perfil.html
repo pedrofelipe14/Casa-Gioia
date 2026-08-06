@@ -5,7 +5,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi Perfil — Casa Gioia</title>
-<link rel="stylesheet" href="css/estilos.css?v=20260806">
+<link rel="stylesheet" href="css/estilos.css?v=20260807">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -161,8 +161,7 @@ if (!user) {
 const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
 
 const navBtn = document.getElementById('userBtn')
-navBtn.textContent = `👤 ${nombre.split(' ')[0]}`
-navBtn.style.opacity = '1'
+window.renderAccountBtn(navBtn, user)
 document.getElementById('nombre').textContent = nombre
 document.getElementById('email').textContent   = user.email
 

@@ -7,7 +7,7 @@
 
 <title>Casa Gioia</title>
 
-<link rel="stylesheet" href="css/estilos.css?v=20260806">
+<link rel="stylesheet" href="css/estilos.css?v=20260807">
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -172,31 +172,7 @@ const {
 } = await supabase.auth.getUser()
 
 const btn = document.getElementById("userBtn")
-
-if(user){
-
-    const nombre =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.email
-
-    btn.innerHTML = `👤 ${nombre.split(" ")[0]}`
-
-    btn.onclick = () => {
-        window.location.href = "perfil"
-    }
-
-}else{
-
-    btn.innerHTML = "Ingresar"
-
-    btn.onclick = () => {
-        window.location.href = "login"
-    }
-
-}
-
-btn.style.opacity = '1'
+window.renderAccountBtn(btn, user)
 
 </script>
 <footer>

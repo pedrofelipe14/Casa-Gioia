@@ -5,7 +5,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mis Pedidos — Casa Gioia</title>
-<link rel="stylesheet" href="css/estilos.css?v=20260806">
+<link rel="stylesheet" href="css/estilos.css?v=20260807">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 .page-hero {
@@ -159,10 +159,7 @@ if (!user) {
 }
 
 const btn = document.getElementById('userBtn')
-const nombre = user.user_metadata?.full_name || user.user_metadata?.name || user.email
-btn.textContent = `👤 ${nombre.split(' ')[0]}`
-btn.onclick = () => window.location.href = 'perfil'
-btn.style.opacity = '1'
+window.renderAccountBtn(btn, user)
 
 const ESTADOS = ['pendiente', 'confirmado', 'preparando', 'en_camino', 'entregado']
 const LABELS  = ['Recibido',  'Confirmado', 'Preparando', 'En camino', 'Entregado']
