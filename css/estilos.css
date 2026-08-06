@@ -2071,3 +2071,33 @@ header {
     .historial-total { display: none; }
     .addr-save-row { flex-direction: column; align-items: flex-start; }
 }
+
+/* ── Botón flotante de WhatsApp ── */
+.whatsapp-float {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    width: 56px;
+    height: 56px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    z-index: 900;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.whatsapp-float:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 26px rgba(0,0,0,.28);
+}
+.whatsapp-float svg {
+    width: 30px;
+    height: 30px;
+    display: block;
+}
+@media (max-width: 640px) {
+    .whatsapp-float { width: 50px; height: 50px; right: 16px; bottom: 16px; }
+    .whatsapp-float svg { width: 26px; height: 26px; }
+}
