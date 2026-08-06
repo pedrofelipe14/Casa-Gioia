@@ -477,10 +477,19 @@ function renderCharts() {
   const counts = ESTADOS.map(e => allPedidos.filter(p => p.estado === e).length)
   const colors = ['#f0b429','#4caf7d','#5b8dd9','#9b59b6','#0a4020','#e74c3c']
   if (chartStatus) chartStatus.destroy()
+  const isNarrow = window.innerWidth <= 640
   chartStatus = new Chart(document.getElementById('chartStatus'), {
     type: 'doughnut',
     data: { labels: ESTADOS.map(e => ESTADO_LABEL[e]), datasets: [{ data: counts, backgroundColor: colors, borderWidth: 0, hoverOffset: 6 }] },
-    options: { plugins: { legend: { position: 'right', labels: { font: { family: 'Manrope', size: 11 }, padding: 12 } } }, cutout: '65%' }
+    options: {
+      plugins: {
+        legend: {
+          position: isNarrow ? 'bottom' : 'right',
+          labels: { font: { family: 'Manrope', size: isNarrow ? 10 : 11 }, boxWidth: isNarrow ? 10 : 40, padding: isNarrow ? 8 : 12 }
+        }
+      },
+      cutout: '65%'
+    }
   })
   const now = new Date()
   const months = [], revenues = []
@@ -496,6 +505,18 @@ function renderCharts() {
     options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { family: 'Manrope', size: 10 }, callback: v => '$' + Number(v).toLocaleString('es-AR') }, grid: { color: 'rgba(0,0,0,.05)' } }, x: { ticks: { font: { family: 'Manrope', size: 11 } }, grid: { display: false } } } }
   })
 }
+
+// Si el ancho cruza el umbral mobile (ej: rotar el celular), volvemos
+// a armar los charts para que la leyenda del donut cambie de lado.
+let _chartsNarrow = window.innerWidth <= 640
+let _resizeTimer  = null
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer)
+  _resizeTimer = setTimeout(() => {
+    const nowNarrow = window.innerWidth <= 640
+    if (nowNarrow !== _chartsNarrow) { _chartsNarrow = nowNarrow; renderCharts() }
+  }, 200)
+})
 
 function filteredPedidos() {
   return allPedidos.filter(p => {
