@@ -836,6 +836,14 @@ main{
 
     main > .luxury-band{
         z-index:1;
+        order:-1;
+    }
+
+    /* En index.html la luxury-band vive despues del hero en el HTML,
+       pero en mobile queremos que se vea pegada justo debajo del header
+       (como en el resto de las paginas) — se reordena solo visualmente. */
+    main > .hero{
+        order:1;
     }
 
     /* Franja verde pegada justo debajo del header: se esconde al bajar
