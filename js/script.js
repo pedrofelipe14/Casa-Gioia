@@ -36,6 +36,32 @@ window.addEventListener("scroll",()=>{
 
 });
 
+/* ── Luxury band: pegada debajo del header, se oculta al bajar y
+   reaparece al subir (solo aplica en la version con hamburguesa,
+   ver CSS). ── */
+;(function () {
+    const band   = document.querySelector('.luxury-band')
+    const header = document.querySelector('header')
+    if (!band || !header) return
+
+    const setHeaderHeight = () => {
+        document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px')
+    }
+    setHeaderHeight()
+    window.addEventListener('resize', setHeaderHeight)
+
+    let lastY = window.scrollY
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY
+        if (y > lastY && y > 80) {
+            band.classList.add('luxury-hidden')
+        } else if (y < lastY) {
+            band.classList.remove('luxury-hidden')
+        }
+        lastY = y
+    }, { passive: true })
+})()
+
 const mobileToggle = document.getElementById("mobileToggle");
 const menu = document.getElementById("menu");
 

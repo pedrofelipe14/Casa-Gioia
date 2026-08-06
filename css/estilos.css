@@ -650,11 +650,6 @@ main{
 
     .navbar{
 
-    position:sticky;
-    top:0;
-
-    z-index:1000;
-
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -843,6 +838,18 @@ main{
         z-index:1;
     }
 
+    /* Franja verde pegada justo debajo del header: se esconde al bajar
+       y reaparece al subir. --header-h lo calcula script.js. */
+    .luxury-band{
+        position:sticky;
+        top:var(--header-h, 0px);
+        z-index:999;
+        transition:transform .3s ease;
+    }
+    .luxury-band.luxury-hidden{
+        transform:translateY(-100%);
+    }
+
     .submenu{
         position:static;
         visibility:hidden;
@@ -944,11 +951,17 @@ main{
    PÁGINAS INTERNAS — estilos compartidos
    ============================================= */
 
-/* navbar sticky (activo en todas las páginas internas) */
-.navbar {
+/* navbar sticky (activo en todas las páginas internas)
+   El sticky va en <header>, no en .navbar: header envuelve justo a
+   la navbar sin alto extra, y position:sticky no "pega" nada si su
+   propio padre no es más alto que el elemento — necesita el margen
+   que le da <body>, que sí es mucho más alto. */
+header {
     position: sticky;
     top: 0;
     z-index: 1000;
+}
+.navbar {
     background: rgba(244,239,229,.92);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
