@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/estilos.css?v=20260812">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 /* ── Shared checkout layout ── */
 .co-section {
@@ -489,6 +490,16 @@
       </div>
       <button class="btn-primary" id="checkoutBtn">PROCEDER AL PAGO</button>
     </div>
+    <!-- Turnstile: solo lo necesita quien compra sin cuenta (login anónimo) -->
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;opacity:.55;">
+      <div class="cf-turnstile"
+           data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
+           data-theme="light"
+           data-size="compact"
+           data-callback="onTurnstileCheckout"
+           data-expired-callback="onTurnstileCheckoutExpired">
+      </div>
+    </div>
   </div>
 </section>
 
@@ -699,6 +710,11 @@ document.getElementById('s-cp').addEventListener('input', (e) => {
   fillSummary('s')
 })
 
+/* ── Turnstile: token para el login anónimo del checkout de invitado ── */
+let checkoutCaptchaToken = null
+window.onTurnstileCheckout        = (t) => { checkoutCaptchaToken = t }
+window.onTurnstileCheckoutExpired = ()  => { checkoutCaptchaToken = null }
+
 /* ── Checkout: carrito → envío ── */
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
   const items = window.cartGet()
@@ -707,8 +723,18 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
   if (!user) {
     // Compra sin cuenta: sesión anónima transparente, cumple el mismo
     // rol que una cuenta real para el resto del sistema (pago, guardar
-    // el pedido, mandar el mail) — no le pedimos nada a la persona.
-    const { data, error } = await supabase.auth.signInAnonymously()
+    // el pedido, mandar el mail) — no le pedimos nada a la persona más
+    // que el captcha invisible de Turnstile (anti-abuso, obligatorio
+    // para login anónimo en Supabase).
+    if (!checkoutCaptchaToken) {
+      alert('Dános un segundo para verificar que no sos un robot y volvé a tocar el botón.')
+      return
+    }
+    const { data, error } = await supabase.auth.signInAnonymously({
+      options: { captchaToken: checkoutCaptchaToken }
+    })
+    if (typeof turnstile !== 'undefined') turnstile.reset()
+    checkoutCaptchaToken = null
     if (error || !data.user) {
       alert('No pudimos iniciar la compra. Probá de nuevo en un momento.')
       return
