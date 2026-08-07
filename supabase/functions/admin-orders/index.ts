@@ -112,8 +112,13 @@ serve(async (req) => {
       try {
         const { data: pedido } = await admin.from("pedidos").select("*").eq("id", id).single()
         if (!pedido) return
-        const { data: userData } = await admin.auth.admin.getUserById(pedido.user_id)
-        const userEmail = userData?.user?.email
+        // El email guardado en el pedido cubre cuentas registradas e invitados
+        // (sesion anonima) por igual; auth.users solo tiene email para las primeras.
+        let userEmail = pedido.email as string | null
+        if (!userEmail) {
+          const { data: userData } = await admin.auth.admin.getUserById(pedido.user_id)
+          userEmail = userData?.user?.email ?? null
+        }
         if (!userEmail) return
         await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-order-email`, {
           method: "POST",
@@ -234,18 +239,23 @@ serve(async (req) => {
   }
 
   const pedidos = pedidosRes.data ?? []
-  const userCount = usersRes.data?.users?.length ?? 0
+  // No contar las sesiones anonimas de invitados como "usuarios" registrados
+  const userCount = usersRes.data?.users?.filter((u) => !u.is_anonymous).length ?? 0
 
-  const uids = [...new Set(pedidos.map((p: Record<string, unknown>) => p.user_id as string))]
+  // Pedidos sin email guardado (ordenes viejas, de antes de esta columna) —
+  // para esos, buscamos el email de la cuenta como fallback
+  const uidsSinEmail = [...new Set(
+    pedidos.filter((p: Record<string, unknown>) => !p.email).map((p: Record<string, unknown>) => p.user_id as string)
+  )]
   const emailMap: Record<string, string> = {}
-  await Promise.all(uids.map(async (uid) => {
+  await Promise.all(uidsSinEmail.map(async (uid) => {
     const { data } = await admin.auth.admin.getUserById(uid)
     if (data?.user) emailMap[uid] = data.user.email ?? "—"
   }))
 
   const enriched = pedidos.map((p: Record<string, unknown>) => ({
     ...p,
-    cliente_email: emailMap[p.user_id as string] ?? "—",
+    cliente_email: (p.email as string) || emailMap[p.user_id as string] || "—",
   }))
 
   return new Response(JSON.stringify({ pedidos: enriched, user_count: userCount }), {

@@ -147,7 +147,7 @@
   </div>
 </footer>
 
-<script src="js/script.js?v=20260812"></script>
+<script src="js/script.js?v=20260813"></script>
 <script type="module" src="js/newsletter.js"></script>
 <script type="module">
 
@@ -157,7 +157,9 @@ import { supabase } from './js/supabase-client.js'
 
 const { data: { user } } = await supabase.auth.getUser()
 
-if (!user) {
+// Sesión anónima (invitado que compró sin cuenta): no tiene un perfil
+// real para mostrar acá.
+if (!user || user.is_anonymous) {
   window.location.href = 'login'
   return
 }

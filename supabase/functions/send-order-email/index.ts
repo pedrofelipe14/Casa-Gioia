@@ -120,14 +120,16 @@ serve(async (req) => {
       const adminClient = createClient(SUPABASE_URL, SUPABASE_ADMIN, { auth: { persistSession: false } })
       const { data: pedido } = await adminClient
         .from("pedidos")
-        .select("id")
+        .select("id, email")
         .eq("numero_pedido", numeroPedido)
         .eq("user_id", user.id)
         .maybeSingle()
       if (!pedido) return deny("Pedido no encontrado")
 
-      // Ignorar el email que mande el cliente — usar el de la sesión verificada
-      email = user.email
+      // Ignorar el email que mande el cliente — usar el guardado en el pedido
+      // (funciona igual para cuentas registradas e invitados con sesion anonima,
+      // que no tienen email en auth.users). user.email queda de fallback.
+      email = pedido.email ?? user.email
     }
 
     if (!RESEND_KEY) {

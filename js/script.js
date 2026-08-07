@@ -196,6 +196,9 @@ window.cartAdd = (btn) => {
    en círculo en la versión con hamburguesa. Usado por todas las páginas
    para no duplicar esta lógica en cada una. ── */
 window.renderAccountBtn = (btn, user) => {
+    // Invitado con sesión anónima (compró sin cuenta): a los ojos del
+    // sitio no está "logueado", no tiene nombre/avatar que mostrar.
+    if (user?.is_anonymous) user = null
     if (!user) {
         btn.classList.remove('btn-nav-logged')
         btn.innerHTML = 'Ingresar'

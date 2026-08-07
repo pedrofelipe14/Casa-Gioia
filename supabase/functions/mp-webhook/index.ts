@@ -86,8 +86,13 @@ serve(async (req) => {
     await admin.from("pedidos").update({ estado: "confirmado" }).eq("id", pedido.id)
 
     // ── 4. Enviar email de confirmación ───────────────────────────────────────
-    const { data: userData } = await admin.auth.admin.getUserById(pedido.user_id)
-    const userEmail = userData?.user?.email
+    // pedido.email cubre cuentas registradas e invitados (sesion anonima) por
+    // igual; auth.users solo tiene email para las primeras.
+    let userEmail: string | null = pedido.email ?? null
+    if (!userEmail) {
+      const { data: userData } = await admin.auth.admin.getUserById(pedido.user_id)
+      userEmail = userData?.user?.email ?? null
+    }
     if (userEmail) {
       await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-order-email`, {
         method: "POST",
