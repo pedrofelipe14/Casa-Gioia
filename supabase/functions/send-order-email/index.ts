@@ -70,7 +70,7 @@ function wrap(body: string) {
   <tr><td style="background:#2F2A28;padding:24px 40px;text-align:center;">
     <p style="margin:0;color:rgba(244,239,229,.45);font-size:12px;font-family:Georgia,serif;line-height:1.8;">
       Casa Gioia · Alsina 3364, Mar del Plata<br>
-      <a href="mailto:casagioia@gmail.com" style="color:rgba(244,239,229,.45);text-decoration:none;">casagioia@gmail.com</a>
+      <a href="mailto:contacto@casagioia.com.ar" style="color:rgba(244,239,229,.45);text-decoration:none;">contacto@casagioia.com.ar</a>
     </p>
   </td></tr>
 
