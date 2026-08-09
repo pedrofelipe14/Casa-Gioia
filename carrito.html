@@ -490,8 +490,9 @@
       </div>
       <button class="btn-primary" id="checkoutBtn">PROCEDER AL PAGO</button>
     </div>
-    <!-- Turnstile: solo lo necesita quien compra sin cuenta (login anónimo) -->
-    <div style="display:flex;justify-content:flex-end;margin-top:12px;opacity:.55;">
+    <!-- Turnstile: solo lo necesita quien compra sin cuenta (login anónimo).
+         Visible (no atenuado) por si pide un click explícito. -->
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;">
       <div class="cf-turnstile"
            data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
            data-theme="light"
@@ -710,10 +711,30 @@ document.getElementById('s-cp').addEventListener('input', (e) => {
   fillSummary('s')
 })
 
-/* ── Turnstile: token para el login anónimo del checkout de invitado ── */
+/* ── Turnstile: token para el login anónimo del checkout de invitado.
+   Se resuelve solo (sin que la persona haga nada) en la gran mayoría
+   de los casos, pero puede tardar uno o dos segundos — por eso el
+   checkout ESPERA el token en vez de exigir un segundo click. ── */
 let checkoutCaptchaToken = null
-window.onTurnstileCheckout        = (t) => { checkoutCaptchaToken = t }
-window.onTurnstileCheckoutExpired = ()  => { checkoutCaptchaToken = null }
+let _captchaWaiters = []
+window.onTurnstileCheckout = (t) => {
+  checkoutCaptchaToken = t
+  _captchaWaiters.forEach((resolve) => resolve(t))
+  _captchaWaiters = []
+}
+window.onTurnstileCheckoutExpired = () => { checkoutCaptchaToken = null }
+
+function esperarCaptchaToken(timeoutMs = 15000) {
+  if (checkoutCaptchaToken) return Promise.resolve(checkoutCaptchaToken)
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      _captchaWaiters = _captchaWaiters.filter((r) => r !== onToken)
+      reject(new Error('timeout'))
+    }, timeoutMs)
+    const onToken = (t) => { clearTimeout(timer); resolve(t) }
+    _captchaWaiters.push(onToken)
+  })
+}
 
 /* ── Checkout: carrito → envío ── */
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
@@ -726,16 +747,31 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
     // el pedido, mandar el mail) — no le pedimos nada a la persona más
     // que el captcha invisible de Turnstile (anti-abuso, obligatorio
     // para login anónimo en Supabase).
-    if (!checkoutCaptchaToken) {
-      alert('Dános un segundo para verificar que no sos un robot y volvé a tocar el botón.')
+    const btn = document.getElementById('checkoutBtn')
+    const textoOriginal = btn.textContent
+    btn.disabled = true
+    btn.textContent = 'VERIFICANDO…'
+
+    let token
+    try {
+      token = await esperarCaptchaToken()
+    } catch {
+      btn.disabled = false
+      btn.textContent = textoOriginal
+      alert('No pudimos verificar automáticamente. Recargá la página e intentá de nuevo.')
       return
     }
+
     const { data, error } = await supabase.auth.signInAnonymously({
-      options: { captchaToken: checkoutCaptchaToken }
+      options: { captchaToken: token }
     })
     if (typeof turnstile !== 'undefined') turnstile.reset()
     checkoutCaptchaToken = null
+    btn.disabled = false
+    btn.textContent = textoOriginal
+
     if (error || !data.user) {
+      console.error('signInAnonymously error:', error)
       alert('No pudimos iniciar la compra. Probá de nuevo en un momento.')
       return
     }
