@@ -142,6 +142,16 @@ tr:hover td { background: #fdf9f5; }
 .btn-cancel-form { background: none; border: 1px solid rgba(91,29,42,.2); color: #7a726c; padding: 11px 20px; font-family: 'Manrope', sans-serif; font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: border-color .2s; }
 .btn-cancel-form:hover { border-color: var(--wine); color: var(--wine); }
 
+/* ── Venta en local ── */
+.venta-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(91,29,42,.06); }
+.venta-item-nombre { font-size: .85rem; color: var(--text); }
+.venta-item-precio { font-size: .72rem; color: #a09890; margin-top: 2px; }
+.venta-item-qty { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.venta-item-qty button { width: 26px; height: 26px; border: 1px solid rgba(91,29,42,.2); background: white; cursor: pointer; font-size: .95rem; color: var(--wine); line-height: 1; }
+.venta-item-qty button:hover { background: var(--cream); }
+.venta-item-qty input { width: 44px; text-align: center; border: 1px solid rgba(91,29,42,.2); padding: 4px 2px; font-size: .82rem; }
+.badge-presencial { display: inline-block; padding: 2px 8px; font-size: .58rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; background: #e8e0f5; color: #5b3f91; margin-left: 6px; }
+
 /* ── Photos list ── */
 .fotos-list { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
 .foto-item { display: flex; align-items: center; gap: 10px; background: #fdf9f5; padding: 8px; border: 1px solid rgba(91,29,42,.07); }
@@ -369,6 +379,35 @@ tr:hover td { background: #fdf9f5; }
   </div>
 </div>
 
+<!-- ═══ VENTA EN LOCAL (modal) ═══ -->
+<div class="prod-form-overlay" id="ventaOverlay">
+  <div class="prod-form-box" style="max-width:480px;">
+    <button class="prod-form-close" onclick="closeVentaPresencial()">✕</button>
+    <div class="prod-form-title">Venta en el local</div>
+    <div class="crop-box-hint" style="margin-bottom:18px;">
+      Elegí los productos que se vendieron en persona. Se descuenta el stock
+      y queda registrada como pedido "Entregado" para que sume en las estadísticas.
+    </div>
+
+    <div class="form-row">
+      <label>Buscar producto</label>
+      <input type="text" id="venta-search" placeholder="Nombre del producto…">
+    </div>
+
+    <div id="venta-lista" style="max-height:280px;overflow-y:auto;margin:12px 0;"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-top:1px solid rgba(91,29,42,.1);margin-top:8px;">
+      <span style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:#a09890;">Total</span>
+      <span id="venta-total" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--wine);">$0</span>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-cancel-form" onclick="closeVentaPresencial()">Cancelar</button>
+      <button class="btn-save" id="btnRegistrarVenta" onclick="registrarVentaPresencial()">Registrar venta</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
@@ -536,7 +575,7 @@ function renderOrderTable() {
     const opts = ESTADOS.map(e => `<option value="${e}" ${p.estado===e?'selected':''}>${ESTADO_LABEL[e]}</option>`).join('')
     return `<tr data-id="${p.id}">
       <td><div class="order-num">#${p.numero_pedido ?? '—'}</div></td>
-      <td><div class="order-email">${p.cliente_email ?? '—'}</div></td>
+      <td><div class="order-email">${p.cliente_email ?? '—'}${p.origen === 'presencial' ? '<span class="badge-presencial">Local</span>' : ''}</div></td>
       <td><div class="order-date">${fecha}</div></td>
       <td><div class="order-total">$${Number(p.total ?? 0).toLocaleString('es-AR')}</div></td>
       <td><span class="badge badge-${p.estado}">${ESTADO_LABEL[p.estado] ?? p.estado}</span></td>
@@ -554,6 +593,95 @@ window.deletePedido = async (id, numero) => {
   if (data.error) { alert('Error: ' + data.error); return }
   allPedidos = allPedidos.filter(p => p.id !== id)
   renderOrderTable(); renderStats(); renderCharts()
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  VENTA EN LOCAL
+// ═══════════════════════════════════════════════════════════════════════
+let ventaCart = {} // { productoId: cantidad }
+
+window.openVentaPresencial = () => {
+  ventaCart = {}
+  document.getElementById('venta-search').value = ''
+  renderVentaLista()
+  document.getElementById('ventaOverlay').classList.add('open')
+}
+window.closeVentaPresencial = () => {
+  document.getElementById('ventaOverlay').classList.remove('open')
+}
+
+function renderVentaLista() {
+  const q = document.getElementById('venta-search').value.trim().toLowerCase()
+  const lista = document.getElementById('venta-lista')
+  const filtrados = allProductos.filter(p => p.activo !== false && p.nombre.toLowerCase().includes(q))
+
+  lista.innerHTML = !filtrados.length
+    ? `<div class="admin-empty">Sin productos.</div>`
+    : filtrados.map(p => {
+        const qty = ventaCart[p.id] || 0
+        return `<div class="venta-item">
+          <div>
+            <div class="venta-item-nombre">${p.nombre}</div>
+            <div class="venta-item-precio">$${Number(p.precio).toLocaleString('es-AR')}</div>
+          </div>
+          <div class="venta-item-qty">
+            <button type="button" onclick="ventaQtyChange('${p.id}',-1)">−</button>
+            <input type="number" min="0" value="${qty}" onchange="ventaQtyInput('${p.id}', this.value)">
+            <button type="button" onclick="ventaQtyChange('${p.id}',1)">+</button>
+          </div>
+        </div>`
+      }).join('')
+
+  actualizarVentaTotal()
+}
+
+window.ventaQtyChange = (id, delta) => {
+  const nuevo = Math.max(0, (ventaCart[id] || 0) + delta)
+  if (nuevo === 0) delete ventaCart[id]; else ventaCart[id] = nuevo
+  renderVentaLista()
+}
+window.ventaQtyInput = (id, value) => {
+  const n = Math.max(0, parseInt(value, 10) || 0)
+  if (n === 0) delete ventaCart[id]; else ventaCart[id] = n
+  renderVentaLista()
+}
+
+function actualizarVentaTotal() {
+  let total = 0
+  for (const [id, qty] of Object.entries(ventaCart)) {
+    const p = allProductos.find(p => p.id === id)
+    if (p) total += Number(p.precio) * qty
+  }
+  document.getElementById('venta-total').textContent = '$' + total.toLocaleString('es-AR')
+}
+
+document.getElementById('venta-search').addEventListener('input', renderVentaLista)
+
+window.registrarVentaPresencial = async () => {
+  const items = Object.entries(ventaCart).map(([id, qty]) => ({ id, qty }))
+  if (!items.length) { alert('Elegí al menos un producto.'); return }
+
+  const btn = document.getElementById('btnRegistrarVenta')
+  btn.disabled = true
+  btn.textContent = 'Registrando…'
+
+  try {
+    const data = await apiFetch(FN_ORDERS + '?action=venta_presencial', {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+    })
+    if (data.error) { alert('Error: ' + data.error); return }
+
+    closeVentaPresencial()
+    allPedidos   = await fetchPedidos()
+    allProductos = await fetchProductos()
+    renderOrderTable(); renderStats(); renderCharts(); renderProductTable()
+  } catch (e) {
+    alert('Error: ' + e.message)
+  } finally {
+    btn.disabled    = false
+    btn.textContent = 'Registrar venta'
+  }
 }
 window.setFilter    = (btn) => {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
@@ -576,7 +704,10 @@ function buildPedidosUI() {
     </div>
     <div class="toolbar-row" style="margin-bottom:16px;">
       <div class="section-title" style="margin:0;border:none;padding:0;">Pedidos</div>
-      <button class="btn-export" onclick="exportPedidos()">⬇ Exportar CSV</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-export" onclick="exportPedidos()">⬇ Exportar CSV</button>
+        <button class="btn-add-prod" onclick="openVentaPresencial()">+ Venta en local</button>
+      </div>
     </div>
     <div class="search-bar"><input class="search-input" id="searchInput" type="text" placeholder="Buscar por número o email…"></div>
     <div class="filters">

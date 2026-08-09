@@ -83,7 +83,6 @@ serve(async (req) => {
 
   const admin = await getAdminClient()
 
-  // POST → actualizar estado de un pedido
   if (req.method === "POST") {
     let body: Record<string, unknown>
     try {
@@ -92,6 +91,75 @@ serve(async (req) => {
       return badRequest("Cuerpo inválido")
     }
 
+    const action = new URL(req.url).searchParams.get("action")
+
+    // POST ?action=venta_presencial — registrar una venta hecha en el local,
+    // fuera del checkout online, para que cuente en las estadisticas.
+    if (action === "venta_presencial") {
+      const { items } = body
+      if (!Array.isArray(items) || items.length === 0) return badRequest("Sin productos")
+      if (items.some((i: Record<string, unknown>) => typeof i.id !== "string" || !i.id)) {
+        return badRequest("IDs de productos inválidos")
+      }
+      if (items.some((i: Record<string, unknown>) => !Number.isInteger(i.qty) || (i.qty as number) < 1 || (i.qty as number) > 999)) {
+        return badRequest("Cantidades inválidas")
+      }
+
+      const productIds = (items as Array<{ id: string }>).map((i) => i.id)
+      const { data: productos, error: dbError } = await admin
+        .from("productos")
+        .select("id, nombre, precio, stock")
+        .in("id", productIds)
+      if (dbError || !productos?.length) return badRequest("Productos no encontrados")
+
+      let total = 0
+      const resolvedItems: Array<{ id: string; nombre: string; precio: number; qty: number }> = []
+      for (const item of items as Array<{ id: string; qty: number }>) {
+        const producto = productos.find((p: { id: string; nombre: string; precio: number }) => p.id === item.id)
+        if (!producto) return badRequest(`Producto desconocido: ${item.id}`)
+        total += producto.precio * item.qty
+        resolvedItems.push({ id: producto.id, nombre: producto.nombre, precio: producto.precio, qty: item.qty })
+      }
+
+      const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
+      const anonClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { auth: { persistSession: false } }
+      )
+      const { data: { user: adminUser } } = await anonClient.auth.getUser(token)
+      if (!adminUser) return deny()
+
+      const numero = "CG" + Date.now().toString(36).toUpperCase()
+
+      const { error: insertError } = await admin.from("pedidos").insert({
+        user_id:       adminUser.id,
+        numero_pedido: numero,
+        total,
+        estado:        "entregado",
+        items:         resolvedItems,
+        envio:         { tipo: "presencial" },
+        origen:        "presencial",
+      })
+      if (insertError) {
+        console.error("insert venta presencial error:", insertError)
+        return serverError()
+      }
+
+      // Descontar stock, igual que una venta online aprobada
+      for (const item of resolvedItems) {
+        const producto = productos.find((p: { id: string; stock: number | null }) => p.id === item.id)
+        if (producto?.stock !== null && producto?.stock !== undefined) {
+          await admin.from("productos").update({ stock: Math.max(0, producto.stock - item.qty) }).eq("id", item.id)
+        }
+      }
+
+      return new Response(JSON.stringify({ ok: true, numero_pedido: numero, total }), {
+        headers: { ...CORS, "Content-Type": "application/json" },
+      })
+    }
+
+    // POST (sin action) → actualizar estado de un pedido
     const { id, estado } = body
 
     if (typeof id !== "string" || !UUID_RE.test(id)) {
@@ -112,6 +180,7 @@ serve(async (req) => {
       try {
         const { data: pedido } = await admin.from("pedidos").select("*").eq("id", id).single()
         if (!pedido) return
+        if (pedido.origen === "presencial") return // no hay cliente real a quien avisarle
         // El email guardado en el pedido cubre cuentas registradas e invitados
         // (sesion anonima) por igual; auth.users solo tiene email para las primeras.
         let userEmail = pedido.email as string | null
@@ -255,7 +324,9 @@ serve(async (req) => {
 
   const enriched = pedidos.map((p: Record<string, unknown>) => ({
     ...p,
-    cliente_email: (p.email as string) || emailMap[p.user_id as string] || "—",
+    cliente_email: p.origen === "presencial"
+      ? "Venta en local"
+      : (p.email as string) || emailMap[p.user_id as string] || "—",
   }))
 
   return new Response(JSON.stringify({ pedidos: enriched, user_count: userCount }), {
