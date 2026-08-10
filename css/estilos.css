@@ -44,7 +44,7 @@ main{
     flex-wrap:wrap;
     position:relative;
 
-    padding:20px 60px 0;
+    padding:12px 60px 0;
 
     border-bottom:1px solid rgba(0,0,0,.05);
 }
@@ -80,7 +80,7 @@ main{
     order:10;
     align-items:center;
     justify-content:center;
-    padding:6px 0 12px;
+    padding:4px 0 10px;
 }
 
 .menu a{
