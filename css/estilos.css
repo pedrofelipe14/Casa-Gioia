@@ -692,10 +692,14 @@ main{
     gap:40px;
     align-items:start;
 }
+.footer-grid > div{
+    min-width:0;
+}
 .footer-grid a{
     display:block;
     color:var(--text);
     text-decoration:none;
+    overflow-wrap:anywhere;
     margin-bottom:12px;
     font-size:.82rem;
     letter-spacing:.3px;
@@ -724,6 +728,7 @@ main{
 }
 .footer-form input{
     flex:1;
+    min-width:0;
     border:none;
     border-bottom:1px solid rgba(0,0,0,.22);
     background:transparent;
