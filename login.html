@@ -241,18 +241,53 @@ document.getElementById('backBtn').addEventListener('click', () => {
     document.getElementById('tw-login').style.display    = 'flex'
 })
 
-/* ── Turnstile tokens ── */
+/* ── Turnstile tokens: la verificación puede tardar uno o dos segundos
+   en resolverse sola, así que si tocás el botón antes no falla al toque —
+   espera el token en vez de exigir un segundo click o un reload. ── */
 let tokenLogin    = null
 let tokenRecovery = null
+let _loginWaiters    = []
+let _recoveryWaiters = []
 
-window.onTurnstileLogin          = (t) => { tokenLogin    = t }
+window.onTurnstileLogin          = (t) => { tokenLogin = t; _loginWaiters.forEach(r => r(t)); _loginWaiters = [] }
 window.onTurnstileLoginExpired   = ()  => { tokenLogin    = null }
-window.onTurnstileRecovery       = (t) => { tokenRecovery = t }
+window.onTurnstileRecovery       = (t) => { tokenRecovery = t; _recoveryWaiters.forEach(r => r(t)); _recoveryWaiters = [] }
 window.onTurnstileRecoveryExpired= ()  => { tokenRecovery = null }
 
+function esperarToken(getToken, waiters, timeoutMs = 15000) {
+    if (getToken()) return Promise.resolve(getToken())
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            const i = waiters.indexOf(onToken)
+            if (i !== -1) waiters.splice(i, 1)
+            reject(new Error('timeout'))
+        }, timeoutMs)
+        const onToken = (t) => { clearTimeout(timer); resolve(t) }
+        waiters.push(onToken)
+    })
+}
+
+// Si el primer intento tarda demasiado, reinicia el widget (que puede
+// haber quedado colgado) y le da una segunda chance antes de rendirse.
+async function obtenerToken(getToken, waiters) {
+    try {
+        return await esperarToken(getToken, waiters)
+    } catch {
+        if (typeof turnstile !== 'undefined') turnstile.reset()
+        return await esperarToken(getToken, waiters)
+    }
+}
+
 /* ── Helpers de UI ── */
-function setLoading(btnId, loading) {
+function setLoading(btnId, loading, loadingText = null) {
     const btn = document.getElementById(btnId)
+    if (loading) {
+        if (!btn.disabled) btn.dataset.textoOriginal = btn.textContent
+        if (loadingText) btn.textContent = loadingText
+    } else if (btn.dataset.textoOriginal) {
+        btn.textContent = btn.dataset.textoOriginal
+        delete btn.dataset.textoOriginal
+    }
     btn.disabled = loading
     btn.style.opacity = loading ? '.6' : ''
 }
@@ -342,15 +377,20 @@ window.login = async () => {
         return
     }
 
-    if (!tokenLogin) {
-        mostrarPopup('error', 'La verificación de seguridad no se completó. Si usás Edge o Firefox, desactivá la protección de rastreo para este sitio y recargá la página.')
+    setLoading('loginBtn', true, 'VERIFICANDO…')
+    let token
+    try {
+        token = await obtenerToken(() => tokenLogin, _loginWaiters)
+    } catch {
+        setLoading('loginBtn', false)
+        mostrarPopup('error', 'No pudimos completar la verificación de seguridad. Probá de nuevo en un momento.')
         return
     }
 
-    setLoading('loginBtn', true)
+    setLoading('loginBtn', true, 'INGRESANDO…')
     const { error } = await supabase.auth.signInWithPassword({
         email, password,
-        options: { captchaToken: tokenLogin }
+        options: { captchaToken: token }
     })
     tokenLogin = null
     turnstile.reset()
@@ -382,17 +422,22 @@ window.register = async () => {
         return
     }
 
-    if (!tokenLogin) {
-        mostrarPopup('error', 'La verificación de seguridad no se completó. Si usás Edge o Firefox, desactivá la protección de rastreo para este sitio y recargá la página.')
+    setLoading('registerBtn', true, 'VERIFICANDO…')
+    let token
+    try {
+        token = await obtenerToken(() => tokenLogin, _loginWaiters)
+    } catch {
+        setLoading('registerBtn', false)
+        mostrarPopup('error', 'No pudimos completar la verificación de seguridad. Probá de nuevo en un momento.')
         return
     }
 
-    setLoading('registerBtn', true)
+    setLoading('registerBtn', true, 'CREANDO CUENTA…')
     let data, error
     try {
         ;({ data, error } = await supabase.auth.signUp({
             email, password,
-            options: { captchaToken: tokenLogin }
+            options: { captchaToken: token }
         }))
     } catch(e) {
         setLoading('registerBtn', false)
@@ -422,14 +467,20 @@ window.recuperarPassword = async () => {
         mostrarPopup('error', 'Ingresá un email válido.')
         return
     }
-    if (!tokenRecovery) {
-        mostrarPopup('error', 'Completá la verificación de seguridad.')
+    setLoading('recoveryBtn', true, 'VERIFICANDO…')
+    let token
+    try {
+        token = await obtenerToken(() => tokenRecovery, _recoveryWaiters)
+    } catch {
+        setLoading('recoveryBtn', false)
+        mostrarPopup('error', 'No pudimos completar la verificación de seguridad. Probá de nuevo en un momento.')
         return
     }
-    setLoading('recoveryBtn', true)
+
+    setLoading('recoveryBtn', true, 'ENVIANDO…')
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://www.casagioia.com.ar/reset-password.html',
-        captchaToken: tokenRecovery
+        captchaToken: token
     })
     tokenRecovery = null
     setLoading('recoveryBtn', false)

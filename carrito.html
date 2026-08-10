@@ -735,6 +735,19 @@ function esperarCaptchaToken(timeoutMs = 15000) {
   })
 }
 
+// Si el primer intento tarda demasiado, reinicia el widget (puede haber
+// quedado colgado) y le da una segunda chance antes de rendirse —
+// evita tener que pedirle a la persona que recargue la página.
+async function obtenerCaptchaToken() {
+  try {
+    return await esperarCaptchaToken()
+  } catch {
+    if (typeof turnstile !== 'undefined') turnstile.reset()
+    checkoutCaptchaToken = null
+    return await esperarCaptchaToken()
+  }
+}
+
 /* ── Checkout: carrito → envío ── */
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
   const items = window.cartGet()
@@ -753,11 +766,11 @@ document.getElementById('checkoutBtn').addEventListener('click', async () => {
 
     let token
     try {
-      token = await esperarCaptchaToken()
+      token = await obtenerCaptchaToken()
     } catch {
       btn.disabled = false
       btn.textContent = textoOriginal
-      alert('No pudimos verificar automáticamente. Recargá la página e intentá de nuevo.')
+      alert('No pudimos verificar automáticamente. Probá de nuevo en un momento.')
       return
     }
 
