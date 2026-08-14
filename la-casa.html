@@ -5,7 +5,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Casa — Casa Gioia</title>
-<link rel="stylesheet" href="css/estilos.css?v=20260820">
+<link rel="stylesheet" href="css/estilos.css?v=20260821">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   /* estilos específicos de esta página */
@@ -39,44 +39,6 @@
     margin-top: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
-  }
-  .ambientes-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    background: var(--cream);
-  }
-  .ambiente-item {
-    position: relative;
-    aspect-ratio: 3/4;
-    overflow: hidden;
-    cursor: pointer;
-  }
-  .ambiente-item img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    transition: transform .6s ease, filter .6s;
-    filter: brightness(.75);
-  }
-  .ambiente-item:hover img { transform: scale(1.05); filter: brightness(.55); }
-  .ambiente-item-label {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 48px 28px 28px;
-    background: linear-gradient(to top, rgba(26,10,14,.8) 0%, transparent 100%);
-  }
-  .ambiente-item-label h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.6rem;
-    font-style: italic;
-    color: var(--cream);
-    margin-bottom: 4px;
-  }
-  .ambiente-item-label p {
-    font-size: .65rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gold);
   }
   .proceso-grid {
     display: grid;
@@ -155,12 +117,36 @@
     max-width: 480px;
     margin: 0 auto 36px;
   }
+  .rincon-band {
+    position: relative;
+    padding: 100px 60px;
+    text-align: center;
+    overflow: hidden;
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(circle, var(--wine) 0 7px, transparent 8px),
+      radial-gradient(circle, var(--gold) 0 5px, transparent 6px),
+      radial-gradient(circle, var(--green) 0 5px, transparent 6px),
+      radial-gradient(circle, var(--gold) 0 5px, transparent 6px);
+    background-size: 70px 70px;
+    background-position: 0 0, 35px 35px, 35px 0, 0 35px;
+    border-top: 6px solid var(--gold);
+    border-bottom: 6px solid var(--gold);
+  }
+  .rincon-band-content {
+    position: relative;
+    z-index: 1;
+    background: rgba(244,239,229,.88);
+    display: inline-block;
+    padding: 28px 56px;
+  }
   @media(max-width:768px){
     .room-hero-text { left: 20px; bottom: 28px; }
-    .ambientes-grid { grid-template-columns: 1fr; }
     .proceso-grid { grid-template-columns: 1fr; gap: 40px; }
     .filosofia-grid { grid-template-columns: 1fr; gap: 32px; }
     .filosofia-img { order: -1; }
+    .rincon-band { padding: 64px 24px; }
+    .rincon-band-content { padding: 22px 28px; }
   }
 </style>
 </head>
@@ -235,33 +221,10 @@
 </section>
 
 <!-- AMBIENTES -->
-<section class="section-light">
-  <div style="padding:0 60px 48px;">
+<section class="rincon-band fade-in">
+  <div class="rincon-band-content">
     <div class="section-label">Ambientes</div>
     <h2 class="section-title">Cada rincón,<br/><span>una historia.</span></h2>
-  </div>
-  <div class="ambientes-grid">
-    <div class="ambiente-item fade-in">
-      <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80&auto=format" alt="Sala" loading="lazy">
-      <div class="ambiente-item-label">
-        <h3>Sala</h3>
-        <p>Inspiración para tu sala</p>
-      </div>
-    </div>
-    <div class="ambiente-item fade-in">
-      <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80&auto=format" alt="Comedor" loading="lazy">
-      <div class="ambiente-item-label">
-        <h3>Comedor</h3>
-        <p>Inspiración para tu comedor</p>
-      </div>
-    </div>
-    <div class="ambiente-item fade-in">
-      <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80&auto=format" alt="Dormitorio" loading="lazy">
-      <div class="ambiente-item-label">
-        <h3>Dormitorio</h3>
-        <p>Inspiración para tu dormitorio</p>
-      </div>
-    </div>
   </div>
 </section>
 
