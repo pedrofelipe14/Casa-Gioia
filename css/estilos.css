@@ -407,7 +407,7 @@ main{
 
 .hero{
 
-    min-height:780px;
+    min-height:700px;
     flex-shrink:0;
 
     display:grid;
