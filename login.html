@@ -53,11 +53,8 @@
 .turnstile-wrap{
     display:flex;
     justify-content:center;
-    margin:-8px auto 0;
-    opacity:.55;
-    transition:opacity .2s;
+    margin:4px auto 0;
 }
-.turnstile-wrap:hover{ opacity:.85; }
 .age-check {
     display: flex;
     align-items: center;
@@ -180,12 +177,15 @@
 
 </div>
 
-<!-- Turnstile widgets fuera del recuadro -->
+<!-- Turnstile widgets fuera del recuadro. interaction-only: invisibles
+     para casi todo el mundo, solo aparecen si Cloudflare sospecha que
+     hace falta un click explícito. -->
 <div class="turnstile-wrap" id="tw-login">
     <div class="cf-turnstile"
          data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
          data-theme="light"
          data-size="compact"
+         data-appearance="interaction-only"
          data-callback="onTurnstileLogin"
          data-expired-callback="onTurnstileLoginExpired">
     </div>
@@ -195,6 +195,7 @@
          data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
          data-theme="light"
          data-size="compact"
+         data-appearance="interaction-only"
          data-callback="onTurnstileRecovery"
          data-expired-callback="onTurnstileRecoveryExpired">
     </div>

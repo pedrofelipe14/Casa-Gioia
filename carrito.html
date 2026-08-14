@@ -274,7 +274,7 @@
 #envio-form select option[value=""] { color: #c0b8b2; }
 .turnstile-wrap {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 10px;
 }
 @media (max-width: 768px) {
@@ -497,12 +497,14 @@
       <button class="btn-primary" id="checkoutBtn">PROCEDER AL PAGO</button>
     </div>
     <!-- Turnstile: solo lo necesita quien compra sin cuenta (login anónimo).
-         Compacto y visible (no atenuado) por si pide un click explícito. -->
+         interaction-only: invisible para casi todo el mundo, solo aparece
+         si Cloudflare sospecha que hace falta un click explícito. -->
     <div class="turnstile-wrap">
       <div class="cf-turnstile"
            data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
            data-theme="light"
            data-size="compact"
+           data-appearance="interaction-only"
            data-callback="onTurnstileCheckout"
            data-expired-callback="onTurnstileCheckoutExpired">
       </div>
