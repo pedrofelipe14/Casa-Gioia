@@ -261,6 +261,7 @@ tr:hover td { background: #fdf9f5; }
   <button class="admin-tab active" data-tab="pedidos"   onclick="switchTab('pedidos')">Pedidos</button>
   <button class="admin-tab"        data-tab="productos" onclick="switchTab('productos')">Productos</button>
   <button class="admin-tab"        data-tab="carritos"  onclick="switchTab('carritos')">Carritos</button>
+  <button class="admin-tab"        data-tab="usuarios"  onclick="switchTab('usuarios')">Usuarios</button>
 </div>
 
 <div class="admin-main">
@@ -291,6 +292,9 @@ tr:hover td { background: #fdf9f5; }
 
   <!-- ═══ TAB: CARRITOS ═══ -->
   <div class="tab-section" id="tab-carritos"></div>
+
+  <!-- ═══ TAB: USUARIOS ═══ -->
+  <div class="tab-section" id="tab-usuarios"></div>
 </div>
 
 <!-- ═══ FORMULARIO DE PRODUCTO (modal) ═══ -->
@@ -1148,6 +1152,64 @@ function renderCarritosTable() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+//  USUARIOS
+// ═══════════════════════════════════════════════════════════════════════
+let allUsuarios = []
+
+async function fetchUsuarios() {
+  const data = await apiFetch(FN_ORDERS + '?scope=usuarios')
+  if (data.error) throw new Error(data.error)
+  return data.usuarios ?? []
+}
+
+function buildUsuariosUI() {
+  document.getElementById('tab-usuarios').innerHTML = `
+    <div class="toolbar-row" style="margin-bottom:16px;">
+      <div class="section-title" style="margin:0;border:none;padding:0;">Usuarios registrados</div>
+      <button class="btn-export" onclick="exportUsuarios()">⬇ Exportar CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Cliente</th><th>Registrado</th><th>Último ingreso</th><th>Pedidos</th><th>Total gastado</th><th>Última compra</th></tr></thead>
+      <tbody id="tbody-usuarios"></tbody></table>
+    </div>`
+}
+
+function _fechaCorta(fechaStr) {
+  if (!fechaStr) return '—'
+  return new Date(fechaStr).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function renderUsuariosTable() {
+  const tbody = document.getElementById('tbody-usuarios')
+  if (!allUsuarios.length) { tbody.innerHTML = `<tr><td colspan="6" class="admin-empty">Todavía no hay cuentas registradas.</td></tr>`; return }
+  tbody.innerHTML = allUsuarios.map(u => `<tr>
+      <td>
+        <div class="carrito-email">${u.email}</div>
+        ${u.nombre ? `<div style="font-size:.72rem;color:#a09890;">${u.nombre}</div>` : ''}
+      </td>
+      <td>${_fechaCorta(u.creado)}</td>
+      <td>${_fechaCorta(u.ultimo_login)}</td>
+      <td>${u.pedidos_count}</td>
+      <td>$${Number(u.total_gastado).toLocaleString('es-AR')}</td>
+      <td>${_fechaCorta(u.ultima_compra)}</td>
+    </tr>`).join('')
+}
+
+window.exportUsuarios = () => {
+  const rows = allUsuarios.map(u => [
+    u.email ?? '',
+    u.nombre ?? '',
+    u.creado ? new Date(u.creado).toLocaleString('es-AR') : '',
+    u.ultimo_login ? new Date(u.ultimo_login).toLocaleString('es-AR') : '',
+    u.pedidos_count,
+    Number(u.total_gastado ?? 0),
+    u.ultima_compra ? new Date(u.ultima_compra).toLocaleString('es-AR') : '',
+  ])
+  exportCSV(`usuarios-${new Date().toISOString().slice(0,10)}.csv`,
+    ['Email', 'Nombre', 'Registrado', 'Último ingreso', 'Pedidos', 'Total gastado', 'Última compra'], rows)
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 //  EXPORTAR CSV
 // ═══════════════════════════════════════════════════════════════════════
 // Separador ";" y BOM UTF-8: así Excel en es-AR lo abre bien de una,
@@ -1210,19 +1272,21 @@ window.exportCarritos = () => {
 //  INIT
 // ═══════════════════════════════════════════════════════════════════════
 try {
-  const [pedidosResult, productosResult, carritosResult] = await Promise.allSettled([
-    fetchPedidos(), fetchProductos(), fetchCarritos()
+  const [pedidosResult, productosResult, carritosResult, usuariosResult] = await Promise.allSettled([
+    fetchPedidos(), fetchProductos(), fetchCarritos(), fetchUsuarios()
   ])
 
   allPedidos   = pedidosResult.status   === 'fulfilled' ? pedidosResult.value   : []
   allProductos = productosResult.status === 'fulfilled' ? productosResult.value : []
   allCarritos  = carritosResult.status  === 'fulfilled' ? carritosResult.value  : []
+  allUsuarios  = usuariosResult.status  === 'fulfilled' ? usuariosResult.value  : []
 
   document.getElementById('loadingMsg').style.display = 'none'
 
   buildPedidosUI()
   buildProductosUI()
   buildCarritosUI()
+  buildUsuariosUI()
   switchTab('pedidos')
 
   renderStats()
@@ -1230,6 +1294,7 @@ try {
   renderOrderTable()
   renderProductTable()
   renderCarritosTable()
+  renderUsuariosTable()
 
   if (productosResult.status === 'rejected' && productosResult.reason?.message !== 'no auth') {
     document.getElementById('tbody-prods').innerHTML =

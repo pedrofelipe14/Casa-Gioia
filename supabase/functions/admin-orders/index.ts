@@ -297,6 +297,54 @@ serve(async (req) => {
     })
   }
 
+  // GET ?scope=usuarios — cuentas registradas (excluye sesiones anónimas
+  // de invitados) con su actividad de compra.
+  if (scope === "usuarios") {
+    const { data: usersData, error: usersErr } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    if (usersErr) { console.error("fetch users error:", usersErr); return serverError() }
+
+    const users = (usersData?.users ?? []).filter((u) => !u.is_anonymous)
+    const uids = users.map((u) => u.id)
+
+    type Stats = { count: number; total: number; last: string | null }
+    const statsMap: Record<string, Stats> = {}
+    if (uids.length) {
+      const { data: pedidosUsuarios, error: pedidosErr } = await admin
+        .from("pedidos")
+        .select("user_id, total, created_at, estado")
+        .in("user_id", uids)
+
+      if (pedidosErr) console.error("fetch pedidos for usuarios error:", pedidosErr)
+      for (const p of pedidosUsuarios ?? []) {
+        const uid = p.user_id as string
+        if (!statsMap[uid]) statsMap[uid] = { count: 0, total: 0, last: null }
+        if (p.estado !== "cancelado") {
+          statsMap[uid].count += 1
+          statsMap[uid].total += Number(p.total ?? 0)
+        }
+        const created = p.created_at as string
+        if (!statsMap[uid].last || created > statsMap[uid].last!) statsMap[uid].last = created
+      }
+    }
+
+    const usuarios = users
+      .map((u) => ({
+        id: u.id,
+        email: u.email ?? "—",
+        nombre: (u.user_metadata?.full_name as string) || (u.user_metadata?.name as string) || null,
+        creado: u.created_at,
+        ultimo_login: u.last_sign_in_at ?? null,
+        pedidos_count: statsMap[u.id]?.count ?? 0,
+        total_gastado: statsMap[u.id]?.total ?? 0,
+        ultima_compra: statsMap[u.id]?.last ?? null,
+      }))
+      .sort((a, b) => (a.creado < b.creado ? 1 : -1))
+
+    return new Response(JSON.stringify({ usuarios }), {
+      headers: { ...CORS, "Content-Type": "application/json" },
+    })
+  }
+
   const [pedidosRes, usersRes] = await Promise.all([
     admin.from("pedidos").select("*").order("created_at", { ascending: false }),
     admin.auth.admin.listUsers({ perPage: 1000 }),
