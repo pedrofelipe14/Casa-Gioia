@@ -44,11 +44,21 @@ window.addEventListener("scroll",()=>{
     const header = document.querySelector('header')
     if (!band || !header) return
 
+    // ResizeObserver en vez de solo "resize": el header puede cambiar de
+    // alto sin que la ventana cambie de tamaño (ej. la navbar pasa a dos
+    // líneas si aparece/desaparece la barra de favoritos del navegador,
+    // que achica el viewport y con eso el ancho disponible por la
+    // scrollbar). Si --header-h queda desactualizado la luxury-band
+    // se pega en un punto que ya no es el borde real del header.
     const setHeaderHeight = () => {
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px')
     }
     setHeaderHeight()
-    window.addEventListener('resize', setHeaderHeight)
+    if (window.ResizeObserver) {
+        new ResizeObserver(setHeaderHeight).observe(header)
+    } else {
+        window.addEventListener('resize', setHeaderHeight)
+    }
 
     let lastY = window.scrollY
     window.addEventListener('scroll', () => {
