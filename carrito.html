@@ -272,6 +272,11 @@
 }
 #envio-form select:focus { border-color: var(--wine); }
 #envio-form select option[value=""] { color: #c0b8b2; }
+.turnstile-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
 @media (max-width: 768px) {
   .co-grid { grid-template-columns: 1fr; }
   .summary-card { position: static; order: -1; }
@@ -492,11 +497,12 @@
       <button class="btn-primary" id="checkoutBtn">PROCEDER AL PAGO</button>
     </div>
     <!-- Turnstile: solo lo necesita quien compra sin cuenta (login anónimo).
-         Visible (no atenuado) por si pide un click explícito. -->
-    <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+         Compacto y visible (no atenuado) por si pide un click explícito. -->
+    <div class="turnstile-wrap">
       <div class="cf-turnstile"
            data-sitekey="0x4AAAAAAD90vJj47EWzV6lT"
            data-theme="light"
+           data-size="compact"
            data-callback="onTurnstileCheckout"
            data-expired-callback="onTurnstileCheckoutExpired">
       </div>
