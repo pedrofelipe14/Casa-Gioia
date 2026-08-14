@@ -1,11 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { corsHeaders } from "../_shared/cors.ts"
+import { makeResponders } from "../_shared/responses.ts"
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
-}
+const CORS = corsHeaders("POST, OPTIONS")
+const { deny, bad } = makeResponders(CORS)
 
 // Mismas zonas que el cliente — fuente de verdad para el costo de envío
 const CP_ZONES = [
@@ -30,18 +29,6 @@ function getShippingCost(cp: string | null): number {
   const num = parseInt(cp, 10)
   if (isNaN(num)) return 0
   return CP_ZONES.find(z => num >= z.min && num <= z.max)?.precio ?? 0
-}
-
-function deny(msg = "No autorizado") {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 401, headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-function bad(msg: string) {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-  })
 }
 
 serve(async (req) => {

@@ -1,23 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { corsHeaders } from "../_shared/cors.ts"
+import { makeResponders } from "../_shared/responses.ts"
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
-}
-
-function deny(msg = "No autorizado") {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 401, headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-function bad(msg: string) {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
+const CORS = corsHeaders("POST, OPTIONS")
+const { ok, deny, bad } = makeResponders(CORS)
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -105,9 +92,7 @@ serve(async (req) => {
     }
 
     const { id } = await res.json()
-    return new Response(JSON.stringify({ id }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    })
+    return ok({ id })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error"
     return new Response(JSON.stringify({ error: msg }), {

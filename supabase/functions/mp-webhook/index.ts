@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { getAdminClient } from "../_shared/supabase.ts"
 
 async function verifyMPSignature(req: Request, bodyText: string): Promise<boolean> {
   const secret = Deno.env.get("MP_WEBHOOK_SECRET")
@@ -68,11 +68,7 @@ serve(async (req) => {
     const payment = await mpRes.json()
     if (payment.status !== "approved") return new Response("ok", { status: 200 })
 
-    const admin = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      { auth: { persistSession: false } }
-    )
+    const admin = getAdminClient()
 
     // ── 3. Buscar pedido y actualizar estado ──────────────────────────────────
     const { data: pedido } = await admin

@@ -2,6 +2,12 @@
 console.log('%c¡Alto!', 'color:#891A55;font-size:2rem;font-weight:bold;')
 console.log('%cSi alguien te pidió que copies o pegues algo aquí, es un intento de robo de cuenta.\nCerrá esta ventana inmediatamente.', 'color:#2F2A28;font-size:14px;line-height:1.8;')
 
+/* ── Escapa HTML antes de meter datos de un cliente en innerHTML (nombre,
+   email de contacto, dirección, etc) — sin esto alguien podría guardar
+   algo como "<img src=x onerror=...>" y ejecutarlo en el navegador de
+   quien lo vea después. ── */
+window.esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]))
+
 /* ── Scroll con inercia (Lenis). Si el script del CDN no cargó, sigue
    funcionando el scroll nativo normal — es una mejora, no una
    dependencia dura. Solo afecta rueda/trackpad: el scroll táctil en

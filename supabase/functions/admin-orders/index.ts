@@ -1,68 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { corsHeaders } from "../_shared/cors.ts"
+import { makeResponders } from "../_shared/responses.ts"
+import { getAdminClient, getAnonClient, verifyAdmin } from "../_shared/supabase.ts"
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
-}
+const CORS = corsHeaders("GET, POST, DELETE, OPTIONS")
+const { ok, deny, bad, serverError } = makeResponders(CORS)
 
 const ALLOWED_ESTADOS = ["pendiente", "confirmado", "preparando", "en_camino", "entregado", "cancelado"]
 
 // Validación de UUID v4
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-
-function deny() {
-  return new Response(JSON.stringify({ error: "No autorizado" }), {
-    status: 401,
-    headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-function badRequest(msg: string) {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 400,
-    headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-function serverError() {
-  return new Response(JSON.stringify({ error: "Error interno" }), {
-    status: 500,
-    headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-async function getAdminClient() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    { auth: { persistSession: false } }
-  )
-}
-
-// Verifica que el token pertenezca a alguno de los admins configurados
-// en ADMIN_EMAILS (secret, separado por comas). Mantiene ADMIN_EMAIL
-// (singular) como fallback por compatibilidad.
-async function verifyAdmin(req: Request): Promise<boolean> {
-  const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
-  if (!token) return false
-
-  const adminEmails = (Deno.env.get("ADMIN_EMAILS") ?? Deno.env.get("ADMIN_EMAIL") ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-  if (!adminEmails.length) return false
-
-  const anonClient = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
-    { auth: { persistSession: false } }
-  )
-  const { data: { user }, error } = await anonClient.auth.getUser(token)
-  if (error || !user?.email) return false
-  return adminEmails.includes(user.email.toLowerCase())
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -74,21 +21,19 @@ serve(async (req) => {
   // información sensible: la autorización real sigue en cada endpoint.
   if (req.method === "GET" && new URL(req.url).searchParams.get("scope") === "whoami") {
     const isAdmin = await verifyAdmin(req)
-    return new Response(JSON.stringify({ isAdmin }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    })
+    return ok({ isAdmin })
   }
 
   if (!await verifyAdmin(req)) return deny()
 
-  const admin = await getAdminClient()
+  const admin = getAdminClient()
 
   if (req.method === "POST") {
     let body: Record<string, unknown>
     try {
       body = await req.json()
     } catch {
-      return badRequest("Cuerpo inválido")
+      return bad("Cuerpo inválido")
     }
 
     const action = new URL(req.url).searchParams.get("action")
@@ -97,12 +42,12 @@ serve(async (req) => {
     // fuera del checkout online, para que cuente en las estadisticas.
     if (action === "venta_presencial") {
       const { items } = body
-      if (!Array.isArray(items) || items.length === 0) return badRequest("Sin productos")
+      if (!Array.isArray(items) || items.length === 0) return bad("Sin productos")
       if (items.some((i: Record<string, unknown>) => typeof i.id !== "string" || !i.id)) {
-        return badRequest("IDs de productos inválidos")
+        return bad("IDs de productos inválidos")
       }
       if (items.some((i: Record<string, unknown>) => !Number.isInteger(i.qty) || (i.qty as number) < 1 || (i.qty as number) > 999)) {
-        return badRequest("Cantidades inválidas")
+        return bad("Cantidades inválidas")
       }
 
       const productIds = (items as Array<{ id: string }>).map((i) => i.id)
@@ -110,23 +55,19 @@ serve(async (req) => {
         .from("productos")
         .select("id, nombre, precio, stock")
         .in("id", productIds)
-      if (dbError || !productos?.length) return badRequest("Productos no encontrados")
+      if (dbError || !productos?.length) return bad("Productos no encontrados")
 
       let total = 0
       const resolvedItems: Array<{ id: string; nombre: string; precio: number; qty: number }> = []
       for (const item of items as Array<{ id: string; qty: number }>) {
         const producto = productos.find((p: { id: string; nombre: string; precio: number }) => p.id === item.id)
-        if (!producto) return badRequest(`Producto desconocido: ${item.id}`)
+        if (!producto) return bad(`Producto desconocido: ${item.id}`)
         total += producto.precio * item.qty
         resolvedItems.push({ id: producto.id, nombre: producto.nombre, precio: producto.precio, qty: item.qty })
       }
 
       const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
-      const anonClient = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_ANON_KEY")!,
-        { auth: { persistSession: false } }
-      )
+      const anonClient = getAnonClient()
       const { data: { user: adminUser } } = await anonClient.auth.getUser(token)
       if (!adminUser) return deny()
 
@@ -154,19 +95,17 @@ serve(async (req) => {
         }
       }
 
-      return new Response(JSON.stringify({ ok: true, numero_pedido: numero, total }), {
-        headers: { ...CORS, "Content-Type": "application/json" },
-      })
+      return ok({ ok: true, numero_pedido: numero, total })
     }
 
     // POST (sin action) → actualizar estado de un pedido
     const { id, estado } = body
 
     if (typeof id !== "string" || !UUID_RE.test(id)) {
-      return badRequest("ID inválido")
+      return bad("ID inválido")
     }
     if (typeof estado !== "string" || !ALLOWED_ESTADOS.includes(estado)) {
-      return badRequest("Estado inválido")
+      return bad("Estado inválido")
     }
 
     const { error } = await admin.from("pedidos").update({ estado }).eq("id", id)
@@ -207,9 +146,7 @@ serve(async (req) => {
       }
     })()
 
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    })
+    return ok({ ok: true })
   }
 
   // DELETE → eliminar un pedido definitivamente
@@ -218,12 +155,12 @@ serve(async (req) => {
     try {
       body = await req.json()
     } catch {
-      return badRequest("Cuerpo inválido")
+      return bad("Cuerpo inválido")
     }
 
     const { id } = body
     if (typeof id !== "string" || !UUID_RE.test(id)) {
-      return badRequest("ID inválido")
+      return bad("ID inválido")
     }
 
     const { error, count } = await admin.from("pedidos").delete({ count: "exact" }).eq("id", id)
@@ -231,11 +168,9 @@ serve(async (req) => {
       console.error("delete pedido error:", error)
       return serverError()
     }
-    if (!count) return badRequest("Pedido no encontrado")
+    if (!count) return bad("Pedido no encontrado")
 
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    })
+    return ok({ ok: true })
   }
 
   // GET → pedidos + stats (solo método GET permitido a partir de acá)
@@ -292,9 +227,7 @@ serve(async (req) => {
         cliente_email: emailMap[c.user_id as string] ?? "—",
       }))
 
-    return new Response(JSON.stringify({ carritos: abandonados }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    })
+    return ok({ carritos: abandonados })
   }
 
   // GET ?scope=usuarios — cuentas registradas (excluye sesiones anónimas
@@ -340,9 +273,7 @@ serve(async (req) => {
       }))
       .sort((a, b) => (a.creado < b.creado ? 1 : -1))
 
-    return new Response(JSON.stringify({ usuarios }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    })
+    return ok({ usuarios })
   }
 
   const [pedidosRes, usersRes] = await Promise.all([
@@ -377,7 +308,5 @@ serve(async (req) => {
       : (p.email as string) || emailMap[p.user_id as string] || "—",
   }))
 
-  return new Response(JSON.stringify({ pedidos: enriched, user_count: userCount }), {
-    headers: { ...CORS, "Content-Type": "application/json" },
-  })
+  return ok({ pedidos: enriched, user_count: userCount })
 })

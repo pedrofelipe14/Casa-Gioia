@@ -1,32 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { corsHeaders } from "../_shared/cors.ts"
+import { makeResponders } from "../_shared/responses.ts"
+import { esc } from "../_shared/esc.ts"
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
-}
+const CORS = corsHeaders("POST, OPTIONS")
+const { deny, bad } = makeResponders(CORS)
 
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? ""
 const FROM       = Deno.env.get("EMAIL_FROM") ?? "Casa Gioia <onboarding@resend.dev>"
-
-function deny(msg = "No autorizado") {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 401, headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-function bad(msg: string) {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-  })
-}
-
-function esc(s: unknown): string {
-  return String(s ?? "").replace(/[&<>"']/g, c => (
-    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!
-  ))
-}
 
 function fmt(n: number) {
   return "$" + Number(n).toLocaleString("es-AR")
@@ -200,11 +182,7 @@ serve(async (req) => {
       `)
     }
 
-    if (!subject) {
-      return new Response(JSON.stringify({ error: "Unknown type" }), {
-        status: 400, headers: { ...CORS, "Content-Type": "application/json" },
-      })
-    }
+    if (!subject) return bad("Unknown type")
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",

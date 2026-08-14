@@ -1,46 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { corsHeaders } from "../_shared/cors.ts"
+import { makeResponders } from "../_shared/responses.ts"
+import { getAdminClient, verifyAdmin } from "../_shared/supabase.ts"
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
-}
+const CORS = corsHeaders("GET, POST, PUT, DELETE, OPTIONS")
+const { ok, deny, bad, serverError } = makeResponders(CORS)
 
 const CATEGORIAS_VALIDAS = ["accesorios", "deco", "deli", "muebles"]
-
-function deny()         { return new Response(JSON.stringify({ error: "No autorizado" }),  { status: 401, headers: { ...CORS, "Content-Type": "application/json" } }) }
-function bad(m: string) { return new Response(JSON.stringify({ error: m }),                { status: 400, headers: { ...CORS, "Content-Type": "application/json" } }) }
-function err()          { return new Response(JSON.stringify({ error: "Error interno" }),  { status: 500, headers: { ...CORS, "Content-Type": "application/json" } }) }
-function ok(d: unknown) { return new Response(JSON.stringify(d),                           { headers: { ...CORS, "Content-Type": "application/json" } }) }
-
-async function verifyAdmin(req: Request): Promise<boolean> {
-  const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim()
-  if (!token) return false
-  const adminEmails = (Deno.env.get("ADMIN_EMAILS") ?? Deno.env.get("ADMIN_EMAIL") ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-  if (!adminEmails.length) return false
-  const client = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { auth: { persistSession: false } })
-  const { data: { user }, error } = await client.auth.getUser(token)
-  return !error && !!user?.email && adminEmails.includes(user.email.toLowerCase())
-}
-
-function getAdmin() {
-  return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } })
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS })
   if (!await verifyAdmin(req)) return deny()
 
-  const admin = getAdmin()
+  const admin = getAdminClient()
 
   // GET — listar todos los productos (admin ve todos, incluso inactivos)
   if (req.method === "GET") {
     const { data, error } = await admin.from("productos").select("*").order("created_at", { ascending: false })
-    if (error) { console.error(error); return err() }
+    if (error) { console.error(error); return serverError() }
     return ok({ productos: data })
   }
 
@@ -72,7 +49,7 @@ serve(async (req) => {
       peso:         typeof peso === "string" ? peso.trim() : null,
     }).select().single()
 
-    if (error) { console.error(error); return err() }
+    if (error) { console.error(error); return serverError() }
     return ok({ producto: data })
   }
 
@@ -103,7 +80,7 @@ serve(async (req) => {
       updated_at:   new Date().toISOString(),
     }).eq("id", id).select().single()
 
-    if (error) { console.error(error); return err() }
+    if (error) { console.error(error); return serverError() }
     return ok({ producto: data })
   }
 
@@ -113,7 +90,7 @@ serve(async (req) => {
     if (typeof id !== "string" || !id) return bad("ID requerido")
 
     const { error } = await admin.from("productos").delete().eq("id", id)
-    if (error) { console.error(error); return err() }
+    if (error) { console.error(error); return serverError() }
     return ok({ ok: true })
   }
 
