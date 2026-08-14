@@ -150,7 +150,7 @@
 </footer>
 
 <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js"></script>
-<script src="js/script.js?v=20260824"></script>
+<script src="js/script.js?v=20260828"></script>
 <script type="module" src="js/newsletter.js"></script>
 <script type="module">
 
@@ -160,7 +160,7 @@ const { data: { user } } = await supabase.auth.getUser()
 
 if (!user) {
   window.location.href = 'login'
-}
+} else {
 
 const btn = document.getElementById('userBtn')
 window.renderAccountBtn(btn, user)
@@ -192,6 +192,12 @@ if (error) {
   renderPedidos(pedidos)
 }
 
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]))
+}
+
 function renderPedidos(list) {
   const container = document.getElementById('pedidos-list')
 
@@ -221,7 +227,7 @@ function renderPedidos(list) {
       ? `<div class="pedido-items">
           ${items.map(it => `
             <div class="pedido-item-row">
-              <span>${it.nombre} <span class="item-qty">×${it.qty}</span></span>
+              <span>${esc(it.nombre)} <span class="item-qty">×${Number(it.qty) || 1}</span></span>
               <span>$${(it.precio * it.qty).toLocaleString('es-AR')}</span>
             </div>`).join('')}
         </div>`
@@ -237,14 +243,14 @@ function renderPedidos(list) {
     const envioHtml = envio
       ? envio.tipo === 'retiro'
         ? `<div class="pedido-envio">◆ Retiro en tienda · Alsina 3364, Mar del Plata</div>`
-        : `<div class="pedido-envio">◈ Envío a domicilio · ${envio.calle} ${envio.numero}, ${envio.ciudad}</div>`
+        : `<div class="pedido-envio">◈ Envío a domicilio · ${esc(envio.calle)} ${esc(envio.numero)}, ${esc(envio.ciudad)}</div>`
       : ''
 
     return `
     <div class="pedido-card fade-in">
       <div class="pedido-header">
         <div>
-          <span class="pedido-num">#${pedido.numero_pedido}</span>
+          <span class="pedido-num">#${esc(pedido.numero_pedido)}</span>
           <span class="pedido-fecha">${fecha}</span>
         </div>
         <span class="estado-badge estado-${pedido.estado}">${ESTADO_LABELS[pedido.estado] ?? pedido.estado}</span>
