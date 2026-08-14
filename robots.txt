@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /admin
+Disallow: /carrito
+Disallow: /perfil
+Disallow: /pedidos
+Disallow: /login
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /pago-exitoso
+Disallow: /pago-fallido
+Disallow: /email-confirmado
+
+Allow: /
