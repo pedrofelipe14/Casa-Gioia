@@ -21,19 +21,26 @@ if (slides.length) {
     }, 6000);
 }
 
+/* ── Throttle de scroll a un cálculo por frame: evita que el toggle
+   de clases del header y de la luxury-band corran en cada pixel
+   scrolleado (varias veces por frame en Windows/Firefox), que es lo
+   que hace sentir el scroll entrecortado en equipos más lentos. ── */
+function onScrollFrame(callback) {
+    let ticking = false
+    window.addEventListener('scroll', () => {
+        if (ticking) return
+        ticking = true
+        requestAnimationFrame(() => {
+            callback()
+            ticking = false
+        })
+    }, { passive: true })
+}
+
 const navbar = document.getElementById("navbar");
 
-window.addEventListener("scroll",()=>{
-
-    if(window.scrollY > 40){
-
-        navbar.classList.add("scrolled");
-
-    }else{
-
-        navbar.classList.remove("scrolled");
-    }
-
+onScrollFrame(() => {
+    navbar.classList.toggle("scrolled", window.scrollY > 40);
 });
 
 /* ── Alto real del header: se usa para la luxury-band (donde existe)
@@ -69,7 +76,7 @@ window.addEventListener("scroll",()=>{
     if (!band) return
 
     let lastY = window.scrollY
-    window.addEventListener('scroll', () => {
+    onScrollFrame(() => {
         const y = window.scrollY
         if (y > lastY && y > 80) {
             band.classList.add('luxury-hidden')
@@ -77,7 +84,7 @@ window.addEventListener("scroll",()=>{
             band.classList.remove('luxury-hidden')
         }
         lastY = y
-    }, { passive: true })
+    })
 })()
 
 const mobileToggle = document.getElementById("mobileToggle");
