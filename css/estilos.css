@@ -20,6 +20,33 @@
     box-sizing:border-box;
 }
 
+html{
+    scroll-behavior:smooth;
+    scroll-padding-top:var(--header-h, 110px);
+}
+@media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+}
+
+html{
+    scrollbar-width:thin;
+    scrollbar-color:var(--wine-soft) var(--cream);
+}
+::-webkit-scrollbar{
+    width:10px;
+    height:10px;
+}
+::-webkit-scrollbar-track{
+    background:var(--cream);
+}
+::-webkit-scrollbar-thumb{
+    background:var(--wine-soft);
+    border-radius:6px;
+}
+::-webkit-scrollbar-thumb:hover{
+    background:var(--wine);
+}
+
 body{
     background:var(--cream);
     font-family:'Manrope',sans-serif;

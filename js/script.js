@@ -36,20 +36,20 @@ window.addEventListener("scroll",()=>{
 
 });
 
-/* ── Luxury band: pegada debajo del header, se oculta al bajar y
-   reaparece al subir (solo aplica en la version con hamburguesa,
-   ver CSS). ── */
+/* ── Alto real del header: se usa para la luxury-band (donde existe)
+   y para que los saltos de scroll (anclas, scrollIntoView) no dejen
+   el destino tapado detrás del header sticky. Corre en todas las
+   páginas, tengan luxury-band o no. ── */
 ;(function () {
-    const band   = document.querySelector('.luxury-band')
     const header = document.querySelector('header')
-    if (!band || !header) return
+    if (!header) return
 
     // ResizeObserver en vez de solo "resize": el header puede cambiar de
     // alto sin que la ventana cambie de tamaño (ej. la navbar pasa a dos
     // líneas si aparece/desaparece la barra de favoritos del navegador,
     // que achica el viewport y con eso el ancho disponible por la
-    // scrollbar). Si --header-h queda desactualizado la luxury-band
-    // se pega en un punto que ya no es el borde real del header.
+    // scrollbar). Si --header-h queda desactualizado, tanto la
+    // luxury-band como el scroll-padding apuntan a un punto viejo.
     const setHeaderHeight = () => {
         document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px')
     }
@@ -59,6 +59,14 @@ window.addEventListener("scroll",()=>{
     } else {
         window.addEventListener('resize', setHeaderHeight)
     }
+})()
+
+/* ── Luxury band: pegada debajo del header, se oculta al bajar y
+   reaparece al subir (solo aplica en la version con hamburguesa,
+   ver CSS). ── */
+;(function () {
+    const band = document.querySelector('.luxury-band')
+    if (!band) return
 
     let lastY = window.scrollY
     window.addEventListener('scroll', () => {
