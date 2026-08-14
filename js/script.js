@@ -167,6 +167,27 @@ document.querySelectorAll('.marquee span').forEach(span => {
     document.body.appendChild(link)
 })()
 
+/* ── Cookie banner ── */
+;(function () {
+    const KEY = 'casagioia_cookie_consent'
+    if (localStorage.getItem(KEY)) return
+
+    const bar = document.createElement('div')
+    bar.className = 'cookie-banner'
+    bar.innerHTML = `
+        <p>Usamos cookies propias y de terceros para que el sitio funcione y para mejorar tu experiencia de compra. Podés ver más en nuestras <a href="politicas-de-privacidad">Políticas de privacidad</a>.</p>
+        <button class="btn-primary" id="cookieAcceptBtn">Aceptar</button>
+    `
+    document.body.appendChild(bar)
+    requestAnimationFrame(() => bar.classList.add('visible'))
+
+    document.getElementById('cookieAcceptBtn').addEventListener('click', () => {
+        localStorage.setItem(KEY, '1')
+        bar.classList.remove('visible')
+        setTimeout(() => bar.remove(), 400)
+    })
+})()
+
 /* ── Cart: localStorage helpers (global) ── */
 const _CART_KEY = 'casagioia_cart'
 window.cartGet  = () => JSON.parse(localStorage.getItem(_CART_KEY) || '[]')
