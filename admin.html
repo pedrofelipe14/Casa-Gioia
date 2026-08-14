@@ -451,6 +451,15 @@ document.getElementById('logoutBtn').onclick = async () => {
 // ═══════════════════════════════════════════════════════════════════════
 //  HELPERS
 // ═══════════════════════════════════════════════════════════════════════
+// Escapa cualquier dato que haya podido escribir un cliente (email de
+// checkout, nombre de invitado, etc) antes de meterlo en innerHTML —
+// sin esto, alguien podría guardar algo como "<img src=x
+// onerror=...>" como "email" de contacto y ejecutarlo en el navegador
+// del admin apenas abre la pestaña de Pedidos.
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]))
+}
+
 function authHeaders(extra = {}) {
   return { 'Authorization': `Bearer ${session.access_token}`, 'apikey': ANON_KEY, 'Content-Type': 'application/json', ...extra }
 }
@@ -578,8 +587,8 @@ function renderOrderTable() {
     const fecha = p.created_at ? new Date(p.created_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric' }) : '—'
     const opts = ESTADOS.map(e => `<option value="${e}" ${p.estado===e?'selected':''}>${ESTADO_LABEL[e]}</option>`).join('')
     return `<tr data-id="${p.id}">
-      <td><div class="order-num">#${p.numero_pedido ?? '—'}</div></td>
-      <td><div class="order-email">${p.cliente_email ?? '—'}${p.origen === 'presencial' ? '<span class="badge-presencial">Local</span>' : ''}</div></td>
+      <td><div class="order-num">#${esc(p.numero_pedido) || '—'}</div></td>
+      <td><div class="order-email">${esc(p.cliente_email) || '—'}${p.origen === 'presencial' ? '<span class="badge-presencial">Local</span>' : ''}</div></td>
       <td><div class="order-date">${fecha}</div></td>
       <td><div class="order-total">$${Number(p.total ?? 0).toLocaleString('es-AR')}</div></td>
       <td><span class="badge badge-${p.estado}">${ESTADO_LABEL[p.estado] ?? p.estado}</span></td>
@@ -1135,18 +1144,18 @@ function renderCarritosTable() {
   tbody.innerHTML = allCarritos.map(c => {
     const items    = Array.isArray(c.items) ? c.items : []
     const total    = items.reduce((s, i) => s + (Number(i.precio) || 0) * (Number(i.qty) || 1), 0)
-    const lista    = items.map(i => `${i.nombre ?? i.id} ×${i.qty ?? 1}`).join(', ') || '—'
+    const lista    = items.map(i => `${esc(i.nombre ?? i.id)} ×${Number(i.qty) || 1}`).join(', ') || '—'
     const relativo = _tiempoDesde(c.updated_at)
     const absoluto  = c.updated_at ? new Date(c.updated_at).toLocaleDateString('es-AR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—'
     const email    = c.cliente_email ?? null
     const asunto   = encodeURIComponent('¿Te olvidaste algo en tu carrito? — Casa Gioia')
-    const cuerpo   = encodeURIComponent(`¡Hola! Vimos que dejaste ${items.length === 1 ? 'un producto' : 'unos productos'} en tu carrito de Casa Gioia:\n${items.map(i => `- ${i.nombre ?? i.id} ×${i.qty ?? 1}`).join('\n')}\n\n¿Te ayudamos a completar la compra?`)
+    const cuerpo   = encodeURIComponent(`¡Hola! Vimos que dejaste ${items.length === 1 ? 'un producto' : 'unos productos'} en tu carrito de Casa Gioia:\n${items.map(i => `- ${i.nombre ?? i.id} ×${Number(i.qty) || 1}`).join('\n')}\n\n¿Te ayudamos a completar la compra?`)
     return `<tr>
-      <td><div class="carrito-email">${email ?? '—'}</div></td>
-      <td><div class="carrito-fecha" title="${absoluto}">${relativo}</div></td>
+      <td><div class="carrito-email">${esc(email) || '—'}</div></td>
+      <td><div class="carrito-fecha" title="${esc(absoluto)}">${relativo}</div></td>
       <td><div class="carrito-items">${lista}</div></td>
       <td>$${total.toLocaleString('es-AR')}</td>
-      <td>${email ? `<a class="btn-foto-act" style="display:inline-block;text-decoration:none;" href="mailto:${email}?subject=${asunto}&body=${cuerpo}">Contactar</a>` : ''}</td>
+      <td>${email ? `<a class="btn-foto-act" style="display:inline-block;text-decoration:none;" href="mailto:${esc(email)}?subject=${asunto}&body=${cuerpo}">Contactar</a>` : ''}</td>
     </tr>`
   }).join('')
 }
@@ -1184,8 +1193,8 @@ function renderUsuariosTable() {
   if (!allUsuarios.length) { tbody.innerHTML = `<tr><td colspan="6" class="admin-empty">Todavía no hay cuentas registradas.</td></tr>`; return }
   tbody.innerHTML = allUsuarios.map(u => `<tr>
       <td>
-        <div class="carrito-email">${u.email}</div>
-        ${u.nombre ? `<div style="font-size:.72rem;color:#a09890;">${u.nombre}</div>` : ''}
+        <div class="carrito-email">${esc(u.email)}</div>
+        ${u.nombre ? `<div style="font-size:.72rem;color:#a09890;">${esc(u.nombre)}</div>` : ''}
       </td>
       <td>${_fechaCorta(u.creado)}</td>
       <td>${_fechaCorta(u.ultimo_login)}</td>
