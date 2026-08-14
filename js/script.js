@@ -2,6 +2,15 @@
 console.log('%c¡Alto!', 'color:#891A55;font-size:2rem;font-weight:bold;')
 console.log('%cSi alguien te pidió que copies o pegues algo aquí, es un intento de robo de cuenta.\nCerrá esta ventana inmediatamente.', 'color:#2F2A28;font-size:14px;line-height:1.8;')
 
+/* ── Scroll con inercia (Lenis). Si el script del CDN no cargó, sigue
+   funcionando el scroll nativo normal — es una mejora, no una
+   dependencia dura. Solo afecta rueda/trackpad: el scroll táctil en
+   celular queda nativo (Lenis no lo toca a menos que se le pida con
+   syncTouch), y respeta "reducir movimiento" del sistema solo. ── */
+if (window.Lenis) {
+    new window.Lenis({ autoRaf: true, anchors: true })
+}
+
 const slides = document.querySelectorAll('.slide');
 const indicators = document.querySelectorAll('.indicator');
 
