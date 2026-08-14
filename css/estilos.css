@@ -290,6 +290,8 @@ main{
 
 .btn-primary{
 
+    display: inline-block;
+    text-decoration: none;
     background: var(--wine);
     color: white;
 

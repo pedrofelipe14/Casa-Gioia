@@ -5,7 +5,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Casa — Casa Gioia</title>
-<link rel="stylesheet" href="css/estilos.css?v=20260817">
+<link rel="stylesheet" href="css/estilos.css?v=20260819">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   /* estilos específicos de esta página */
@@ -102,10 +102,65 @@
     margin-bottom: 10px;
   }
   .proceso-step p { font-size: .9rem; color: #7a726c; line-height: 1.8; }
+  .filosofia-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .filosofia-text p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: var(--text);
+    margin-bottom: 22px;
+  }
+  .filosofia-text p:last-child { margin-bottom: 0; }
+  .filosofia-img img {
+    width: 100%;
+    aspect-ratio: 4/5;
+    object-fit: cover;
+    display: block;
+  }
+  .progetto-band {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .progetto-band .grid-pattern { opacity: .5; }
+  .progetto-band-content { position: relative; z-index: 1; }
+  .progetto-band-content .btn-primary {
+    width: auto;
+    background: var(--cream);
+    color: var(--wine);
+  }
+  .progetto-band-content .btn-primary:hover {
+    background: #fff;
+    box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  }
+  .progetto-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--gold);
+    margin-bottom: 18px;
+  }
+  .progetto-sub {
+    color: rgba(244,239,229,.75);
+    font-size: .95rem;
+    line-height: 1.8;
+    max-width: 480px;
+    margin: 0 auto 36px;
+  }
   @media(max-width:768px){
     .room-hero-text { left: 20px; bottom: 28px; }
     .ambientes-grid { grid-template-columns: 1fr; }
     .proceso-grid { grid-template-columns: 1fr; gap: 40px; }
+    .filosofia-grid { grid-template-columns: 1fr; gap: 32px; }
+    .filosofia-img { order: -1; }
   }
 </style>
 </head>
@@ -163,6 +218,22 @@
   </div>
 </div>
 
+<!-- FILOSOFÍA -->
+<section class="section-light">
+  <div class="filosofia-grid">
+    <div class="filosofia-text fade-in">
+      <div class="section-label">Nuestra filosofía</div>
+      <p>En Casa Gioia creemos en el equilibrio entre naturaleza, historia y vida cotidiana.</p>
+      <p>Pensamos en hogares que hablen de nosotros, de nuestra forma de ser familia, de nuestros rituales y nuestras comidas.</p>
+      <p>Texturas y colores puestos en función de crear atmósferas donde relajarnos y compartir.</p>
+      <p>Casas imperfectas y llenas de vida, donde la luz y los aromas completan nuestra esencia.</p>
+    </div>
+    <div class="filosofia-img fade-in">
+      <img src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=900&q=80&auto=format" alt="Interior Casa Gioia" loading="lazy">
+    </div>
+  </div>
+</section>
+
 <!-- AMBIENTES -->
 <section class="section-light">
   <div style="padding:0 60px 48px;">
@@ -174,21 +245,21 @@
       <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80&auto=format" alt="Sala" loading="lazy">
       <div class="ambiente-item-label">
         <h3>Sala</h3>
-        <p>28 piezas disponibles</p>
+        <p>Inspiración para tu sala</p>
       </div>
     </div>
     <div class="ambiente-item fade-in">
       <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80&auto=format" alt="Comedor" loading="lazy">
       <div class="ambiente-item-label">
         <h3>Comedor</h3>
-        <p>16 piezas disponibles</p>
+        <p>Inspiración para tu comedor</p>
       </div>
     </div>
     <div class="ambiente-item fade-in">
       <img src="https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&q=80&auto=format" alt="Dormitorio" loading="lazy">
       <div class="ambiente-item-label">
         <h3>Dormitorio</h3>
-        <p>22 piezas disponibles</p>
+        <p>Inspiración para tu dormitorio</p>
       </div>
     </div>
   </div>
@@ -222,46 +293,14 @@
   </div>
 </section>
 
-<!-- MUEBLES DESTACADOS -->
-<section class="section-dark">
-  <div style="max-width:1200px; margin:0 auto;">
-    <div class="section-label" style="color:var(--gold);">Más vendidos</div>
-    <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,4vw,3rem); color:var(--cream); margin-bottom:48px; font-style:italic;">Muebles que <span style="color:var(--gold);">permanecen.</span></h2>
-    <div class="grid-3">
-      <div class="card fade-in">
-        <div class="card-img-wrap">
-          <img class="card-img" src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=600&q=80&auto=format" alt="Sillón" loading="lazy">
-        </div>
-        <div class="card-body">
-          <p class="card-cat">Sala</p>
-          <h3 class="card-name">Sillón Firenze</h3>
-          <p class="card-price">$349.990</p>
-        </div>
-      </div>
-      <div class="card fade-in">
-        <div class="card-img-wrap">
-          <img class="card-img" src="https://images.unsplash.com/photo-1615529328331-f8917597711f?w=600&q=80&auto=format" alt="Mesa" loading="lazy">
-        </div>
-        <div class="card-body">
-          <p class="card-cat">Comedor</p>
-          <h3 class="card-name">Mesa Siena Mármol</h3>
-          <p class="card-price">$589.990</p>
-        </div>
-      </div>
-      <div class="card fade-in">
-        <div class="card-img-wrap">
-          <img class="card-img" src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&q=80&auto=format" alt="Cama" loading="lazy">
-        </div>
-        <div class="card-body">
-          <p class="card-cat">Dormitorio</p>
-          <h3 class="card-name">Cama Capri Nogal</h3>
-          <p class="card-price">$479.990</p>
-        </div>
-      </div>
-    </div>
-    <div style="text-align:center; margin-top:48px;">
-      <a href="coleccion" class="btn-ghost btn-ghost-light">Ver catálogo completo</a>
-    </div>
+<!-- HABLEMOS DE TU PROYECTO -->
+<section class="section-wine progetto-band">
+  <div class="grid-pattern"></div>
+  <div class="progetto-band-content">
+    <div class="section-label" style="color:var(--gold);">Encargá tu proyecto</div>
+    <h2 class="progetto-title">Parliamo del tuo progetto.</h2>
+    <p class="progetto-sub">Contanos cómo es tu espacio y qué soñás para él. Armamos una propuesta a medida, pensada pieza por pieza para tu hogar.</p>
+    <a href="contacto" class="btn-primary">Hablemos de tu proyecto</a>
   </div>
 </section>
 
