@@ -245,7 +245,7 @@ window.renderAccountBtn = (btn, user) => {
     btn.classList.add('btn-nav-logged')
     btn.innerHTML = `
         <span class="btn-nav-full">👤 ${primero}</span>
-        <span class="btn-nav-avatar">${avatar ? `<img src="${avatar}" alt="">` : `<span class="btn-nav-initial">${inicial}</span>`}</span>
+        <span class="btn-nav-avatar">${avatar ? `<img src="${avatar}" alt="${primero}">` : `<span class="btn-nav-initial">${inicial}</span>`}</span>
     `
     btn.onclick = () => { window.location.href = 'perfil' }
     btn.style.opacity = '1'
