@@ -87,12 +87,12 @@ serve(async (req) => {
         return serverError()
       }
 
-      // Descontar stock, igual que una venta online aprobada
+      // Descontar stock de forma atómica, igual que una venta online aprobada
+      // (ver descontar_stock: bloquea la fila para no pisarse con otra venta
+      // concurrente).
       for (const item of resolvedItems) {
-        const producto = productos.find((p: { id: string; stock: number | null }) => p.id === item.id)
-        if (producto?.stock !== null && producto?.stock !== undefined) {
-          await admin.from("productos").update({ stock: Math.max(0, producto.stock - item.qty) }).eq("id", item.id)
-        }
+        const { error: stockErr } = await admin.rpc("descontar_stock", { p_id: item.id, p_qty: item.qty })
+        if (stockErr) console.error("descontar_stock error:", stockErr)
       }
 
       return ok({ ok: true, numero_pedido: numero, total })

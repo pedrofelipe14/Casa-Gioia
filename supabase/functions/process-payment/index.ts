@@ -149,15 +149,20 @@ serve(async (req) => {
 
     const data = await res.json()
 
-    // Descontar stock si el pago fue aprobado
+    // Descontar stock si el pago fue aprobado. descontar_stock() bloquea la
+    // fila y descuenta de forma atómica — evita que dos compras concurrentes
+    // de la última unidad terminen vendiendo de más (a diferencia de leer el
+    // stock y actualizar "a mano", que tiene una condición de carrera).
     if (data.status === "approved") {
       for (const item of items) {
-        const producto = productos.find((p: { id: string; precio: number; stock: number | null }) => p.id === item.id)
-        if (producto?.stock !== null && producto?.stock !== undefined) {
-          await adminClient
-            .from("productos")
-            .update({ stock: Math.max(0, producto.stock - item.qty) })
-            .eq("id", item.id)
+        const { data: descontado, error: stockErr } = await adminClient
+          .rpc("descontar_stock", { p_id: item.id, p_qty: item.qty })
+        if (stockErr) {
+          console.error("descontar_stock error:", stockErr)
+        } else if (descontado === false) {
+          // El pago ya se cobró — no lo revertimos automáticamente, pero
+          // queda bien visible en los logs para resolverlo a mano.
+          console.error(`STOCK INSUFICIENTE al confirmar pago ${data.id}: producto ${item.id}, pedido ya cobrado`)
         }
       }
     }
