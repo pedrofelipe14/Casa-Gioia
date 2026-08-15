@@ -181,6 +181,19 @@ serve(async (req) => {
         </div>
         ${btnLink("https://casagioia.com.ar/pedidos", "Ver mis pedidos")}
       `)
+
+    } else if (type === "carrito_abandonado") {
+      subject = "¿Te olvidaste algo en tu carrito? — Casa Gioia"
+      const items = data.items ?? []
+      const totalAprox = items.reduce((s: number, i: { precio: number; qty: number }) => s + i.precio * i.qty, 0)
+      html = wrap(`
+        <h1 style="font-size:26px;font-weight:400;color:#2F2A28;margin:0 0 12px;line-height:1.3;">Dejaste algo<br>en tu carrito.</h1>
+        <p style="font-size:14px;color:#5a5450;line-height:1.8;margin:0;">Todavía está esperándote. ¿Lo completamos?</p>
+        ${itemsHtml(items)}
+        <p style="font-size:15px;font-weight:600;color:#891A55;text-align:right;margin:0 0 8px;">Total: ${fmt(totalAprox)}</p>
+        ${btnLink("https://casagioia.com.ar/carrito", "Volver al carrito")}
+        <p style="font-size:12px;color:#a09890;margin:16px 0 0;line-height:1.7;">Los precios y el stock pueden variar hasta que completes la compra.</p>
+      `)
     }
 
     if (!subject) return bad("Unknown type")
