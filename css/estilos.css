@@ -1321,6 +1321,32 @@ header {
 .skel-historial .skel-line-badge { width: 80px; height: 20px; border-radius: 12px; margin-left: auto; }
 
 /* FILTER PILLS */
+.catalog-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 48px;
+}
+.catalog-toolbar .filter-bar { margin-bottom: 0; }
+.search-bar input {
+    padding: 10px 18px;
+    border: 1px solid rgba(91,29,42,.2);
+    background: transparent;
+    font-family: 'Manrope', sans-serif;
+    font-size: .8rem;
+    color: var(--text);
+    outline: none;
+    min-width: 240px;
+    border-radius: 100px;
+    transition: border-color .2s;
+}
+.search-bar input:focus { border-color: var(--wine); }
+.search-bar input::placeholder { color: #b0a8a2; }
+@media (max-width: 640px) {
+    .search-bar, .search-bar input { width: 100%; min-width: 0; }
+}
 .filter-bar {
     display: flex;
     gap: 10px;

@@ -119,20 +119,39 @@ if(fadeEls.length){
     fadeEls.forEach(el => io.observe(el));
 }
 
-/* ── Filter pills ── */
+/* ── Filter pills + búsqueda ──────────────────────────────────────────
+   Las dos condiciones (categoría activa + texto buscado) se evalúan
+   juntas en window.applyFilters(), que también llama coleccion.html
+   cada vez que termina de renderizar los productos (recién ahí existen
+   las tarjetas .filterable sobre las que filtrar). ── */
+function _normalizarTexto(s) {
+    return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+window.applyFilters = () => {
+    const activeCat = document.querySelector('.pill[data-filter].active')?.dataset.filter || 'all';
+    const searchInput = document.getElementById('search-input');
+    const query = searchInput ? _normalizarTexto(searchInput.value.trim()) : '';
+
+    document.querySelectorAll('.filterable').forEach(card => {
+        const matchesCat = activeCat === 'all' || card.dataset.cat.includes(activeCat);
+        const matchesSearch = !query || _normalizarTexto(card.dataset.nombre).includes(query);
+        card.style.display = (matchesCat && matchesSearch) ? '' : 'none';
+    });
+};
+
 function applyFilter(f) {
     document.querySelectorAll('.pill[data-filter]').forEach(p => {
         p.classList.toggle('active', p.dataset.filter === f);
     });
-    document.querySelectorAll('.filterable').forEach(card => {
-        const show = f === 'all' || card.dataset.cat.includes(f);
-        card.style.display = show ? '' : 'none';
-    });
+    window.applyFilters();
 }
 
 document.querySelectorAll('.pill[data-filter]').forEach(pill => {
     pill.addEventListener('click', () => applyFilter(pill.dataset.filter));
 });
+
+document.getElementById('search-input')?.addEventListener('input', () => window.applyFilters());
 
 /* ── Mobile submenu toggle ── */
 document.querySelectorAll('.has-submenu > a').forEach(link => {
