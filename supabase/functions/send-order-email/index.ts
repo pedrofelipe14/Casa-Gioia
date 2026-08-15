@@ -3,9 +3,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { corsHeaders } from "../_shared/cors.ts"
 import { makeResponders } from "../_shared/responses.ts"
 import { esc } from "../_shared/esc.ts"
+import { notifyError } from "../_shared/alert.ts"
 
 const CORS = corsHeaders("POST, OPTIONS")
-const { deny, bad } = makeResponders(CORS)
+const { deny, bad } = makeResponders(CORS, "send-order-email")
 
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") ?? ""
 const FROM       = Deno.env.get("EMAIL_FROM") ?? "Casa Gioia <onboarding@resend.dev>"
@@ -193,13 +194,19 @@ serve(async (req) => {
       body: JSON.stringify({ from: FROM, to: email, subject, html }),
     })
     const result = await res.json()
-    if (!res.ok) console.error("Resend error:", result)
+    if (!res.ok) {
+      console.error("Resend error:", result)
+      // El cliente se queda sin el mail de confirmación/estado — vale la
+      // pena saberlo aunque el pedido en sí se haya guardado bien.
+      notifyError(`send-order-email/${type}`, result).catch(() => {})
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...CORS, "Content-Type": "application/json" },
     })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error"
+    notifyError("send-order-email", e).catch(() => {})
     return new Response(JSON.stringify({ error: msg }), {
       status: 500, headers: { ...CORS, "Content-Type": "application/json" },
     })

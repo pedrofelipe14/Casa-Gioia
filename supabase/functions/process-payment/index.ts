@@ -2,9 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { corsHeaders } from "../_shared/cors.ts"
 import { makeResponders } from "../_shared/responses.ts"
+import { notifyError } from "../_shared/alert.ts"
 
 const CORS = corsHeaders("POST, OPTIONS")
-const { deny, bad } = makeResponders(CORS)
+const { deny, bad } = makeResponders(CORS, "process-payment")
 
 // Mismas zonas que el cliente — fuente de verdad para el costo de envío
 const CP_ZONES = [
@@ -142,6 +143,12 @@ serve(async (req) => {
     if (!res.ok) {
       const err = await res.text()
       console.error("MP API error", res.status, err)
+      // Nota: un pago rechazado por el banco (fondos, tarjeta inválida, etc)
+      // NO llega acá — MP lo devuelve como 200/201 con status "rejected" en
+      // el body. Que !res.ok sea true significa que la llamada a la API de
+      // MP en sí falló (token vencido, request mal formado, MP caído) — eso
+      // sí es un problema real de nuestro lado.
+      notifyError("process-payment/mercadopago", `HTTP ${res.status}: ${err}`).catch(() => {})
       return new Response(JSON.stringify({ error: "Error procesando el pago" }), {
         status: res.status, headers: { ...CORS, "Content-Type": "application/json" },
       })
@@ -159,10 +166,14 @@ serve(async (req) => {
           .rpc("descontar_stock", { p_id: item.id, p_qty: item.qty })
         if (stockErr) {
           console.error("descontar_stock error:", stockErr)
+          notifyError("process-payment/descontar_stock", stockErr).catch(() => {})
         } else if (descontado === false) {
           // El pago ya se cobró — no lo revertimos automáticamente, pero
-          // queda bien visible en los logs para resolverlo a mano.
-          console.error(`STOCK INSUFICIENTE al confirmar pago ${data.id}: producto ${item.id}, pedido ya cobrado`)
+          // avisamos para resolverlo a mano (contactar al cliente, reponer
+          // stock, etc).
+          const msg = `Pago ${data.id} aprobado pero sin stock: producto ${item.id}, pedido ya cobrado — requiere atención manual`
+          console.error(msg)
+          notifyError("process-payment/stock-insuficiente", msg).catch(() => {})
         }
       }
     }
@@ -177,6 +188,7 @@ serve(async (req) => {
 
   } catch (e: unknown) {
     console.error("process-payment exception:", e)
+    notifyError("process-payment", e).catch(() => {})
     return new Response(JSON.stringify({ error: "Error interno" }), {
       status: 500, headers: { ...CORS, "Content-Type": "application/json" },
     })

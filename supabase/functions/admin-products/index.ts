@@ -4,7 +4,7 @@ import { makeResponders } from "../_shared/responses.ts"
 import { getAdminClient, verifyAdmin } from "../_shared/supabase.ts"
 
 const CORS = corsHeaders("GET, POST, PUT, DELETE, OPTIONS")
-const { ok, deny, bad, serverError } = makeResponders(CORS)
+const { ok, deny, bad, serverError } = makeResponders(CORS, "admin-products")
 
 const CATEGORIAS_VALIDAS = ["accesorios", "deco", "deli", "muebles"]
 
@@ -17,7 +17,7 @@ serve(async (req) => {
   // GET — listar todos los productos (admin ve todos, incluso inactivos)
   if (req.method === "GET") {
     const { data, error } = await admin.from("productos").select("*").order("created_at", { ascending: false })
-    if (error) { console.error(error); return serverError() }
+    if (error) { console.error(error); return serverError(error) }
     return ok({ productos: data })
   }
 
@@ -49,7 +49,7 @@ serve(async (req) => {
       peso:         typeof peso === "string" ? peso.trim() : null,
     }).select().single()
 
-    if (error) { console.error(error); return serverError() }
+    if (error) { console.error(error); return serverError(error) }
     return ok({ producto: data })
   }
 
@@ -80,7 +80,7 @@ serve(async (req) => {
       updated_at:   new Date().toISOString(),
     }).eq("id", id).select().single()
 
-    if (error) { console.error(error); return serverError() }
+    if (error) { console.error(error); return serverError(error) }
     return ok({ producto: data })
   }
 
@@ -90,7 +90,7 @@ serve(async (req) => {
     if (typeof id !== "string" || !id) return bad("ID requerido")
 
     const { error } = await admin.from("productos").delete().eq("id", id)
-    if (error) { console.error(error); return serverError() }
+    if (error) { console.error(error); return serverError(error) }
     return ok({ ok: true })
   }
 

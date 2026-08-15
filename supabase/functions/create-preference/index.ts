@@ -2,9 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { corsHeaders } from "../_shared/cors.ts"
 import { makeResponders } from "../_shared/responses.ts"
+import { notifyError } from "../_shared/alert.ts"
 
 const CORS = corsHeaders("POST, OPTIONS")
-const { ok, deny, bad } = makeResponders(CORS)
+const { ok, deny, bad } = makeResponders(CORS, "create-preference")
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -85,6 +86,7 @@ serve(async (req) => {
 
     if (!res.ok) {
       const err = await res.text()
+      notifyError("create-preference/mercadopago", err).catch(() => {})
       return new Response(JSON.stringify({ error: err }), {
         status: res.status,
         headers: { ...CORS, "Content-Type": "application/json" },
@@ -95,6 +97,7 @@ serve(async (req) => {
     return ok({ id })
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error"
+    notifyError("create-preference", e).catch(() => {})
     return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { ...CORS, "Content-Type": "application/json" },

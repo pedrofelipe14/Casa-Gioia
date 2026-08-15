@@ -2,9 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { corsHeaders } from "../_shared/cors.ts"
 import { makeResponders } from "../_shared/responses.ts"
 import { getAdminClient, getAnonClient, verifyAdmin } from "../_shared/supabase.ts"
+import { notifyError } from "../_shared/alert.ts"
 
 const CORS = corsHeaders("GET, POST, DELETE, OPTIONS")
-const { ok, deny, bad, serverError } = makeResponders(CORS)
+const { ok, deny, bad, serverError } = makeResponders(CORS, "admin-orders")
 
 const ALLOWED_ESTADOS = ["pendiente", "confirmado", "preparando", "en_camino", "entregado", "cancelado"]
 
@@ -84,7 +85,7 @@ serve(async (req) => {
       })
       if (insertError) {
         console.error("insert venta presencial error:", insertError)
-        return serverError()
+        return serverError(insertError)
       }
 
       // Descontar stock de forma atómica, igual que una venta online aprobada
@@ -92,7 +93,10 @@ serve(async (req) => {
       // concurrente).
       for (const item of resolvedItems) {
         const { error: stockErr } = await admin.rpc("descontar_stock", { p_id: item.id, p_qty: item.qty })
-        if (stockErr) console.error("descontar_stock error:", stockErr)
+        if (stockErr) {
+          console.error("descontar_stock error:", stockErr)
+          notifyError("admin-orders/descontar_stock", stockErr).catch(() => {})
+        }
       }
 
       return ok({ ok: true, numero_pedido: numero, total })
@@ -111,7 +115,7 @@ serve(async (req) => {
     const { error } = await admin.from("pedidos").update({ estado }).eq("id", id)
     if (error) {
       console.error("update estado error:", error)
-      return serverError()
+      return serverError(error)
     }
 
     // Email de actualización (fire & forget — no bloquea la respuesta)
@@ -166,7 +170,7 @@ serve(async (req) => {
     const { error, count } = await admin.from("pedidos").delete({ count: "exact" }).eq("id", id)
     if (error) {
       console.error("delete pedido error:", error)
-      return serverError()
+      return serverError(error)
     }
     if (!count) return bad("Pedido no encontrado")
 
@@ -191,7 +195,7 @@ serve(async (req) => {
       .select("*")
       .order("updated_at", { ascending: false })
 
-    if (error) { console.error("fetch carritos error:", error); return serverError() }
+    if (error) { console.error("fetch carritos error:", error); return serverError(error) }
 
     const uids = [...new Set((carritos ?? []).map((c: Record<string, unknown>) => c.user_id as string))]
 
@@ -234,7 +238,7 @@ serve(async (req) => {
   // de invitados) con su actividad de compra.
   if (scope === "usuarios") {
     const { data: usersData, error: usersErr } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    if (usersErr) { console.error("fetch users error:", usersErr); return serverError() }
+    if (usersErr) { console.error("fetch users error:", usersErr); return serverError(usersErr) }
 
     const users = (usersData?.users ?? []).filter((u) => !u.is_anonymous)
     const uids = users.map((u) => u.id)
@@ -283,7 +287,7 @@ serve(async (req) => {
 
   if (pedidosRes.error) {
     console.error("fetch pedidos error:", pedidosRes.error)
-    return serverError()
+    return serverError(pedidosRes.error)
   }
 
   const pedidos = pedidosRes.data ?? []

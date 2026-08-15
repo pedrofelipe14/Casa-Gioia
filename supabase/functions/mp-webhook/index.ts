@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { getAdminClient } from "../_shared/supabase.ts"
+import { notifyError } from "../_shared/alert.ts"
 
 async function verifyMPSignature(req: Request, bodyText: string): Promise<boolean> {
   const secret = Deno.env.get("MP_WEBHOOK_SECRET")
@@ -113,6 +114,7 @@ serve(async (req) => {
     return new Response("ok", { status: 200 })
   } catch (e) {
     console.error("mp-webhook error:", e)
+    notifyError("mp-webhook", e).catch(() => {})
     return new Response("ok", { status: 200 }) // siempre 200 a MP
   }
 })
