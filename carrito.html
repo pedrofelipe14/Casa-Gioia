@@ -848,6 +848,11 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
   const subtotal = items.reduce((s, i) => s + i.precio * i.qty, 0)
   const total = subtotal + shippingCost
 
+  // El pago con wallet de Mercado Pago redirige fuera del sitio y vuelve a
+  // pago-exitoso — persistimos acá lo que esa página necesita para guardar
+  // el pedido completo y mandar el email de confirmación.
+  localStorage.setItem('casagioia_checkout_meta', JSON.stringify({ email: contactEmail, envio: shippingData }))
+
   // Summary panel del paso de pago
   fillSummary('p')
   const shRow = document.getElementById('summary-shipping-p')
@@ -938,6 +943,7 @@ document.getElementById('continuePayBtn').addEventListener('click', async () => 
               const numero = 'CG' + Date.now().toString(36).toUpperCase()
               await guardarPedido(numero, items, serverTotal, payment.id, payment.status, payment.ticket_url)
               await enviarEmailPedido(numero, items, serverTotal, payment.ticket_url)
+              localStorage.removeItem('casagioia_checkout_meta')
               window.cartSave([])
               resolve()
               const ticketUrl = payment.ticket_url ? `&ticket_url=${encodeURIComponent(payment.ticket_url)}` : ''

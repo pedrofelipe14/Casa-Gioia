@@ -180,7 +180,26 @@ if (isApproved) {
     if (items.length) {
       const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
       const numero = 'CG' + Date.now().toString(36).toUpperCase()
-      await supabase.from('pedidos').insert({ user_id: user.id, numero_pedido: numero, total, estado: 'confirmado' })
+      const meta = JSON.parse(localStorage.getItem('casagioia_checkout_meta') || '{}')
+
+      await supabase.from('pedidos').insert({
+        user_id:       user.id,
+        numero_pedido: numero,
+        total,
+        estado:        'confirmado',
+        mp_payment_id: paymentId ? String(paymentId) : null,
+        items,
+        envio:         meta.envio ?? {},
+        email:         meta.email ?? null,
+      })
+
+      if (meta.email) {
+        await supabase.functions.invoke('send-order-email', {
+          body: { type: 'payment_confirmed', email: meta.email, data: { numero_pedido: numero, total, items, envio: meta.envio ?? {} } },
+        })
+      }
+
+      localStorage.removeItem('casagioia_checkout_meta')
       if (window.cartSave) window.cartSave([])
     }
   }
