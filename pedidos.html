@@ -158,13 +158,6 @@ import { supabase } from './js/supabase-client.js'
 
 const { data: { user } } = await supabase.auth.getUser()
 
-if (!user) {
-  window.location.href = 'login'
-} else {
-
-const btn = document.getElementById('userBtn')
-window.renderAccountBtn(btn, user)
-
 const ESTADOS = ['pendiente', 'confirmado', 'preparando', 'en_camino', 'entregado']
 const LABELS  = ['Recibido',  'Confirmado', 'Preparando', 'En camino', 'Entregado']
 const ESTADO_LABELS = {
@@ -174,6 +167,13 @@ const ESTADO_LABELS = {
   en_camino:  'En camino',
   entregado:  'Entregado'
 }
+
+if (!user) {
+  window.location.href = 'login'
+} else {
+
+const btn = document.getElementById('userBtn')
+window.renderAccountBtn(btn, user)
 
 const { data: pedidos, error } = await supabase
   .from('pedidos')
