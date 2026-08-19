@@ -72,6 +72,7 @@ serve(async (req) => {
       },
       auto_return: "approved",
       statement_descriptor: "Casa Gioia",
+      notification_url: `${SUPABASE_URL}/functions/v1/mp-webhook`,
     }
 
     const res = await fetch("https://api.mercadopago.com/checkout/preferences", {
