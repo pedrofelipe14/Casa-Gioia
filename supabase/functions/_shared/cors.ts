@@ -4,6 +4,6 @@ export function corsHeaders(methods: string) {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": methods,
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-client-info",
   }
 }
