@@ -102,89 +102,17 @@
   <div style="padding: 0 60px 48px; max-width:1200px; margin:0 auto;">
     <div class="section-label">Todas las notas</div>
     <h2 class="section-title" style="margin-bottom:36px;">Una forma diferente de <span>estar en el mundo.</span></h2>
-    <div class="filter-bar">
-      <button class="pill active" data-filter="all">Todo</button>
-      <button class="pill" data-filter="deco">Decoración</button>
-      <button class="pill" data-filter="moda">Moda</button>
-      <button class="pill" data-filter="viaje">Viajes</button>
-      <button class="pill" data-filter="receta">Mesa & Cocina</button>
+    <div class="filter-bar" id="journalFilterBar">
+      <button class="pill active" data-filter="all" onclick="filterJournal('all', this)">Todo</button>
+      <button class="pill" data-filter="deco"   onclick="filterJournal('deco', this)">Decoración</button>
+      <button class="pill" data-filter="moda"   onclick="filterJournal('moda', this)">Moda</button>
+      <button class="pill" data-filter="viaje"  onclick="filterJournal('viaje', this)">Viajes</button>
+      <button class="pill" data-filter="receta" onclick="filterJournal('receta', this)">Mesa & Cocina</button>
     </div>
   </div>
   <div style="padding: 0 60px; max-width:1200px; margin:0 auto;">
-    <div class="grid-3">
-
-      <div class="card journal-card filterable fade-in" data-cat="deco">
-        <div class="journal-card-img-wrap">
-          <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=700&q=80&auto=format" alt="Sala" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="journal-tag">Decoración</span>
-          <h3 class="card-name">Cómo elegir un sofá que dure 20 años.</h3>
-          <p class="card-desc">Materiales, proporciones y las preguntas que hay que hacerse antes de comprar.</p>
-          <span class="journal-date">12 mayo 2025 · 5 min</span>
-        </div>
-      </div>
-
-      <div class="card journal-card filterable fade-in" data-cat="moda">
-        <div class="journal-card-img-wrap">
-          <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=700&q=80&auto=format" alt="Moda" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="journal-tag">Moda</span>
-          <h3 class="card-name">El guardarropa cápsula: 12 prendas para todo el año.</h3>
-          <p class="card-desc">Cómo construir un armario que siempre funcione sin importar la temporada.</p>
-          <span class="journal-date">5 mayo 2025 · 6 min</span>
-        </div>
-      </div>
-
-      <div class="card journal-card filterable fade-in" data-cat="viaje">
-        <div class="journal-card-img-wrap">
-          <img src="https://images.unsplash.com/photo-1555992336-03a23c7b20ee?w=700&q=80&auto=format" alt="Milán" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="journal-tag">Viajes</span>
-          <h3 class="card-name">Tres días en Milán: lo que sí y lo que no.</h3>
-          <p class="card-desc">Una guía sin filtros para la ciudad del diseño y la moda.</p>
-          <span class="journal-date">28 abril 2025 · 7 min</span>
-        </div>
-      </div>
-
-      <div class="card journal-card filterable fade-in" data-cat="receta">
-        <div class="journal-card-img-wrap">
-          <img src="https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=700&q=80&auto=format" alt="Mesa" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="journal-tag">Mesa & Cocina</span>
-          <h3 class="card-name">La mesa perfecta: cómo preparar una cena italiana en casa.</h3>
-          <p class="card-desc">No es solo la comida. Es el mantel, la luz, los platos y el orden de las copas.</p>
-          <span class="journal-date">18 abril 2025 · 4 min</span>
-        </div>
-      </div>
-
-      <div class="card journal-card filterable fade-in" data-cat="deco">
-        <div class="journal-card-img-wrap">
-          <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=700&q=80&auto=format" alt="Iluminación" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="journal-tag">Decoración</span>
-          <h3 class="card-name">La iluminación es todo: guía para cada ambiente.</h3>
-          <p class="card-desc">Cálida, fría, directa o indirecta. Cada decisión cambia completamente la atmósfera.</p>
-          <span class="journal-date">10 abril 2025 · 5 min</span>
-        </div>
-      </div>
-
-      <div class="card journal-card filterable fade-in" data-cat="moda">
-        <div class="journal-card-img-wrap">
-          <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=700&q=80&auto=format" alt="Blazer" loading="lazy">
-        </div>
-        <div class="card-body">
-          <span class="journal-tag">Moda</span>
-          <h3 class="card-name">Por qué el lino es la tela del siglo.</h3>
-          <p class="card-desc">Fresco, duradero y cada vez más elegante. Todo lo que necesitás saber sobre el tejido del verano.</p>
-          <span class="journal-date">2 abril 2025 · 4 min</span>
-        </div>
-      </div>
-
+    <div class="grid-3" id="journalGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px 0;font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#a09890;font-style:italic;">Cargando…</div>
     </div>
   </div>
 </section>
@@ -254,6 +182,60 @@ import { supabase } from './js/supabase-client.js'
 const { data: { user } } = await supabase.auth.getUser()
 const btn = document.getElementById('userBtn')
 window.renderAccountBtn(btn, user)
+
+// ── Artículos dinámicos ───────────────────────────────────────────────
+const CAT_LABEL = { deco: 'Decoración', moda: 'Moda', viaje: 'Viajes', receta: 'Mesa & Cocina' }
+
+function escJ(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+}
+
+let _currentFilter = 'all'
+
+window.filterJournal = (cat, btn) => {
+  _currentFilter = cat
+  document.querySelectorAll('#journalFilterBar .pill').forEach(p => p.classList.toggle('active', p === btn))
+  document.querySelectorAll('#journalGrid .journal-card').forEach(card => {
+    const match = cat === 'all' || card.dataset.cat === cat
+    card.style.display = match ? '' : 'none'
+  })
+}
+
+;(async () => {
+  const grid = document.getElementById('journalGrid')
+  const { data: arts, error } = await supabase
+    .from('articulos')
+    .select('id, titulo, extracto, categoria, imagen_url, autor, created_at, contenido')
+    .eq('activo', true)
+    .order('created_at', { ascending: false })
+
+  if (error || !arts?.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#a09890;font-style:italic;">Próximamente publicaremos nuestras primeras notas.</div>`
+    return
+  }
+
+  grid.innerHTML = arts.map(a => {
+    const fecha = a.created_at
+      ? new Date(a.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : ''
+    const wordCount = (a.contenido ?? '').replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length
+    const readTime  = Math.max(1, Math.round(wordCount / 200))
+    const catLabel  = CAT_LABEL[a.categoria] ?? ''
+    const imgHtml   = a.imagen_url
+      ? `<img src="${escJ(a.imagen_url)}" alt="${escJ(a.titulo)}" loading="lazy">`
+      : `<div style="width:100%;height:100%;background:var(--cream);display:flex;align-items:center;justify-content:center;"><span style="font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:#c0b8b2;">Casa Gioia</span></div>`
+    const dateLine = [fecha, wordCount > 0 ? `${readTime} min` : ''].filter(Boolean).join(' · ')
+    return `<div class="card journal-card fade-in" data-cat="${escJ(a.categoria ?? '')}" onclick="location.href='articulo?id=${a.id}'" style="cursor:pointer;">
+      <div class="journal-card-img-wrap">${imgHtml}</div>
+      <div class="card-body">
+        ${catLabel ? `<span class="journal-tag">${escJ(catLabel)}</span>` : ''}
+        <h3 class="card-name">${escJ(a.titulo)}</h3>
+        ${a.extracto ? `<p class="card-desc">${escJ(a.extracto)}</p>` : ''}
+        ${dateLine ? `<span class="journal-date">${dateLine}</span>` : ''}
+      </div>
+    </div>`
+  }).join('')
+})()
 
 // Newsletter Storia
 const nlBtn   = document.querySelector('#journal-nl button')

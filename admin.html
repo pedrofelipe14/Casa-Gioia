@@ -271,7 +271,8 @@ tr:hover td { background: #fdf9f5; }
   <button class="admin-tab active" data-tab="pedidos"   onclick="switchTab('pedidos')">Pedidos</button>
   <button class="admin-tab"        data-tab="productos" onclick="switchTab('productos')">Productos</button>
   <button class="admin-tab"        data-tab="carritos"  onclick="switchTab('carritos')">Carritos</button>
-  <button class="admin-tab"        data-tab="usuarios"  onclick="switchTab('usuarios')">Usuarios</button>
+  <button class="admin-tab"        data-tab="usuarios"   onclick="switchTab('usuarios')">Usuarios</button>
+  <button class="admin-tab"        data-tab="articulos"  onclick="switchTab('articulos')">Artículos</button>
 </div>
 
 <div class="admin-main">
@@ -305,6 +306,9 @@ tr:hover td { background: #fdf9f5; }
 
   <!-- ═══ TAB: USUARIOS ═══ -->
   <div class="tab-section" id="tab-usuarios"></div>
+
+  <!-- ═══ TAB: ARTÍCULOS ═══ -->
+  <div class="tab-section" id="tab-articulos"></div>
 </div>
 
 <!-- ═══ FORMULARIO DE PRODUCTO (modal) ═══ -->
@@ -395,6 +399,64 @@ tr:hover td { background: #fdf9f5; }
     <div style="margin-top:16px;display:flex;gap:12px;justify-content:flex-end;flex-shrink:0;">
       <button class="btn-cancel-form" onclick="closeCropPicker()">Cancelar</button>
       <button class="btn-save" onclick="confirmCrop()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FORMULARIO DE ARTÍCULO (modal) ═══ -->
+<div class="prod-form-overlay" id="artiFormOverlay">
+  <div class="prod-form-box" style="max-width:680px;">
+    <button class="prod-form-close" onclick="closeArticuloForm()">✕</button>
+    <div class="prod-form-title" id="artiFormTitle">Nuevo artículo</div>
+
+    <div class="form-row">
+      <label>Título</label>
+      <input type="text" id="af-titulo" placeholder="Ej: El guardarropa cápsula" maxlength="200">
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Categoría</label>
+        <select id="af-cat" style="width:100%;padding:10px 12px;border:1px solid rgba(91,29,42,.2);font-family:'Manrope',sans-serif;font-size:.85rem;color:var(--text);background:white;outline:none;">
+          <option value="">Sin categoría</option>
+          <option value="deco">Decoración</option>
+          <option value="moda">Moda</option>
+          <option value="viaje">Viajes</option>
+          <option value="receta">Mesa & Cocina</option>
+        </select>
+      </div>
+      <div class="form-row" style="display:flex;flex-direction:column;justify-content:flex-end;">
+        <div class="toggle-row">
+          <div class="toggle on" id="afToggle" onclick="toggleArtiActivo()"></div>
+          <label>Activo (visible en journal)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Autor</label>
+        <input type="text" id="af-autor" placeholder="Casa Gioia" maxlength="100">
+      </div>
+      <div class="form-row">
+        <label>URL de imagen de portada</label>
+        <input type="text" id="af-img" placeholder="https://…" maxlength="500">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Extracto <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:.68rem;color:#c0b8b2;">— texto corto que aparece en la grilla del journal</span></label>
+      <textarea id="af-extracto" rows="2" placeholder="Breve descripción para la tarjeta…" maxlength="300"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Contenido <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:.68rem;color:#c0b8b2;">— acepta HTML básico: &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;blockquote&gt;</span></label>
+      <textarea id="af-contenido" rows="14" placeholder="&lt;p&gt;Texto del artículo…&lt;/p&gt;" maxlength="50000" style="font-family:monospace;font-size:.8rem;"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-cancel-form" onclick="closeArticuloForm()">Cancelar</button>
+      <button class="btn-save" id="btnSaveArti" onclick="saveArticulo()">Guardar artículo</button>
     </div>
   </div>
 </div>
@@ -1265,6 +1327,169 @@ window.exportUsuarios = () => {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+//  ARTÍCULOS
+// ═══════════════════════════════════════════════════════════════════════
+const FN_ARTICLES    = 'https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-articulos'
+const CAT_ARTI_LABEL = { deco: 'Decoración', moda: 'Moda', viaje: 'Viajes', receta: 'Mesa & Cocina' }
+let allArticulos  = []
+let editingArtiId = null
+let afActivo      = true
+
+async function fetchArticulos() {
+  const data = await apiFetch(FN_ARTICLES)
+  if (data.error) throw new Error(data.error)
+  return data.articulos ?? []
+}
+
+function renderArticulosTable() {
+  const tbody = document.getElementById('tbody-arts')
+  if (!tbody) return
+  if (!allArticulos.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="admin-empty">Sin artículos. ¡Creá el primero con el botón de arriba!</td></tr>`
+    return
+  }
+  tbody.innerHTML = allArticulos.map(a => {
+    const img = a.imagen_url
+      ? `<img class="prod-img-thumb" src="${esc(a.imagen_url)}" alt="${esc(a.titulo)}">`
+      : `<div class="prod-img-placeholder">Sin img</div>`
+    const fecha = a.created_at
+      ? new Date(a.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })
+      : '—'
+    const cat = CAT_ARTI_LABEL[a.categoria] ?? a.categoria ?? '—'
+    return `<tr data-id="${a.id}">
+      <td>${img}</td>
+      <td><div class="prod-name">${esc(a.titulo)}</div></td>
+      <td><div class="prod-cats">${esc(cat)}</div></td>
+      <td><div style="font-size:.78rem;color:#7a726c;">${esc(a.autor ?? 'Casa Gioia')}</div></td>
+      <td><div class="order-date">${fecha}</div></td>
+      <td><span class="activo-badge ${a.activo ? 'activo-si' : 'activo-no'}">${a.activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td>
+        <button class="btn-icon" title="Editar" onclick="openArticuloForm('${a.id}')">✏️</button>
+        <button class="btn-icon" title="${a.activo ? 'Desactivar' : 'Activar'}" onclick="toggleArtiActivoItem('${a.id}',${!a.activo})">${a.activo ? '🙈' : '👁️'}</button>
+        <a class="btn-icon" href="articulo?id=${a.id}" target="_blank" title="Ver artículo" style="text-decoration:none;">🔗</a>
+        <button class="btn-delete-prod" title="Eliminar" onclick="deleteArticulo('${a.id}','${a.titulo.replace(/'/g,"\\'")}')">🗑️</button>
+      </td>
+    </tr>`
+  }).join('')
+}
+
+function buildArticulosUI() {
+  document.getElementById('tab-articulos').innerHTML = `
+    <div class="prod-toolbar">
+      <div class="section-title" style="margin:0;border:none;padding:0;">Artículos del journal</div>
+      <button class="btn-add-prod" onclick="openArticuloForm(null)">+ Nuevo artículo</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Imagen</th><th>Título</th><th>Categoría</th><th>Autor</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="tbody-arts"></tbody>
+      </table>
+    </div>`
+}
+
+window.openArticuloForm = (id) => {
+  editingArtiId = id
+  afActivo      = true
+
+  document.getElementById('artiFormTitle').textContent = id ? 'Editar artículo' : 'Nuevo artículo'
+  document.getElementById('af-titulo').value    = ''
+  document.getElementById('af-extracto').value  = ''
+  document.getElementById('af-contenido').value = ''
+  document.getElementById('af-img').value       = ''
+  document.getElementById('af-autor').value     = 'Casa Gioia'
+  document.getElementById('af-cat').value       = ''
+
+  if (id) {
+    const a = allArticulos.find(a => a.id === id)
+    if (!a) return
+    document.getElementById('af-titulo').value    = a.titulo ?? ''
+    document.getElementById('af-extracto').value  = a.extracto ?? ''
+    document.getElementById('af-contenido').value = a.contenido ?? ''
+    document.getElementById('af-img').value       = a.imagen_url ?? ''
+    document.getElementById('af-autor').value     = a.autor ?? 'Casa Gioia'
+    document.getElementById('af-cat').value       = a.categoria ?? ''
+    afActivo = a.activo
+  }
+
+  _updateArtiToggleUI()
+  document.getElementById('artiFormOverlay').classList.add('open')
+  document.body.style.overflow = 'hidden'
+}
+
+window.closeArticuloForm = () => {
+  document.getElementById('artiFormOverlay').classList.remove('open')
+  document.body.style.overflow = ''
+  editingArtiId = null
+}
+
+window.toggleArtiActivo = () => {
+  afActivo = !afActivo
+  _updateArtiToggleUI()
+}
+
+function _updateArtiToggleUI() {
+  document.getElementById('afToggle').classList.toggle('on', afActivo)
+}
+
+window.saveArticulo = async () => {
+  const titulo     = document.getElementById('af-titulo').value.trim()
+  const extracto   = document.getElementById('af-extracto').value.trim() || null
+  const contenido  = document.getElementById('af-contenido').value.trim() || null
+  const imagen_url = document.getElementById('af-img').value.trim() || null
+  const autor      = document.getElementById('af-autor').value.trim() || 'Casa Gioia'
+  const categoria  = document.getElementById('af-cat').value || null
+
+  if (!titulo) { alert('Ingresá el título del artículo.'); return }
+
+  const btn = document.getElementById('btnSaveArti')
+  btn.disabled = true; btn.textContent = 'Guardando…'
+
+  try {
+    const method  = editingArtiId ? 'PUT' : 'POST'
+    const payload = {
+      titulo, extracto, contenido, imagen_url, autor, categoria, activo: afActivo,
+      ...(editingArtiId ? { id: editingArtiId } : {}),
+    }
+    const data = await apiFetch(FN_ARTICLES, { method, body: JSON.stringify(payload) })
+    if (data.error) throw new Error(data.error)
+
+    if (editingArtiId) {
+      const idx = allArticulos.findIndex(a => a.id === editingArtiId)
+      if (idx >= 0) allArticulos[idx] = data.articulo
+    } else {
+      allArticulos.unshift(data.articulo)
+    }
+
+    renderArticulosTable()
+    closeArticuloForm()
+  } catch(e) {
+    alert('Error: ' + e.message)
+  } finally {
+    btn.disabled = false; btn.textContent = 'Guardar artículo'
+  }
+}
+
+window.toggleArtiActivoItem = async (id, nuevoActivo) => {
+  const a = allArticulos.find(a => a.id === id)
+  if (!a) return
+  const data = await apiFetch(FN_ARTICLES, { method: 'PUT', body: JSON.stringify({
+    id, titulo: a.titulo, extracto: a.extracto, contenido: a.contenido,
+    imagen_url: a.imagen_url, autor: a.autor, categoria: a.categoria, activo: nuevoActivo,
+  }) })
+  if (data.error) { alert('Error: ' + data.error); return }
+  a.activo = nuevoActivo
+  renderArticulosTable()
+}
+
+window.deleteArticulo = async (id, titulo) => {
+  if (!confirm(`¿Eliminar "${titulo}" definitivamente? Esta acción no se puede deshacer.`)) return
+  const data = await apiFetch(FN_ARTICLES, { method: 'DELETE', body: JSON.stringify({ id }) })
+  if (data.error) { alert('Error: ' + data.error); return }
+  allArticulos = allArticulos.filter(a => a.id !== id)
+  renderArticulosTable()
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 //  EXPORTAR CSV
 // ═══════════════════════════════════════════════════════════════════════
 // Separador ";" y BOM UTF-8: así Excel en es-AR lo abre bien de una,
@@ -1327,14 +1552,15 @@ window.exportCarritos = () => {
 //  INIT
 // ═══════════════════════════════════════════════════════════════════════
 try {
-  const [pedidosResult, productosResult, carritosResult, usuariosResult] = await Promise.allSettled([
-    fetchPedidos(), fetchProductos(), fetchCarritos(), fetchUsuarios()
+  const [pedidosResult, productosResult, carritosResult, usuariosResult, articulosResult] = await Promise.allSettled([
+    fetchPedidos(), fetchProductos(), fetchCarritos(), fetchUsuarios(), fetchArticulos()
   ])
 
-  allPedidos   = pedidosResult.status   === 'fulfilled' ? pedidosResult.value   : []
-  allProductos = productosResult.status === 'fulfilled' ? productosResult.value : []
-  allCarritos  = carritosResult.status  === 'fulfilled' ? carritosResult.value  : []
-  allUsuarios  = usuariosResult.status  === 'fulfilled' ? usuariosResult.value  : []
+  allPedidos   = pedidosResult.status     === 'fulfilled' ? pedidosResult.value     : []
+  allProductos = productosResult.status   === 'fulfilled' ? productosResult.value   : []
+  allCarritos  = carritosResult.status    === 'fulfilled' ? carritosResult.value    : []
+  allUsuarios  = usuariosResult.status    === 'fulfilled' ? usuariosResult.value    : []
+  allArticulos = articulosResult.status   === 'fulfilled' ? articulosResult.value   : []
 
   document.getElementById('loadingMsg').style.display = 'none'
 
@@ -1342,6 +1568,7 @@ try {
   buildProductosUI()
   buildCarritosUI()
   buildUsuariosUI()
+  buildArticulosUI()
   switchTab('pedidos')
 
   renderStats()
@@ -1350,6 +1577,7 @@ try {
   renderProductTable()
   renderCarritosTable()
   renderUsuariosTable()
+  renderArticulosTable()
 
   if (productosResult.status === 'rejected' && productosResult.reason?.message !== 'no auth') {
     document.getElementById('tbody-prods').innerHTML =

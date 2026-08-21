@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artículo — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css?v=20260830">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.26/dist/lenis.css">
+<style>
+.articulo-hero {
+  width: 100%;
+  overflow: hidden;
+}
+.articulo-hero img {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  display: block;
+}
+.articulo-hero-spacer {
+  height: 80px;
+  background: var(--cream);
+}
+.articulo-body {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+.articulo-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.articulo-back {
+  font-size: .62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a09890;
+  text-decoration: none;
+  transition: color .2s;
+}
+.articulo-back:hover { color: var(--wine); }
+.articulo-cat {
+  font-size: .62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--wine-soft);
+  font-weight: 600;
+}
+.articulo-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.articulo-byline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .7rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #a09890;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+.articulo-divider {
+  width: 48px;
+  height: 2px;
+  background: var(--gold);
+  margin-bottom: 40px;
+}
+.articulo-content {
+  font-size: 1.05rem;
+  line-height: 1.95;
+  color: #3a3430;
+}
+.articulo-content p { margin-bottom: 24px; }
+.articulo-content h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 400;
+  color: var(--text);
+  margin: 44px 0 16px;
+  line-height: 1.2;
+}
+.articulo-content h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--wine);
+  margin: 36px 0 12px;
+}
+.articulo-content blockquote {
+  border-left: 3px solid var(--gold);
+  padding: 8px 24px;
+  margin: 36px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+}
+.articulo-content strong { color: var(--text); font-weight: 600; }
+.articulo-content em { color: var(--wine-soft); }
+.articulo-content img { width: 100%; height: auto; margin: 32px 0; display: block; }
+.articulo-loading {
+  text-align: center;
+  padding: 120px 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  color: #a09890;
+  font-style: italic;
+}
+@media(max-width:640px){
+  .articulo-hero img { height: 280px; }
+  .articulo-body { padding: 40px 20px 64px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="/" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li class="has-submenu">
+      <a href="coleccion">Collezione <span class="submenu-arrow">▾</span></a>
+      <ul class="submenu">
+        <li><button class="submenu-btn">Deco</button></li>
+        <li><button class="submenu-btn">Accesorios</button></li>
+        <li><button class="submenu-btn">Muebles</button></li>
+        <li><button class="submenu-btn">Deli</button></li>
+      </ul>
+    </li>
+    <li><a href="la-casa">Interiorismo</a></li>
+    <li><a href="journal" style="color:var(--wine);">Novità</a></li>
+    <li><a href="novita">Storia</a></li>
+    <li><a href="contacto">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Ingresar</button>
+</nav>
+</header>
+
+<!-- MARQUEE -->
+<section class="luxury-band">
+  <div class="marquee">
+    <span>✦ L'INCANTO DELLA SICILIA A CASA TUA ✦ ENVÍOS A TODO EL PAÍS ✦ SHOWROOM EN MAR DEL PLATA CON CITA PREVIA ✦ L'INCANTO DELLA SICILIA A CASA TUA ✦ ENVÍOS A TODO EL PAÍS ✦ SHOWROOM EN MAR DEL PLATA CON CITA PREVIA &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  </div>
+</section>
+
+<div id="articulo-hero-slot"></div>
+
+<div id="articulo-slot">
+  <div class="articulo-loading">Cargando…</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <a href="coleccion">Collezione</a>
+      <a href="la-casa">Interiorismo</a>
+      <a href="journal">Novità</a>
+      <a href="novita">Storia</a>
+      <a href="contacto">Contacto</a>
+    </div>
+    <div>
+      <a href="terminos-y-condiciones">Términos y Condiciones</a>
+      <a href="terminos-y-condiciones#envios">Envíos</a>
+      <a href="terminos-y-condiciones#cambios-y-devoluciones">Cambios y devolución</a>
+      <a href="politicas-de-privacidad">Políticas de privacidad</a>
+    </div>
+    <div>
+      <a href="mailto:contacto@casagioia.com.ar">contacto@casagioia.com.ar</a>
+      <a href="https://www.instagram.com/casagioia.ar/" target="_blank" rel="noopener"><svg class="footer-ig-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg>@casagioia.ar</a>
+      <a href="https://wa.me/5491155806377" target="_blank" rel="noopener">+54 11 5580–6377</a>
+      <a href="contacto#faq">Preguntas frecuentes</a>
+    </div>
+    <div class="footer-newsletter">
+      <h4>Comunidad Casa Gioia</h4>
+      <p>Suscribite para recibir nuestras últimas novedades.</p>
+      <div class="footer-form">
+        <input type="email" placeholder="Email">
+        <button type="button">OK</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    2026 Casa Gioia. Todos los derechos reservados
+  </div>
+</footer>
+
+<script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="js/script.js?v=20260830"></script>
+<script type="module" src="js/newsletter.js"></script>
+<script type="module">
+import { supabase } from './js/supabase-client.js'
+
+const { data: { user } } = await supabase.auth.getUser()
+window.renderAccountBtn(document.getElementById('userBtn'), user)
+
+const CAT_LABEL = { deco: 'Decoración', moda: 'Moda', viaje: 'Viajes', receta: 'Mesa & Cocina' }
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+}
+
+const id        = new URLSearchParams(location.search).get('id')
+const slot      = document.getElementById('articulo-slot')
+const heroSlot  = document.getElementById('articulo-hero-slot')
+
+if (!id) {
+  heroSlot.innerHTML = '<div class="articulo-hero-spacer"></div>'
+  slot.innerHTML     = '<div class="articulo-loading">Artículo no encontrado.</div>'
+} else {
+  const { data: a, error } = await supabase
+    .from('articulos')
+    .select('*')
+    .eq('id', id)
+    .eq('activo', true)
+    .single()
+
+  if (error || !a) {
+    heroSlot.innerHTML = '<div class="articulo-hero-spacer"></div>'
+    slot.innerHTML     = '<div class="articulo-loading">Este artículo no está disponible.</div>'
+  } else {
+    document.title = `${a.titulo} — Casa Gioia`
+
+    heroSlot.innerHTML = a.imagen_url
+      ? `<div class="articulo-hero"><img src="${esc(a.imagen_url)}" alt="${esc(a.titulo)}"></div>`
+      : '<div class="articulo-hero-spacer"></div>'
+
+    const fecha = a.created_at
+      ? new Date(a.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : ''
+
+    const wordCount = (a.contenido ?? '').replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length
+    const readTime  = Math.max(1, Math.round(wordCount / 200))
+    const catLabel  = CAT_LABEL[a.categoria] ?? (a.categoria ?? '')
+
+    const bylineParts = [
+      esc(a.autor ?? 'Casa Gioia'),
+      fecha ? esc(fecha) : '',
+      wordCount > 0 ? `${readTime} min` : '',
+    ].filter(Boolean)
+
+    const bodyContent = a.contenido
+      ? a.contenido
+      : (a.extracto ? `<p>${esc(a.extracto)}</p>` : '')
+
+    slot.innerHTML = `
+      <div class="articulo-body">
+        <div class="articulo-meta">
+          <a href="journal" class="articulo-back">← Novità</a>
+          ${catLabel ? `<span class="articulo-cat">${esc(catLabel)}</span>` : ''}
+        </div>
+        <h1 class="articulo-title">${esc(a.titulo)}</h1>
+        <div class="articulo-byline">${bylineParts.join('<span>·</span>')}</div>
+        <div class="articulo-divider"></div>
+        <div class="articulo-content">${bodyContent}</div>
+      </div>
+    `
+  }
+}
+</script>
+</body>
+</html>
