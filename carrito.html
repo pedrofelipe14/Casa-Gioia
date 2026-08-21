@@ -561,6 +561,15 @@ const SUPABASE_URL = 'https://dzuymtiutglcyrdcxkaj.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
 const MP_PUBLIC_KEY = 'APP_USR-ccca8908-33ca-4b02-8e23-31f9060696ad'
 
+/* ── Stock máximo por producto ── */
+const _stockMax = {}
+;(async () => {
+  const ids = [...new Set(window.cartGet().map(i => i.id.split('___')[0]))]
+  if (!ids.length) return
+  const { data } = await supabase.from('productos').select('id, stock').in('id', ids)
+  ;(data ?? []).forEach(p => { if (p.stock !== null && p.stock !== undefined) _stockMax[p.id] = p.stock })
+})()
+
 /* ── Render carrito ── */
 const itemsEl  = document.getElementById('carrito-items')
 const emptyEl  = document.getElementById('carrito-empty')
@@ -598,8 +607,14 @@ window.qtyChange = (id, delta) => {
   const items = window.cartGet()
   const item  = items.find(i => i.id === id)
   if (!item) return
-  item.qty += delta
-  if (item.qty <= 0) items.splice(items.indexOf(item), 1)
+  const realId = id.split('___')[0]
+  const max    = _stockMax[realId] ?? 99
+  const newQty = item.qty + delta
+  if (newQty <= 0) {
+    items.splice(items.indexOf(item), 1)
+  } else {
+    item.qty = Math.min(max, newQty)
+  }
   window.cartSave(items)
   render()
 }
