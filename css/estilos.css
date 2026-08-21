@@ -1150,17 +1150,16 @@ header {
 .card-img-wrap { overflow: hidden; position: relative; }
 
 /* ── Card carousel estilo Instagram ── */
-.card-has-carousel { aspect-ratio: 4/3; }
+.card-has-carousel { padding-top: 75%; }
 .carousel-track {
+    position: absolute;
+    inset: 0;
     display: flex;
-    width: 100%;
-    height: 100%;
     transition: transform .3s ease;
 }
 .carousel-slide {
     flex: 0 0 100%;
-    width: 100%;
-    height: 100%;
+    overflow: hidden;
 }
 .carousel-img {
     display: block;
