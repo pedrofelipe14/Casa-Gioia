@@ -16,7 +16,7 @@
   --text:      #2F2A28;
   --bg:        #f5f1eb;
 }
-body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; visibility: hidden; }
 
 /* ── Top bar ── */
 .admin-bar { background: var(--text); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 200; }
@@ -512,14 +512,14 @@ const ANON_KEY    = 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9'
 const BUCKET      = 'product-images'
 
 const { data: { session } } = await supabase.auth.getSession()
-if (!session) { window.location.href = 'login' }
+if (!session) { window.location.href = 'login'; throw new Error('no session') }
 
-if (session) {
-  const who = await fetch('https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders?scope=whoami', {
-    headers: { 'Authorization': `Bearer ${session.access_token}`, 'apikey': 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9' },
-  }).then(r => r.json()).catch(() => ({ isAdmin: false }))
-  if (!who.isAdmin) { window.location.href = '/' }
-}
+const who = await fetch('https://dzuymtiutglcyrdcxkaj.supabase.co/functions/v1/admin-orders?scope=whoami', {
+  headers: { 'Authorization': `Bearer ${session.access_token}`, 'apikey': 'sb_publishable_D29AA8KYQ1pz2LCcqSJUGw_OyTvLAC9' },
+}).then(r => r.json()).catch(() => ({ isAdmin: false }))
+if (!who.isAdmin) { window.location.href = '/'; throw new Error('not admin') }
+
+document.body.style.visibility = 'visible'
 
 document.getElementById('logoutBtn').onclick = async () => {
   await supabase.auth.signOut()
