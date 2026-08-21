@@ -168,6 +168,16 @@ tr:hover td { background: #fdf9f5; }
 .btn-delete-prod { background: none; border: none; cursor: pointer; padding: 4px 8px; font-size: .78rem; color: #c0392b; transition: opacity .15s; }
 .btn-delete-prod:hover { opacity: .7; }
 
+/* ── Variante editor ── */
+.variante-item { display: grid; grid-template-columns: 150px 1fr auto; gap: 8px; align-items: center; margin-bottom: 6px; }
+.variante-nombre,.variante-opciones { padding: 8px 10px; border: 1px solid rgba(91,29,42,.2); font-family: 'Manrope',sans-serif; font-size: .82rem; color: var(--text); background: white; outline: none; width: 100%; }
+.variante-nombre:focus,.variante-opciones:focus { border-color: var(--wine); }
+.variante-nombre::placeholder,.variante-opciones::placeholder { color: #c0b8b2; }
+@media (max-width: 640px) {
+  .variante-item { grid-template-columns: 1fr auto; }
+  .variante-opciones { grid-column: 1; }
+}
+
 /* ── Crop picker modal ── */
 .crop-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 700; align-items: center; justify-content: center; padding: 20px; }
 .crop-overlay.open { display: flex; }
@@ -358,6 +368,12 @@ tr:hover td { background: #fdf9f5; }
       <div class="fotos-list" id="fotosGrid"></div>
       <button type="button" class="btn-add-foto" onclick="document.getElementById('pf-fotos-input').click()">+ Agregar foto</button>
       <input type="file" id="pf-fotos-input" accept="image/jpeg,image/png,image/webp" style="display:none;" multiple>
+    </div>
+
+    <div class="form-row">
+      <label>Variantes <span style="font-weight:300;text-transform:none;letter-spacing:0;font-size:.68rem;color:#c0b8b2;">— talle, color, material, formato…</span></label>
+      <div id="variantesGrid"></div>
+      <button type="button" class="btn-add-foto" onclick="addVariante()">+ Agregar variante</button>
     </div>
 
     <div class="form-actions">
@@ -797,6 +813,7 @@ function buildProductosUI() {
 let editingProdId = null
 let pfActivo      = true
 let photos        = []   // [{ url, focal, file }]  url=null si nueva, file=null si existente
+let variantes     = []   // [{ nombre, opciones[] }]
 
 // ── Crop picker ──────────────────────────────────────────────────────
 let _cropIdx  = null
@@ -939,9 +956,35 @@ window.moveFoto = (i, dir) => {
 
 window.removeFoto = (i) => { photos.splice(i, 1); renderPhotoList() }
 
+// ── Variantes ────────────────────────────────────────────────────────
+function renderVariantesList() {
+  const el = document.getElementById('variantesGrid')
+  el.innerHTML = ''
+  variantes.forEach((v, i) => {
+    const row = document.createElement('div')
+    row.className = 'variante-item'
+    row.innerHTML = `
+      <input class="variante-nombre" type="text" placeholder="Ej: Talle" value="${v.nombre.replace(/"/g,'&quot;')}" oninput="varUpdate(${i},'nombre',this.value)">
+      <input class="variante-opciones" type="text" placeholder="Opciones separadas por coma: S, M, L, XL" value="${v.opciones.join(', ').replace(/"/g,'&quot;')}" oninput="varUpdate(${i},'opciones',this.value)">
+      <button type="button" class="btn-foto-act btn-foto-del" onclick="varRemove(${i})" title="Eliminar">✕</button>`
+    el.appendChild(row)
+  })
+}
+window.addVariante = () => {
+  variantes.push({ nombre: '', opciones: [] })
+  renderVariantesList()
+  setTimeout(() => { const ns = document.querySelectorAll('.variante-nombre'); ns[ns.length - 1]?.focus() }, 30)
+}
+window.varUpdate = (i, field, val) => {
+  if (field === 'opciones') variantes[i].opciones = val.split(',').map(s => s.trim()).filter(Boolean)
+  else variantes[i][field] = val
+}
+window.varRemove = (i) => { variantes.splice(i, 1); renderVariantesList() }
+
 window.openProdForm = (id) => {
   editingProdId = id
   photos        = []
+  variantes     = []
   pfActivo      = true
 
   document.getElementById('prodFormTitle').textContent = id ? 'Editar producto' : 'Nuevo producto'
@@ -968,14 +1011,15 @@ window.openProdForm = (id) => {
       const cb = document.querySelector(`.cat-check input[value="${c}"]`)
       if (cb) cb.checked = true
     })
-    // Build unified photos: imagen_url first, then fotos[]
     if (p.imagen_url) photos.push({ url: p.imagen_url, focal: p.imagen_focal ?? null, file: null })
     const fotos      = Array.isArray(p.fotos)       ? p.fotos       : []
     const fotoFocals = Array.isArray(p.fotos_focal) ? p.fotos_focal : []
     fotos.forEach((url, i) => { if (url) photos.push({ url, focal: fotoFocals[i] ?? null, file: null }) })
+    variantes = Array.isArray(p.variantes) ? JSON.parse(JSON.stringify(p.variantes)) : []
   }
 
   renderPhotoList()
+  renderVariantesList()
   updateToggleUI()
   document.getElementById('prodFormOverlay').classList.add('open')
   document.body.style.overflow = 'hidden'
@@ -1057,6 +1101,7 @@ window.saveProd = async () => {
       imagen_url, imagen_focal,
       fotos, fotos_focal,
       activo: pfActivo, stock, dimensiones, peso,
+      variantes: variantes.filter(v => v.nombre.trim()).map(v => ({ nombre: v.nombre.trim(), opciones: v.opciones })),
       ...(editingProdId ? { id: editingProdId } : {}),
     }
     const data = await apiFetch(FN_PRODUCTS, { method, body: JSON.stringify(payload) })
@@ -1087,6 +1132,7 @@ window.toggleProdActivo = async (id, nuevoActivo) => {
     fotos: p.fotos ?? [], fotos_focal: p.fotos_focal ?? [],
     activo: nuevoActivo, stock: p.stock ?? null,
     dimensiones: p.dimensiones ?? null, peso: p.peso ?? null,
+    variantes: p.variantes ?? [],
   }) })
   if (data.error) { alert('Error: ' + data.error); return }
   p.activo = nuevoActivo

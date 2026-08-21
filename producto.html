@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Producto — Casa Gioia</title>
+<link rel="stylesheet" href="css/estilos.css?v=20260821">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.26/dist/lenis.css">
+<style>
+/* ── Product detail page ── */
+.prod-layout {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+/* Gallery */
+.prod-gallery {}
+.prod-gallery-main {
+  position: relative;
+  padding-top: 75%;
+  background: #f0ebe3;
+  overflow: hidden;
+}
+/* .carousel-track, .carousel-slide, .carousel-img ya están en estilos.css */
+.prod-gallery-main .carousel-btn {
+  opacity: .75;
+  transition: opacity .2s, background .2s;
+}
+.prod-gallery-main:hover .carousel-btn { opacity: 1; }
+.prod-gallery-thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.prod-gallery-thumb {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .2s;
+  display: block;
+  flex-shrink: 0;
+}
+.prod-gallery-thumb.active,
+.prod-gallery-thumb:hover { border-color: var(--wine); }
+
+/* Info panel */
+.prod-info {}
+.prod-breadcrumb {
+  font-family: 'Manrope', sans-serif;
+  font-size: .62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a09890;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prod-breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .2s;
+}
+.prod-breadcrumb a:hover { color: var(--wine); }
+.prod-cat {
+  font-family: 'Manrope', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--wine-soft);
+  margin-bottom: 10px;
+}
+.prod-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.9rem, 3.5vw, 2.7rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+.prod-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--wine);
+  margin-bottom: 22px;
+  line-height: 1;
+}
+.prod-stock {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .72rem;
+  letter-spacing: .5px;
+  color: #7a726c;
+  margin-bottom: 28px;
+}
+.stock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4caf7d;
+  flex-shrink: 0;
+}
+.stock-dot.agotado { background: #e74c3c; }
+.stock-dot.bajo    { background: #f0b429; }
+
+/* Variant selectors */
+.prod-variant { margin-bottom: 22px; }
+.prod-variant-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: .62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #a09890;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.prod-variant-sel {
+  color: var(--text);
+  font-weight: 500;
+  font-size: .78rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.prod-variant-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.prod-pill {
+  padding: 7px 18px;
+  border: 1px solid rgba(91,29,42,.2);
+  background: white;
+  font-family: 'Manrope', sans-serif;
+  font-size: .78rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+  outline: none;
+  line-height: 1.3;
+}
+.prod-pill:hover { border-color: var(--wine-soft); }
+.prod-pill.active {
+  border-color: var(--wine);
+  background: var(--wine);
+  color: white;
+}
+
+/* Qty + Add to cart */
+.prod-add-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.prod-qty {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(91,29,42,.2);
+  background: white;
+  flex-shrink: 0;
+}
+.prod-qty button {
+  background: none;
+  border: none;
+  width: 38px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--wine);
+  font-family: 'Manrope', sans-serif;
+  transition: background .15s;
+}
+.prod-qty button:hover { background: var(--cream); }
+.prod-qty input {
+  width: 42px;
+  border: none;
+  border-left: 1px solid rgba(91,29,42,.1);
+  border-right: 1px solid rgba(91,29,42,.1);
+  text-align: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: .9rem;
+  color: var(--text);
+  outline: none;
+  background: white;
+  padding: 10px 0;
+}
+.btn-add-prod {
+  flex: 1;
+  background: var(--wine);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .7rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity .2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn-add-prod::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  transition: .6s;
+}
+.btn-add-prod:hover::before { left: 100%; }
+.btn-add-prod:hover { opacity: .9; }
+.btn-add-prod:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Description & meta */
+.prod-divider {
+  border: none;
+  border-top: 1px solid rgba(91,29,42,.1);
+  margin: 0 0 24px;
+}
+.prod-desc {
+  font-size: .92rem;
+  line-height: 1.95;
+  color: #7a726c;
+  margin-bottom: 20px;
+}
+.prod-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prod-meta-row {
+  display: flex;
+  gap: 12px;
+  font-size: .78rem;
+}
+.prod-meta-key {
+  color: #a09890;
+  min-width: 90px;
+  font-family: 'Manrope', sans-serif;
+  font-size: .62rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding-top: 2px;
+}
+.prod-meta-val { color: var(--text); }
+
+/* Loading / error states */
+.prod-state {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 120px 32px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: #a09890;
+}
+.prod-state a {
+  color: var(--wine);
+  text-decoration: none;
+}
+.prod-state a:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .prod-layout { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px 64px; }
+}
+@media (max-width: 540px) {
+  .prod-layout { padding: 20px 16px 48px; }
+  .prod-gallery-thumbs { gap: 6px; }
+  .prod-gallery-thumb { width: 56px; height: 56px; }
+  .prod-add-row { flex-wrap: wrap; }
+  .btn-add-prod { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<nav class="navbar" id="navbar">
+  <div class="logo">
+    <a href="/" style="text-decoration:none;color:inherit;">CASA GIOIA</a>
+    <span>Moda • Hogar • Design</span>
+  </div>
+  <button class="mobile-toggle" id="mobileToggle">☰</button>
+  <ul class="menu" id="menu">
+    <li class="has-submenu">
+      <a href="coleccion" style="color:var(--wine);">Collezione <span class="submenu-arrow">▾</span></a>
+      <ul class="submenu">
+        <li><button class="submenu-btn">Deco</button></li>
+        <li><button class="submenu-btn">Accesorios</button></li>
+        <li><button class="submenu-btn">Muebles</button></li>
+        <li><button class="submenu-btn">Deli</button></li>
+      </ul>
+    </li>
+    <li><a href="la-casa">Interiorismo</a></li>
+    <li><a href="journal">Novità</a></li>
+    <li><a href="novita">Storia</a></li>
+    <li><a href="contacto">Contacto</a></li>
+  </ul>
+  <button class="btn-nav" id="userBtn">Ingresar</button>
+</nav>
+</header>
+
+<main>
+  <div class="prod-layout" id="prodLayout">
+    <div class="prod-state">Cargando…</div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <a href="coleccion">Collezione</a>
+      <a href="la-casa">Interiorismo</a>
+      <a href="journal">Novità</a>
+      <a href="novita">Storia</a>
+      <a href="contacto">Contacto</a>
+    </div>
+    <div>
+      <a href="terminos-y-condiciones">Términos y Condiciones</a>
+      <a href="terminos-y-condiciones#envios">Envíos</a>
+      <a href="terminos-y-condiciones#cambios-y-devoluciones">Cambios y devolución</a>
+      <a href="politicas-de-privacidad">Políticas de privacidad</a>
+    </div>
+    <div>
+      <a href="mailto:contacto@casagioia.com.ar">contacto@casagioia.com.ar</a>
+      <a href="https://www.instagram.com/casagioia.ar/" target="_blank" rel="noopener"><svg class="footer-ig-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/></svg>@casagioia.ar</a>
+      <a href="https://wa.me/5491155806377" target="_blank" rel="noopener">+54 11 5580–6377</a>
+      <a href="contacto#faq">Preguntas frecuentes</a>
+    </div>
+    <div class="footer-newsletter">
+      <h4>Comunidad Casa Gioia</h4>
+      <p>Suscribite para recibir nuestras últimas novedades y obtené un 10% OFF en tu primera compra.</p>
+      <div class="footer-form">
+        <input type="email" placeholder="Email">
+        <button type="button">OK</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    2026 Casa Gioia. Todos los derechos reservados
+  </div>
+</footer>
+
+<script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js"></script>
+<script src="js/script.js?v=20260821"></script>
+<script type="module" src="js/newsletter.js"></script>
+<script type="module" src="js/cart-sync.js"></script>
+
+<!-- Gallery navigation (non-module, must be global) -->
+<script>
+let _gIdx = 0
+
+function _galleryGoto(idx) {
+  const track  = document.getElementById('galleryTrack')
+  const slides = document.querySelectorAll('#galleryTrack .carousel-slide')
+  if (!track || !slides.length) return
+  _gIdx = ((idx % slides.length) + slides.length) % slides.length
+  track.style.transform = `translateX(-${_gIdx * 100}%)`
+  document.querySelectorAll('.prod-gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === _gIdx))
+}
+
+window.galleryNav  = (dir) => _galleryGoto(_gIdx + dir)
+window.galleryGoto = (idx) => _galleryGoto(idx)
+
+window._selectedVars = {}
+
+window.selectVariant = (pill, varKey) => {
+  const val = decodeURIComponent(pill.dataset.val)
+  const varName = decodeURIComponent(varKey)
+  document.querySelectorAll(`.prod-pill[data-var="${varKey}"]`).forEach(p => p.classList.toggle('active', p === pill))
+  const lbl = document.getElementById('varsel-' + varKey)
+  if (lbl) lbl.textContent = val
+  window._selectedVars[varName] = val
+}
+
+window.prodQtyChange = (delta) => {
+  const inp = document.getElementById('prodQty')
+  if (!inp) return
+  inp.value = Math.max(1, Math.min(99, (parseInt(inp.value) || 1) + delta))
+}
+window.prodQtyClamp = (inp) => {
+  inp.value = Math.max(1, Math.min(99, parseInt(inp.value) || 1))
+}
+
+window.prodAgregar = (id, precio, imgUrl) => {
+  const qty  = parseInt(document.getElementById('prodQty')?.value || '1', 10)
+  const sel  = window._selectedVars
+  const varKey = Object.entries(sel).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>`${k}:${v}`).join('|')
+  const cartId = varKey ? `${id}___${varKey}` : id
+  const nombre = document.querySelector('.prod-name')?.textContent?.trim() || id
+  const nombreConVar = varKey
+    ? `${nombre} (${Object.values(sel).join(', ')})`
+    : nombre
+
+  const items = window.cartGet()
+  const ex    = items.find(i => i.id === cartId)
+  if (ex) { ex.qty += qty } else {
+    items.push({ id: cartId, nombre: nombreConVar, precio, qty, imagen_url: imgUrl, variantes_sel: { ...sel } })
+  }
+  window.cartSave(items)
+
+  const btn = document.getElementById('btnAgregar')
+  if (!btn) return
+  const orig = btn.textContent
+  btn.textContent = '✓ Agregado'
+  btn.disabled = true
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false }, 1800)
+}
+</script>
+
+<script type="module">
+import { supabase } from './js/supabase-client.js'
+
+const { data: { user } } = await supabase.auth.getUser()
+window.renderAccountBtn(document.getElementById('userBtn'), user)
+
+const id = new URLSearchParams(window.location.search).get('id')
+const root = document.getElementById('prodLayout')
+
+if (!id) {
+  root.innerHTML = `<div class="prod-state">Producto no encontrado. <a href="coleccion">Volver a Collezione</a></div>`
+} else {
+  const { data: p, error } = await supabase
+    .from('productos')
+    .select('id, nombre, precio, descripcion, categoria, imagen_url, fotos, imagen_focal, fotos_focal, stock, dimensiones, peso, variantes')
+    .eq('id', id)
+    .eq('activo', true)
+    .maybeSingle()
+
+  if (error || !p) {
+    root.innerHTML = `<div class="prod-state">Producto no encontrado. <a href="coleccion">Volver a Collezione</a></div>`
+  } else {
+    document.title = `${p.nombre} — Casa Gioia`
+
+    const CAT_LABELS = { accesorios: 'Accesorios', deco: 'Deco', deli: 'Deli', muebles: 'Muebles' }
+    const cats = (p.categoria ?? []).map(c => CAT_LABELS[c] ?? c).join(' · ')
+
+    // Build photos array
+    const allPhotos = [], allFocals = []
+    if (p.imagen_url) { allPhotos.push(p.imagen_url); allFocals.push(p.imagen_focal || '50% 50%') }
+    ;(p.fotos ?? []).forEach((f, i) => {
+      if (f) { allPhotos.push(f); allFocals.push((Array.isArray(p.fotos_focal) && p.fotos_focal[i]) || '50% 50%') }
+    })
+
+    const agotado   = p.stock !== null && p.stock !== undefined && p.stock === 0
+    const stockBajo = !agotado && p.stock !== null && p.stock !== undefined && p.stock <= 5
+
+    // Gallery
+    let galleryHTML = ''
+    if (allPhotos.length > 1) {
+      const slides = allPhotos.map((src, i) =>
+        `<div class="carousel-slide"><img class="carousel-img" src="${src}" alt="${p.nombre}" loading="${i===0?'eager':'lazy'}" style="object-position:${allFocals[i]}"></div>`
+      ).join('')
+      const thumbs = allPhotos.map((src, i) =>
+        `<img class="prod-gallery-thumb${i===0?' active':''}" src="${src}" alt="" onclick="galleryGoto(${i})" loading="lazy">`
+      ).join('')
+      galleryHTML = `
+        <div class="prod-gallery-main" id="prodGallery">
+          <div class="carousel-track" id="galleryTrack">${slides}</div>
+          <button class="carousel-btn carousel-prev" onclick="galleryNav(-1)">&#8249;</button>
+          <button class="carousel-btn carousel-next" onclick="galleryNav(1)">&#8250;</button>
+        </div>
+        <div class="prod-gallery-thumbs">${thumbs}</div>`
+    } else if (allPhotos.length === 1) {
+      galleryHTML = `
+        <div class="prod-gallery-main">
+          <div class="carousel-track" id="galleryTrack">
+            <div class="carousel-slide"><img class="carousel-img" src="${allPhotos[0]}" alt="${p.nombre}" loading="eager" style="object-position:${allFocals[0]}"></div>
+          </div>
+        </div>`
+    } else {
+      galleryHTML = `<div class="prod-gallery-main" style="display:flex;align-items:center;justify-content:center;color:#c0b8b2;font-size:.9rem;">Sin imagen</div>`
+    }
+
+    // Stock badge
+    const stockHTML = agotado
+      ? `<div class="prod-stock"><span class="stock-dot agotado"></span>Sin stock</div>`
+      : stockBajo
+        ? `<div class="prod-stock"><span class="stock-dot bajo"></span>¡Quedan solo ${p.stock}!</div>`
+        : `<div class="prod-stock"><span class="stock-dot"></span>Disponible</div>`
+
+    // Variants
+    const variantes = Array.isArray(p.variantes) ? p.variantes : []
+    let variantesHTML = ''
+    variantes.forEach(v => {
+      const opciones = Array.isArray(v.opciones) ? v.opciones : []
+      if (!opciones.length) return
+      const key = encodeURIComponent(v.nombre)
+      window._selectedVars[v.nombre] = opciones[0]
+      const pills = opciones.map((op, idx) =>
+        `<button class="prod-pill${idx===0?' active':''}" data-var="${key}" data-val="${encodeURIComponent(op)}" onclick="selectVariant(this,'${key}')">${op}</button>`
+      ).join('')
+      variantesHTML += `
+        <div class="prod-variant">
+          <div class="prod-variant-label">${v.nombre}: <span class="prod-variant-sel" id="varsel-${key}">${opciones[0]}</span></div>
+          <div class="prod-variant-pills">${pills}</div>
+        </div>`
+    })
+
+    // Meta
+    const metaHTML = (p.dimensiones || p.peso) ? `
+      <div class="prod-meta">
+        ${p.dimensiones ? `<div class="prod-meta-row"><span class="prod-meta-key">Dimensiones</span><span class="prod-meta-val">${p.dimensiones}</span></div>` : ''}
+        ${p.peso        ? `<div class="prod-meta-row"><span class="prod-meta-key">Peso</span><span class="prod-meta-val">${p.peso}</span></div>` : ''}
+      </div>` : ''
+
+    const firstImg = allPhotos[0] || ''
+
+    root.innerHTML = `
+      <div class="prod-gallery">${galleryHTML}</div>
+      <div class="prod-info">
+        <div class="prod-breadcrumb">
+          <a href="coleccion">Collezione</a>
+          ${cats ? `<span>›</span><span>${cats}</span>` : ''}
+        </div>
+        ${cats ? `<div class="prod-cat">${cats}</div>` : ''}
+        <h1 class="prod-name">${p.nombre}</h1>
+        <div class="prod-price">$${Number(p.precio).toLocaleString('es-AR')}</div>
+        ${stockHTML}
+        ${variantesHTML}
+        <div class="prod-add-row">
+          <div class="prod-qty">
+            <button type="button" onclick="prodQtyChange(-1)">−</button>
+            <input type="number" id="prodQty" value="1" min="1" max="99" onchange="prodQtyClamp(this)">
+            <button type="button" onclick="prodQtyChange(1)">+</button>
+          </div>
+          <button class="btn-add-prod" id="btnAgregar"
+            ${agotado ? 'disabled' : ''}
+            onclick="prodAgregar('${p.id}',${p.precio},'${firstImg.replace(/'/g,"\\'")}')">
+            ${agotado ? 'Sin stock' : '+ Agregar al carrito'}
+          </button>
+        </div>
+        ${p.descripcion || p.dimensiones || p.peso ? `
+          <hr class="prod-divider">
+          ${p.descripcion ? `<p class="prod-desc">${p.descripcion}</p>` : ''}
+          ${metaHTML}
+        ` : ''}
+      </div>`
+  }
+}
+</script>
+</body>
+</html>

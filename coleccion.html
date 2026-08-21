@@ -169,7 +169,7 @@ const grid = document.getElementById('products-grid')
 
 const { data: productos, error } = await supabase
   .from('productos')
-  .select('id, nombre, precio, descripcion, categoria, imagen_url, stock, fotos, imagen_focal, fotos_focal')
+  .select('id, nombre, precio, descripcion, categoria, imagen_url, stock, fotos, imagen_focal, fotos_focal, variantes')
   .eq('activo', true)
   .order('created_at', { ascending: false })
 
@@ -197,6 +197,8 @@ if (error || !productos?.length) {
       }
     })
 
+    const hasVariants = Array.isArray(p.variantes) && p.variantes.length > 0
+
     let imgWrapClass = 'card-img-wrap'
     let imgContent
     if (allPhotos.length > 1) {
@@ -217,16 +219,20 @@ if (error || !productos?.length) {
       imgContent = `<div class="card-img" style="background:#f0ebe3;display:flex;align-items:center;justify-content:center;color:#c0b8b2;font-size:.8rem;">Sin imagen</div>`
     }
 
-    return `<div class="card filterable fade-in" data-cat="${(p.categoria ?? []).join(' ')}" data-id="${p.id}" data-nombre="${p.nombre}" data-precio="${p.precio}">
+    const btnHtml = agotado
+      ? `<button class="btn-agregar" disabled style="opacity:.45;cursor:not-allowed;">Sin stock</button>`
+      : hasVariants
+        ? `<button class="btn-agregar" onclick="event.stopPropagation();location.href='producto?id=${p.id}'">Ver opciones</button>`
+        : `<button class="btn-agregar" onclick="event.stopPropagation();cartAdd(this)">+ Agregar</button>`
+
+    return `<div class="card filterable fade-in" style="cursor:pointer" data-cat="${(p.categoria ?? []).join(' ')}" data-id="${p.id}" data-nombre="${p.nombre}" data-precio="${p.precio}" onclick="location.href='producto?id=${p.id}'">
       <div class="${imgWrapClass}">${imgContent}${stockBadge}</div>
       <div class="card-body">
         ${cats ? `<p class="card-cat">${cats}</p>` : ''}
         <h3 class="card-name">${p.nombre}</h3>
         ${p.descripcion ? `<p class="card-desc">${p.descripcion}</p>` : ''}
         <p class="card-price">$${Number(p.precio).toLocaleString('es-AR')}</p>
-        <button class="btn-agregar" onclick="cartAdd(this)" ${agotado ? 'disabled style="opacity:.45;cursor:not-allowed;"' : ''}>
-          ${agotado ? 'Sin stock' : '+ Agregar'}
-        </button>
+        ${btnHtml}
       </div>
     </div>`
   }).join('')

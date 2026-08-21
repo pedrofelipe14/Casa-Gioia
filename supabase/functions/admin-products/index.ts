@@ -26,14 +26,13 @@ serve(async (req) => {
 
   // POST — crear producto
   if (req.method === "POST") {
-    const { nombre, precio, descripcion, categoria, imagen_url, imagen_focal, fotos, fotos_focal, activo, stock, dimensiones, peso } = body
+    const { nombre, precio, descripcion, categoria, imagen_url, imagen_focal, fotos, fotos_focal, activo, stock, dimensiones, peso, variantes } = body
 
     if (typeof nombre !== "string" || !nombre.trim()) return bad("Nombre requerido")
     if (!Number.isInteger(precio) || (precio as number) <= 0) return bad("Precio inválido")
     const cats = Array.isArray(categoria) ? categoria : []
     if (cats.some((c: unknown) => !CATEGORIAS_VALIDAS.includes(c as string))) return bad("Categoría inválida")
     if (stock !== null && stock !== undefined && (!Number.isInteger(stock) || (stock as number) < 0)) return bad("Stock inválido")
-
     const { data, error } = await admin.from("productos").insert({
       nombre:       nombre.trim(),
       precio:       Number(precio),
@@ -47,6 +46,7 @@ serve(async (req) => {
       stock:        Number.isInteger(stock) ? Number(stock) : null,
       dimensiones:  typeof dimensiones === "string" ? dimensiones.trim() : null,
       peso:         typeof peso === "string" ? peso.trim() : null,
+      variantes:    Array.isArray(variantes) ? variantes : [],
     }).select().single()
 
     if (error) { console.error(error); return serverError(error) }
@@ -55,7 +55,7 @@ serve(async (req) => {
 
   // PUT — editar producto
   if (req.method === "PUT") {
-    const { id, nombre, precio, descripcion, categoria, imagen_url, imagen_focal, fotos, fotos_focal, activo, stock, dimensiones, peso } = body
+    const { id, nombre, precio, descripcion, categoria, imagen_url, imagen_focal, fotos, fotos_focal, activo, stock, dimensiones, peso, variantes } = body
 
     if (typeof id !== "string" || !id) return bad("ID requerido")
     if (typeof nombre !== "string" || !nombre.trim()) return bad("Nombre requerido")
@@ -77,6 +77,7 @@ serve(async (req) => {
       stock:        Number.isInteger(stock) ? Number(stock) : null,
       dimensiones:  typeof dimensiones === "string" ? dimensiones.trim() : null,
       peso:         typeof peso === "string" ? peso.trim() : null,
+      variantes:    Array.isArray(variantes) ? variantes : [],
       updated_at:   new Date().toISOString(),
     }).eq("id", id).select().single()
 
