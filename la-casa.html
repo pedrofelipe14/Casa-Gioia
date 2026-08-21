@@ -65,6 +65,13 @@
     margin-bottom: 10px;
   }
   .proceso-step p { font-size: .9rem; color: #7a726c; line-height: 1.8; }
+  .proceso-texto p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--text);
+  }
   .filosofia-grid {
     display: grid;
     grid-template-columns: 3fr 2fr;
@@ -223,25 +230,9 @@
 
 <!-- PROCESO -->
 <section class="section">
-  <div class="section-label">Cómo trabajamos</div>
-  <h2 class="section-title" style="margin-bottom:64px;">De la idea<br/><span>al espacio.</span></h2>
   <div class="proceso-grid">
-    <div>
-      <div class="proceso-step fade-in">
-        <span class="proceso-num">01</span>
-        <h3>Consulta inicial</h3>
-        <p>Nos contás tu espacio, tu estilo y tu presupuesto. Una conversación sin compromiso para entender qué necesitás.</p>
-      </div>
-      <div class="proceso-step fade-in">
-        <span class="proceso-num">02</span>
-        <h3>Selección curada</h3>
-        <p>Te presentamos una propuesta de piezas pensadas para funcionar juntas. Nada al azar, todo con criterio.</p>
-      </div>
-      <div class="proceso-step fade-in">
-        <span class="proceso-num">03</span>
-        <h3>Entrega e instalación</h3>
-        <p>Coordinamos la entrega y, si lo necesitás, la instalación en tu hogar. El resultado final es nuestro compromiso.</p>
-      </div>
+    <div class="proceso-texto fade-in">
+      <p>Si querés profundizar en la experiencia Casa Gioia, te ofrecemos asesoramiento en diseño de interiores y fabricación de muebles a medida, para que tus ambientes reflejen tu propia identidad.</p>
     </div>
     <div class="fade-in">
       <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=900&q=80&auto=format" alt="Interior Casa Gioia" style="width:100%; aspect-ratio:4/5; object-fit:cover; display:block;" loading="lazy">
