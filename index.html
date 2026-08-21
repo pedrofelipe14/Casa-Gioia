@@ -11,7 +11,10 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.26/dist/lenis.css">
-
+<style>
+.hero-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease;}
+.hero-slide.active{opacity:1;}
+</style>
 </head>
 <body>
 
@@ -134,9 +137,9 @@
     </div>
 
     <div class="hero-art">
-
-        <img src="img/sicilia.jpg" alt="Sicilia" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
-
+        <img class="hero-slide active" src="img/sicilia.jpg"   alt="">
+        <img class="hero-slide"        src="img/sicilia-2.jpg" alt="">
+        <img class="hero-slide"        src="img/sicilia-3.jpg" alt="">
     </div>
 
 </section>
@@ -149,6 +152,17 @@
 
 </main>
 
+<script>
+(function(){
+  const slides = document.querySelectorAll('.hero-slide');
+  let i = 0;
+  setInterval(function(){
+    slides[i].classList.remove('active');
+    i = (i + 1) % slides.length;
+    slides[i].classList.add('active');
+  }, 4500);
+})();
+</script>
 <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js"></script>
 <script src="js/script.js?v=20260830"></script>
 <script type="module" src="js/newsletter.js"></script>
