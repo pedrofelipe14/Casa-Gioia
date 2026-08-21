@@ -8,6 +8,38 @@
 <link rel="stylesheet" href="css/estilos.css?v=20260830">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/lenis@1.3.26/dist/lenis.css">
+<style>
+.coleccion-intro {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 72px 32px 56px;
+  text-align: center;
+}
+.coleccion-intro p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-weight: 300;
+  line-height: 1.9;
+  color: #6b6460;
+  margin-bottom: 20px;
+}
+.coleccion-intro p em {
+  font-style: italic;
+  color: var(--wine-soft);
+}
+.coleccion-intro-cta {
+  font-family: 'Manrope', sans-serif !important;
+  font-size: .65rem !important;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--wine) !important;
+  margin-top: 28px !important;
+  margin-bottom: 0 !important;
+}
+@media (max-width: 640px) {
+  .coleccion-intro { padding: 48px 20px 36px; }
+}
+</style>
 </head>
 <body>
 
@@ -52,6 +84,13 @@
   <div class="arch small"></div>
   <h1>Collezione</h1>
 </section>
+
+<!-- INTRO TEXT -->
+<div class="coleccion-intro">
+  <p>Entre fragancias de azahar y flores de almendro; cítricos, higos, granadas y toda la riqueza que ofrece el océano, vas a experimentar el encanto de la <em>vita lenta</em>.</p>
+  <p>Nuestro catálogo, que se renueva constantemente, incluye una selección de objetos con personalidad, como cerámicas originales, cuadros y textiles; elementos para embellecer tu mesa, accesorios e indumentaria, que hablan de nuestra historia a través de sus colores y sabores.</p>
+  <p class="coleccion-intro-cta">Vieni a scoprire Casa Gioia</p>
+</div>
 
 <!-- FILTROS + PRODUCTOS -->
 <section class="section" id="catalogo">
