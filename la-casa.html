@@ -67,12 +67,25 @@
     margin-bottom: 10px;
   }
   .proceso-step p { font-size: .9rem; color: #7a726c; line-height: 1.8; }
+  .proceso-texto {
+    background: var(--text);
+    padding: 52px 44px;
+    position: relative;
+  }
+  .proceso-texto::before {
+    content: '◆';
+    display: block;
+    color: var(--gold);
+    font-size: .75rem;
+    letter-spacing: 6px;
+    margin-bottom: 24px;
+  }
   .proceso-texto p {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-size: clamp(1.4rem, 2.3vw, 1.85rem);
     font-weight: 300;
-    line-height: 1.65;
-    color: var(--text);
+    line-height: 1.7;
+    color: var(--cream);
   }
   .filosofia-grid {
     display: grid;
