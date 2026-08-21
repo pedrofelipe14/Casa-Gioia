@@ -415,10 +415,12 @@ window.selectVariant = (pill, varKey) => {
 window.prodQtyChange = (delta) => {
   const inp = document.getElementById('prodQty')
   if (!inp) return
-  inp.value = Math.max(1, Math.min(99, (parseInt(inp.value) || 1) + delta))
+  const max = parseInt(inp.max) || 99
+  inp.value = Math.max(1, Math.min(max, (parseInt(inp.value) || 1) + delta))
 }
 window.prodQtyClamp = (inp) => {
-  inp.value = Math.max(1, Math.min(99, parseInt(inp.value) || 1))
+  const max = parseInt(inp.max) || 99
+  inp.value = Math.max(1, Math.min(max, parseInt(inp.value) || 1))
 }
 
 window.prodAgregar = (id, precio, imgUrl) => {
@@ -560,7 +562,7 @@ if (!id) {
         <div class="prod-add-row">
           <div class="prod-qty">
             <button type="button" onclick="prodQtyChange(-1)">−</button>
-            <input type="number" id="prodQty" value="1" min="1" max="99" onchange="prodQtyClamp(this)">
+            <input type="number" id="prodQty" value="1" min="1" max="${p.stock !== null && p.stock !== undefined && p.stock > 0 ? p.stock : 99}" onchange="prodQtyClamp(this)">
             <button type="button" onclick="prodQtyChange(1)">+</button>
           </div>
           <button class="btn-add-prod" id="btnAgregar"
