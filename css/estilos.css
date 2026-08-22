@@ -896,7 +896,7 @@ main{
     .btn-nav.btn-nav-logged .btn-nav-avatar{ display:block; width:100%; height:100%; }
 
     main > .luxury-band{
-        z-index:1;
+        z-index:1000;
         order:-1;
     }
 
