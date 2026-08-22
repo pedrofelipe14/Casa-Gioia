@@ -43,18 +43,23 @@ const indicators = document.querySelectorAll('.indicator');
 
 if (slides.length) {
     let current = 0;
+    const heroSlides = document.querySelectorAll('.hero-slide');
 
     function showSlide(index){
         slides.forEach(slide => slide.classList.remove('active'));
         indicators.forEach(indicator => indicator.classList.remove('active'));
         slides[index].classList.add('active');
         if (indicators[index]) indicators[index].classList.add('active');
+        if (heroSlides.length) {
+            heroSlides.forEach(s => s.classList.remove('active'));
+            if (heroSlides[index]) heroSlides[index].classList.add('active');
+        }
     }
 
     setInterval(() => {
         current = (current + 1) % slides.length;
         showSlide(current);
-    }, 6000);
+    }, 5000);
 }
 
 /* ── Throttle de scroll a un cálculo por frame: evita que el toggle

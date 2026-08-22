@@ -155,17 +155,6 @@
 
 </main>
 
-<script>
-(function(){
-  const slides = document.querySelectorAll('.hero-slide');
-  let i = 0;
-  setInterval(function(){
-    slides[i].classList.remove('active');
-    i = (i + 1) % slides.length;
-    slides[i].classList.add('active');
-  }, 4500);
-})();
-</script>
 <script src="https://unpkg.com/lenis@1.3.26/dist/lenis.min.js"></script>
 <script src="js/script.js?v=20260830"></script>
 <script type="module" src="js/newsletter.js"></script>

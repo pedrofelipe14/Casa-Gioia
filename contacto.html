@@ -159,20 +159,20 @@
         <div class="form-grid-2">
           <div class="form-group">
             <label>Nombre</label>
-            <input type="text" placeholder="Tu nombre">
+            <input type="text" placeholder="Tu nombre" maxlength="100">
           </div>
           <div class="form-group">
             <label>Apellido</label>
-            <input type="text" placeholder="Tu apellido">
+            <input type="text" placeholder="Tu apellido" maxlength="100">
           </div>
         </div>
         <div class="form-group">
           <label>Email</label>
-          <input type="email" placeholder="tu@email.com">
+          <input type="email" placeholder="tu@email.com" maxlength="254">
         </div>
         <div class="form-group">
           <label>Teléfono (opcional)</label>
-          <input type="tel" placeholder="+54 11 XXXX XXXX">
+          <input type="tel" placeholder="+54 11 XXXX XXXX" maxlength="20">
         </div>
         <div class="form-group">
           <label>¿En qué podemos ayudarte?</label>
@@ -187,7 +187,7 @@
         </div>
         <div class="form-group">
           <label>Mensaje</label>
-          <textarea placeholder="Contanos con detalle qué necesitás…"></textarea>
+          <textarea placeholder="Contanos con detalle qué necesitás…" maxlength="2000"></textarea>
         </div>
         <button type="submit" class="btn-primary form-submit" id="submitBtn">ENVIAR MENSAJE</button>
         <p id="formMsg" style="display:none; margin-top:16px; color:var(--wine); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem;">¡Gracias! Te respondemos dentro de las 24 hs.</p>
