@@ -468,7 +468,7 @@ main{
 
 .slides{
     position:relative;
-    height:400px;
+    height:480px;
 }
 
 .slide{
@@ -670,7 +670,11 @@ main{
     }
 
     .hero-art{
-        display:none;
+        min-height:360px;
+    }
+
+    .slides{
+        height:440px;
     }
 
     .slide h1{
@@ -962,7 +966,7 @@ main{
     }
 
     .slides{
-        height:280px;
+        height:420px;
     }
 
     .slide h1{

@@ -178,11 +178,16 @@
     display: inline-block;
     padding: 28px 56px;
   }
-  @media(max-width:768px){
-    .room-hero-text { left: 20px; bottom: 28px; }
+  @media(max-width:992px){
     .proceso-grid { grid-template-columns: 1fr; gap: 40px; }
     .filosofia-grid { grid-template-columns: 1fr; gap: 32px; }
+    .filosofia-text { margin-left: 0; }
     .filosofia-img { order: -1; }
+  }
+  @media(max-width:768px){
+    .room-hero { height: 320px; }
+    .room-hero-text { left: 20px; bottom: 24px; }
+    .proceso-texto { padding: 36px 24px; }
     .rincon-band { padding: 64px 24px; }
     .rincon-band-content { padding: 22px 28px; }
   }
