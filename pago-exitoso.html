@@ -176,33 +176,22 @@ if (isApproved) {
     <a href="pedidos" class="btn-primary">VER MIS PEDIDOS</a>
     <a href="coleccion" class="btn-ghost">Seguir comprando</a>`
 
-  // Wallet/MP redirect: guardar pedido desde localStorage
-  if (source !== 'card' && user) {
+  // Wallet/MP redirect: verificar el pago server-side antes de guardar el pedido
+  if (source !== 'card' && user && paymentId) {
     const items = window.cartGet ? window.cartGet() : []
     if (items.length) {
-      const total = items.reduce((s, i) => s + i.precio * i.qty, 0)
-      const numero = 'CG' + Date.now().toString(36).toUpperCase()
       const meta = JSON.parse(localStorage.getItem('casagioia_checkout_meta') || '{}')
+      const { data: { session } } = await supabase.auth.getSession()
 
-      await supabase.from('pedidos').insert({
-        user_id:       user.id,
-        numero_pedido: numero,
-        total,
-        estado:        'confirmado',
-        mp_payment_id: paymentId ? String(paymentId) : null,
-        items,
-        envio:         meta.envio ?? {},
-        email:         meta.email ?? null,
+      const res = await supabase.functions.invoke('verify-payment', {
+        body: { payment_id: paymentId, items, envio: meta.envio ?? {}, email: meta.email ?? null },
+        headers: { Authorization: `Bearer ${session?.access_token}` }
       })
 
-      if (meta.email) {
-        await supabase.functions.invoke('send-order-email', {
-          body: { type: 'payment_confirmed', email: meta.email, data: { numero_pedido: numero, total, items, envio: meta.envio ?? {} } },
-        })
+      if (!res.error) {
+        localStorage.removeItem('casagioia_checkout_meta')
+        if (window.cartSave) window.cartSave([])
       }
-
-      localStorage.removeItem('casagioia_checkout_meta')
-      if (window.cartSave) window.cartSave([])
     }
   }
 

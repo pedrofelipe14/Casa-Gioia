@@ -60,10 +60,17 @@ window.register = async () => {
     })
 
     if(error){
-
-        document.getElementById("mensaje")
-        .innerText = error.message
-
+        const mapa = {
+            'User already registered':          'Ya existe una cuenta con ese email.',
+            'already registered':               'Ya existe una cuenta con ese email.',
+            'Unable to validate email address': 'El formato del email no es válido.',
+            'Password should be at least':      'La contraseña es demasiado corta.',
+            'Signup requires a valid password': 'Ingresá una contraseña válida.',
+            'Email rate limit exceeded':        'Demasiados intentos. Esperá unos minutos.',
+            'over_email_send_rate_limit':       'Demasiados intentos. Esperá unos minutos.',
+        }
+        const msg = Object.keys(mapa).find(k => error.message?.includes(k))
+        document.getElementById("mensaje").innerText = msg ? mapa[msg] : 'No se pudo crear la cuenta. Verificá los datos e intentá de nuevo.'
         return
     }
 
