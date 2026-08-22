@@ -229,16 +229,17 @@ function addrFillForm(p) {
 }
 
 function addrShowView(p) {
+  const e = s => esc(s ?? '')
   const lines = []
-  const fullName = [p.nombre, p.apellido].filter(Boolean).join(' ')
+  const fullName = [p.nombre, p.apellido].filter(Boolean).map(e).join(' ')
   if (fullName)       lines.push(`<strong>${fullName}</strong>`)
-  let street = [p.calle, p.numero].filter(Boolean).join(' ')
-  if (p.piso_depto)   street += `, ${p.piso_depto}`
+  let street = [p.calle, p.numero].filter(Boolean).map(e).join(' ')
+  if (p.piso_depto)   street += `, ${e(p.piso_depto)}`
   if (street)         lines.push(street)
-  const cityLine = [p.ciudad, p.provincia].filter(Boolean).join(', ')
+  const cityLine = [p.ciudad, p.provincia].filter(Boolean).map(e).join(', ')
   if (cityLine)       lines.push(cityLine)
-  if (p.codigo_postal) lines.push(`CP ${p.codigo_postal}`)
-  if (p.telefono)      lines.push(p.telefono)
+  if (p.codigo_postal) lines.push(`CP ${e(p.codigo_postal)}`)
+  if (p.telefono)      lines.push(e(p.telefono))
 
   document.getElementById('addr-display').innerHTML = lines.map(l => `<p>${l}</p>`).join('')
   document.getElementById('addr-view').style.display    = 'block'

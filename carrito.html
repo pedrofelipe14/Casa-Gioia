@@ -597,7 +597,7 @@ function render() {
   itemsEl.innerHTML = items.map(item => `
     <div class="carrito-item" data-id="${item.id}">
       <div>
-        <div class="carrito-item-nombre">${item.nombre}</div>
+        <div class="carrito-item-nombre">${esc(item.nombre)}</div>
         <div class="carrito-item-precio">$${(item.precio * item.qty).toLocaleString('es-AR')}</div>
       </div>
       <div class="carrito-qty-wrap">
@@ -657,7 +657,7 @@ function fillSummary(suffix) {
   const total = subtotal + shippingCost
   document.getElementById(`summary-items-${suffix}`).innerHTML = items.map(it =>
     `<div class="summary-item">
-      <span class="summary-item-name">${it.nombre}<span class="summary-item-qty"> ×${it.qty}</span></span>
+      <span class="summary-item-name">${esc(it.nombre)}<span class="summary-item-qty"> ×${it.qty}</span></span>
       <span class="summary-item-price">$${(it.precio * it.qty).toLocaleString('es-AR')}</span>
     </div>`).join('')
   const shEl = document.getElementById(`summary-shipping-${suffix}`)

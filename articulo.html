@@ -218,6 +218,19 @@ function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 }
 
+function sanitizeArticle(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  doc.querySelectorAll('script,style,iframe,object,embed,form').forEach(el => el.remove())
+  doc.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(attr => {
+      if (/^on/i.test(attr.name)) el.removeAttribute(attr.name)
+      if (attr.name === 'href' && /^javascript:/i.test(attr.value)) el.removeAttribute(attr.name)
+      if (attr.name === 'src'  && /^javascript:/i.test(attr.value)) el.removeAttribute(attr.name)
+    })
+  })
+  return doc.body.innerHTML
+}
+
 const id        = new URLSearchParams(location.search).get('id')
 const slot      = document.getElementById('articulo-slot')
 const heroSlot  = document.getElementById('articulo-hero-slot')
@@ -258,7 +271,7 @@ if (!id) {
     ].filter(Boolean)
 
     const bodyContent = a.contenido
-      ? a.contenido
+      ? sanitizeArticle(a.contenido)
       : (a.extracto ? `<p>${esc(a.extracto)}</p>` : '')
 
     slot.innerHTML = `
