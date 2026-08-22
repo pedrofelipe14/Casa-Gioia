@@ -1,4 +1,4 @@
-const CACHE = 'gioia-v2'
+const CACHE = 'gioia-v3'
 
 self.addEventListener('install', e => { self.skipWaiting() })
 
