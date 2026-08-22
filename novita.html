@@ -194,27 +194,15 @@
 }
 
 .benvenuti-wrap {
-  position: relative;
   display: inline-block;
-  overflow: hidden;
   cursor: default;
 }
-.benvenuti-wrap::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -80%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%);
-  transform: skewX(-15deg);
-  pointer-events: none;
-  opacity: 0;
-  transition: none;
+.benvenuti-wrap h2 {
+  transition: letter-spacing 0.5s ease, opacity 0.5s ease;
 }
-.benvenuti-wrap:hover::after {
-  left: 160%;
-  opacity: 1;
-  transition: left 0.65s ease, opacity 0.1s;
+.benvenuti-wrap:hover h2 {
+  letter-spacing: 0.04em;
+  opacity: 0.75;
 }
 
 @media (max-width: 768px) {
