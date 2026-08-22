@@ -691,7 +691,19 @@ main{
     }
 
     .slides{
-        height:440px;
+        height:auto;
+        min-height:0;
+    }
+
+    .slide{
+        display:none;
+        position:relative;
+        opacity:1;
+        pointer-events:auto;
+    }
+
+    .slide.active{
+        display:block;
     }
 
     .slide h1{
@@ -983,7 +995,19 @@ main{
     }
 
     .slides{
-        height:420px;
+        height:auto;
+        min-height:0;
+    }
+
+    .slide{
+        display:none;
+        position:relative;
+        opacity:1;
+        pointer-events:auto;
+    }
+
+    .slide.active{
+        display:block;
     }
 
     .slide h1{
