@@ -436,7 +436,7 @@ main{
 
 .hero{
 
-    min-height:580px;
+    min-height:640px;
     flex-shrink:0;
 
     display:grid;
@@ -445,7 +445,7 @@ main{
 
 .hero-content{
 
-    padding:56px 60px;
+    padding:68px 60px;
 
     display:flex;
     flex-direction:column;
@@ -468,7 +468,7 @@ main{
 
 .slides{
     position:relative;
-    height:400px;
+    height:440px;
 }
 
 .slide{
@@ -524,18 +524,18 @@ main{
 
 .slide p{
 
-    margin-top:40px;
+    margin-top:24px;
 
     max-width:520px;
 
-    line-height:2;
+    line-height:1.7;
 
     color:#685F5A;
 }
 
 .hero-actions{
 
-    margin-top:48px;
+    margin-top:32px;
 }
 
 
