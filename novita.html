@@ -160,7 +160,7 @@
 }
 
 .cta-strip {
-  background: var(--text);
+  background: var(--wine);
   padding: 72px 32px;
   text-align: center;
 }
@@ -191,6 +191,30 @@
 .btn-light:hover {
   background: var(--cream);
   color: var(--text);
+}
+
+.benvenuti-wrap {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  cursor: default;
+}
+.benvenuti-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%);
+  transform: skewX(-15deg);
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+.benvenuti-wrap:hover::after {
+  left: 160%;
+  opacity: 1;
+  transition: left 0.65s ease, opacity 0.1s;
 }
 
 @media (max-width: 768px) {
@@ -290,7 +314,7 @@
 
 <!-- CIERRE -->
 <section class="section" style="text-align:center; padding: 40px 32px 96px;">
-  <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,7vw,5.5rem); font-weight:300; line-height:1.1; color:var(--text);">Benvenuti <span style="font-style:italic; color:var(--wine);">a Casa Gioia.</span></h2>
+  <span class="benvenuti-wrap"><h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,7vw,5.5rem); font-weight:300; line-height:1.1; color:var(--text);">Benvenuti <span style="font-style:italic; color:var(--wine);">a Casa Gioia.</span></h2></span>
 </section>
 
 <!-- CTA -->
