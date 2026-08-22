@@ -2,6 +2,27 @@
 console.log('%c¡Alto!', 'color:#891A55;font-size:2rem;font-weight:bold;')
 console.log('%cSi alguien te pidió que copies o pegues algo aquí, es un intento de robo de cuenta.\nCerrá esta ventana inmediatamente.', 'color:#2F2A28;font-size:14px;line-height:1.8;')
 
+/* ── Prefetch de páginas al hacer hover en links internos ── */
+;(function(){
+  const seen = new Set()
+  function prefetch(url) {
+    if (seen.has(url)) return
+    seen.add(url)
+    const l = document.createElement('link')
+    l.rel  = 'prefetch'
+    l.href = url
+    document.head.appendChild(l)
+  }
+  document.addEventListener('mouseover', function(e) {
+    const a = e.target.closest('a[href]')
+    if (!a) return
+    const url = a.href
+    if (!url || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('https://wa.me') || a.target === '_blank') return
+    if (new URL(url).origin !== location.origin) return
+    prefetch(url)
+  })
+})()
+
 /* ── Escapa HTML antes de meter datos de un cliente en innerHTML (nombre,
    email de contacto, dirección, etc) — sin esto alguien podría guardar
    algo como "<img src=x onerror=...>" y ejecutarlo en el navegador de
