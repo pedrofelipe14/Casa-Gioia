@@ -436,7 +436,7 @@ main{
 
 .hero{
 
-    min-height:580px;
+    min-height:640px;
     flex-shrink:0;
 
     display:grid;
@@ -468,7 +468,7 @@ main{
 
 .slides{
     position:relative;
-    height:400px;
+    height:440px;
 }
 
 .slide{
