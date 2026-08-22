@@ -436,7 +436,7 @@ main{
 
 .hero{
 
-    min-height:calc(100vh - 80px);
+    min-height:calc(100vh - var(--header-h, 80px) - 56px);
     flex-shrink:0;
 
     display:grid;
