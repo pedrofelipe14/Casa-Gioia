@@ -293,14 +293,28 @@ window.cartAdd = (btn) => {
     setTimeout(() => { btn.textContent = '+ Agregar'; btn.disabled = false }, 1500)
 }
 
-/* ── Botón de cuenta (navbar): texto completo en desktop, avatar/inicial
-   en círculo en la versión con hamburguesa. Usado por todas las páginas
-   para no duplicar esta lógica en cada una. ── */
+/* ── Botón de cuenta (navbar): pre-renderizar desde sessionStorage para
+   evitar el flash de "Ingresar" mientras llega la respuesta de Supabase ── */
+;(function () {
+    try {
+        const u = JSON.parse(sessionStorage.getItem('cg_auth') || 'null')
+        if (!u?.primero) return
+        const btn = document.getElementById('userBtn')
+        if (!btn) return
+        btn.classList.add('btn-nav-logged')
+        btn.innerHTML = `
+            <span class="btn-nav-full">👤 ${u.primero}</span>
+            <span class="btn-nav-avatar">${u.avatar ? `<img src="${u.avatar}" alt="${u.primero}">` : `<span class="btn-nav-initial">${u.primero.charAt(0).toUpperCase()}</span>`}</span>
+        `
+        btn.onclick = () => { window.location.href = 'perfil' }
+        btn.style.opacity = '1'
+    } catch (e) {}
+})()
+
 window.renderAccountBtn = (btn, user) => {
-    // Invitado con sesión anónima (compró sin cuenta): a los ojos del
-    // sitio no está "logueado", no tiene nombre/avatar que mostrar.
     if (user?.is_anonymous) user = null
     if (!user) {
+        sessionStorage.removeItem('cg_auth')
         btn.classList.remove('btn-nav-logged')
         btn.innerHTML = 'Ingresar'
         btn.onclick   = () => { window.location.href = 'login' }
@@ -309,15 +323,21 @@ window.renderAccountBtn = (btn, user) => {
     }
     const nombre  = user.user_metadata?.full_name || user.user_metadata?.name || user.email
     const primero = nombre.split(' ')[0]
-    const avatar  = user.user_metadata?.avatar_url
-    const inicial = primero.charAt(0).toUpperCase()
+    const avatar  = user.user_metadata?.avatar_url || null
+    sessionStorage.setItem('cg_auth', JSON.stringify({ primero, avatar }))
 
     btn.classList.add('btn-nav-logged')
     btn.innerHTML = `
         <span class="btn-nav-full">👤 ${primero}</span>
-        <span class="btn-nav-avatar">${avatar ? `<img src="${avatar}" alt="${primero}">` : `<span class="btn-nav-initial">${inicial}</span>`}</span>
+        <span class="btn-nav-avatar">${avatar ? `<img src="${avatar}" alt="${primero}">` : `<span class="btn-nav-initial">${primero.charAt(0).toUpperCase()}</span>`}</span>
     `
     btn.onclick = () => { window.location.href = 'perfil' }
     btn.style.opacity = '1'
+}
+
+/* ── Service Worker: cachea HTML, CSS, JS e imágenes para que las
+   páginas carguen instantáneamente en visitas repetidas ── */
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
 }
 
