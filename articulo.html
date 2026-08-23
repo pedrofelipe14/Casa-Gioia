@@ -144,9 +144,9 @@
         <li><button class="submenu-btn">Deli</button></li>
       </ul>
     </li>
-    <li><a href="la-casa">Interiorismo</a></li>
-    <li><a href="journal" style="color:var(--wine);">Novità</a></li>
-    <li><a href="novita">Storia</a></li>
+    <li><a href="interiorismo">Interiorismo</a></li>
+    <li><a href="novita" style="color:var(--wine);">Novità</a></li>
+    <li><a href="storia">Storia</a></li>
     <li><a href="contacto">Contacto</a></li>
   </ul>
   <button class="btn-nav" id="userBtn">Ingresar</button>
@@ -171,9 +171,9 @@
   <div class="footer-grid">
     <div>
       <a href="coleccion">Collezione</a>
-      <a href="la-casa">Interiorismo</a>
-      <a href="journal">Novità</a>
-      <a href="novita">Storia</a>
+      <a href="interiorismo">Interiorismo</a>
+      <a href="novita">Novità</a>
+      <a href="storia">Storia</a>
       <a href="contacto">Contacto</a>
     </div>
     <div>
@@ -277,7 +277,7 @@ if (!id) {
     slot.innerHTML = `
       <div class="articulo-body">
         <div class="articulo-meta">
-          <a href="journal" class="articulo-back">← Novità</a>
+          <a href="novita" class="articulo-back">← Novità</a>
           ${catLabel ? `<span class="articulo-cat">${esc(catLabel)}</span>` : ''}
         </div>
         <h1 class="articulo-title">${esc(a.titulo)}</h1>
