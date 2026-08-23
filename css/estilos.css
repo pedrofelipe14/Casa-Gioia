@@ -496,7 +496,7 @@ main{
 
     font-family:'Cormorant Garamond',serif;
 
-    font-size:7rem;
+    font-size:min(7rem, 14vh);
 
     line-height:.9;
 
