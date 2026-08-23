@@ -450,7 +450,7 @@ main{
     position:relative;
     display:flex;
     flex-direction:column;
-    justify-content:flex-start;
+    justify-content:center;
     overflow:visible;
 }
 
@@ -469,34 +469,28 @@ main{
 
 .slides{
     position:relative;
-    flex:1;
-    min-height:0;
 }
 
 .slide{
-    position:absolute;
-    top:50%;
-    left:0;
-    width:100%;
-    display:block;
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .6s ease;
-    z-index:0;
-    transform:translateY(-50%);
+    display:none;
+    position:relative;
 }
 
 .slide.active{
-    opacity:1;
-    pointer-events:auto;
-    z-index:1;
+    display:block;
+    animation:slideFadeIn .5s ease;
+}
+
+@keyframes slideFadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
 }
 
 .slide h1{
 
     font-family:'Cormorant Garamond',serif;
 
-    font-size:min(7rem, 14vh);
+    font-size:clamp(3.5rem, 7vw, 7rem);
 
     line-height:.9;
 
@@ -516,11 +510,11 @@ main{
 
 .slide h2{
 
-    margin-top:min(25px, 3.5vh);
+    margin-top:clamp(16px, 2.2vw, 25px);
 
     font-family:'Cormorant Garamond',serif;
 
-    font-size:min(2rem, 4vh);
+    font-size:clamp(1.2rem, 2vw, 2rem);
 
     color:var(--wine-soft);
 
@@ -529,7 +523,7 @@ main{
 
 .slide p{
 
-    margin-top:min(24px, 3.4vh);
+    margin-top:clamp(14px, 2vw, 24px);
 
     max-width:520px;
 
@@ -537,22 +531,19 @@ main{
 
     color:#685F5A;
 
-    font-size:min(1rem, 2vh);
+    font-size:clamp(.8rem, 1vw, 1rem);
 }
 
 .hero-actions{
 
-    position:absolute;
-    bottom:min(68px, 8vh);
-    left:60px;
-    right:60px;
+    margin-top:clamp(20px, 2.5vw, 40px);
 }
 
 .hero-actions .btn-primary{
 
-    font-size:min(.9rem, 1.8vh);
+    font-size:clamp(.75rem, .9vw, .9rem);
 
-    padding:min(18px, 2.5vh) 42px;
+    padding:clamp(12px, 1.5vw, 18px) clamp(24px, 3vw, 42px);
 }
 
 
@@ -707,34 +698,8 @@ main{
         z-index:2;
     }
 
-    .slides{
-        height:auto;
-        min-height:0;
-    }
-
-    .slide{
-        display:none;
-        position:relative;
-        opacity:1;
-        pointer-events:auto;
-        top:auto;
-        transform:none;
-    }
-
-    .slide.active{
-        display:block;
-    }
-
     .slide h1{
-        font-size:4rem;
-    }
-
-    .hero-actions{
-        position:relative;
-        bottom:auto;
-        left:auto;
-        right:auto;
-        margin-top:32px;
+        font-size:clamp(2.5rem, 7vw, 4rem);
     }
 
     .navbar{
@@ -1024,29 +989,6 @@ main{
     .slides{
         height:auto;
         min-height:0;
-    }
-
-    .slide{
-        display:none;
-        position:relative;
-        opacity:1;
-        pointer-events:auto;
-        top:auto;
-        transform:none;
-    }
-
-    .slide.active{
-        display:block;
-    }
-
-    .slide h1{
-
-        font-size:4rem;
-    }
-
-    .slide h2{
-
-        font-size:1.5rem;
     }
 
     .hero{
