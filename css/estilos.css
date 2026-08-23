@@ -475,7 +475,7 @@ main{
 
 .slide{
     position:absolute;
-    top:0;
+    top:50%;
     left:0;
     width:100%;
     display:block;
@@ -483,6 +483,7 @@ main{
     pointer-events:none;
     transition:opacity .6s ease;
     z-index:0;
+    transform:translateY(-50%);
 }
 
 .slide.active{
@@ -495,7 +496,7 @@ main{
 
     font-family:'Cormorant Garamond',serif;
 
-    font-size:min(7rem, 12vh);
+    font-size:7rem;
 
     line-height:.9;
 
@@ -707,6 +708,8 @@ main{
         position:relative;
         opacity:1;
         pointer-events:auto;
+        top:auto;
+        transform:none;
     }
 
     .slide.active{
@@ -1019,6 +1022,8 @@ main{
         position:relative;
         opacity:1;
         pointer-events:auto;
+        top:auto;
+        transform:none;
     }
 
     .slide.active{
