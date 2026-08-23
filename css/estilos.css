@@ -468,22 +468,19 @@ main{
 }
 
 .slides{
-    position:relative;
+    display:grid;
 }
 
 .slide{
-    display:none;
-    position:relative;
+    grid-area:1/1;
+    visibility:hidden;
+    opacity:0;
+    transition:opacity .6s ease, visibility .6s;
 }
 
 .slide.active{
-    display:block;
-    animation:slideFadeIn .5s ease;
-}
-
-@keyframes slideFadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
+    visibility:visible;
+    opacity:1;
 }
 
 .slide h1{
@@ -700,6 +697,17 @@ main{
 
     .slide h1{
         font-size:clamp(2.5rem, 7vw, 4rem);
+    }
+
+    .slide{
+        grid-area:unset;
+        visibility:visible;
+        opacity:1;
+        transition:none;
+    }
+
+    .slide:not(.active){
+        display:none;
     }
 
     .navbar{
