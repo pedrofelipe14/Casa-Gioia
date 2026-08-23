@@ -42,7 +42,12 @@ async function verifyMPSignature(req: Request, bodyText: string): Promise<boolea
 }
 
 serve(async (req) => {
+  // MP a veces envía GETs o pings sin body para verificar el endpoint
+  if (req.method === "GET") return new Response("ok", { status: 200 })
+
   const bodyText = await req.text()
+
+  if (!bodyText.trim()) return new Response("ok", { status: 200 })
 
   try {
     // ── 1. Verificar firma de MercadoPago ────────────────────────────────────
@@ -114,7 +119,10 @@ serve(async (req) => {
     return new Response("ok", { status: 200 })
   } catch (e) {
     console.error("mp-webhook error:", e)
-    notifyError("mp-webhook", e).catch(() => {})
+    notifyError("mp-webhook", e, {
+      método: req.method,
+      body:   bodyText.slice(0, 400) || "(vacío)",
+    }).catch(() => {})
     return new Response("ok", { status: 200 }) // siempre 200 a MP
   }
 })
