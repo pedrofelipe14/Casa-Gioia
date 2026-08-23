@@ -12,8 +12,8 @@ const KNOWN_NOISE = /Cloudflare Turnstile|challenges\.cloudflare\.com/
 
 const PAGES = [
   '404.html', 'auth.html', 'coleccion.html', 'contacto.html',
-  'email-confirmado.html', 'index.html', 'journal.html', 'la-casa.html',
-  'login.html', 'novita.html', 'pago-exitoso.html', 'pago-fallido.html',
+  'email-confirmado.html', 'index.html', 'interiorismo.html', 'novita.html',
+  'login.html', 'storia.html', 'pago-exitoso.html', 'pago-fallido.html',
   'pedidos.html', 'perfil.html', 'politicas-de-privacidad.html',
   'reset-password.html', 'terminos-y-condiciones.html', 'carrito.html',
 ]
