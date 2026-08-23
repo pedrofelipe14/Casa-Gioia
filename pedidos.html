@@ -52,6 +52,29 @@
   text-transform: uppercase;
 }
 .btn-ticket:hover { opacity: .85; }
+.pedido-tracking {
+  font-family: 'Manrope', sans-serif;
+  font-size: .8rem;
+  color: #5a5450;
+  margin: 8px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tracking-carrier-label { font-weight: 600; color: #2F2A28; }
+.btn-rastrear {
+  display: inline-block;
+  background: #891A55;
+  color: #fff;
+  text-decoration: none;
+  padding: 4px 14px;
+  font-size: .72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-left: 4px;
+}
+.btn-rastrear:hover { opacity: .85; }
 </style>
 </head>
 <body>
@@ -246,6 +269,15 @@ function renderPedidos(list) {
         : `<div class="pedido-envio">◈ Envío a domicilio · ${esc(envio.calle)} ${esc(envio.numero)}, ${esc(envio.ciudad)}</div>`
       : ''
 
+    // Info de tracking (solo si el pedido está en camino o entregado y tiene número)
+    const trackingHtml = pedido.tracking_numero && (pedido.estado === 'en_camino' || pedido.estado === 'entregado')
+      ? `<div class="pedido-tracking">
+          <span class="tracking-carrier-label">${esc(pedido.tracking_carrier ?? 'Envío')}</span>
+          · N.° <strong>${esc(pedido.tracking_numero)}</strong>
+          ${pedido.tracking_url ? `<a href="${pedido.tracking_url}" target="_blank" rel="noopener" class="btn-rastrear">Rastrear →</a>` : ''}
+        </div>`
+      : ''
+
     return `
     <div class="pedido-card fade-in">
       <div class="pedido-header">
@@ -257,6 +289,7 @@ function renderPedidos(list) {
       </div>
       ${itemsHtml}
       ${envioHtml}
+      ${trackingHtml}
       <div class="tracking-steps">${stepsHtml}</div>
       <div class="pedido-footer">
         ${ticketBtn}

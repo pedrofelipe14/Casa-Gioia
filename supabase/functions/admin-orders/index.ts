@@ -103,7 +103,7 @@ serve(async (req) => {
     }
 
     // POST (sin action) → actualizar estado de un pedido
-    const { id, estado } = body
+    const { id, estado, tracking_numero, tracking_carrier, tracking_url } = body
 
     if (typeof id !== "string" || !UUID_RE.test(id)) {
       return bad("ID inválido")
@@ -112,7 +112,15 @@ serve(async (req) => {
       return bad("Estado inválido")
     }
 
-    const { error } = await admin.from("pedidos").update({ estado }).eq("id", id)
+    const updateData: Record<string, unknown> = { estado }
+    if (typeof tracking_numero === "string" && tracking_numero.trim())
+      updateData.tracking_numero = tracking_numero.trim()
+    if (typeof tracking_carrier === "string" && tracking_carrier.trim())
+      updateData.tracking_carrier = tracking_carrier.trim()
+    if (typeof tracking_url === "string" && tracking_url.trim())
+      updateData.tracking_url = tracking_url.trim()
+
+    const { error } = await admin.from("pedidos").update(updateData).eq("id", id)
     if (error) {
       console.error("update estado error:", error)
       return serverError(error)
@@ -142,7 +150,13 @@ serve(async (req) => {
           body: JSON.stringify({
             type: "status_update",
             email: userEmail,
-            data: { numero_pedido: pedido.numero_pedido, estado },
+            data: {
+              numero_pedido:    pedido.numero_pedido,
+              estado,
+              tracking_numero:  pedido.tracking_numero  ?? null,
+              tracking_carrier: pedido.tracking_carrier ?? null,
+              tracking_url:     pedido.tracking_url     ?? null,
+            },
           }),
         })
       } catch (e) {

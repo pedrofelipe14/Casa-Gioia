@@ -164,13 +164,24 @@ serve(async (req) => {
       const label = labels[data.estado] ?? data.estado
       subject = `Tu pedido ${data.numero_pedido} está ${label} — Casa Gioia`
 
+      const carrierMsg = data.tracking_carrier ? ` con <strong>${esc(data.tracking_carrier)}</strong>` : ""
       const msgs: Record<string, string> = {
         confirmado: "Tu pago fue confirmado y ya estamos preparando tu pedido.",
         preparando: "Tu pedido está siendo preparado con cuidado.",
-        en_camino:  "Tu pedido ya salió. ¡Pronto llega!",
+        en_camino:  `Tu pedido ya salió${carrierMsg}. ¡Pronto llega!`,
         entregado:  "Tu pedido fue entregado. ¡Esperamos que lo disfrutes!",
         cancelado:  "Tu pedido fue cancelado. Si tenés dudas, escribinos.",
       }
+
+      const trackingBlock = (data.estado === "en_camino" || data.estado === "entregado") && data.tracking_numero
+        ? `<div style="background:#F4EFE5;border-left:3px solid #891A55;padding:14px 22px;margin:16px 0;">
+            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#891A55;margin-bottom:4px;">Número de seguimiento</div>
+            <div style="font-size:16px;color:#2F2A28;">${esc(data.tracking_numero)}</div>
+            ${data.tracking_carrier ? `<div style="font-size:12px;color:#5a5450;margin-top:2px;">${esc(data.tracking_carrier)}</div>` : ""}
+          </div>
+          ${data.tracking_url ? btnLink(data.tracking_url, "Rastrear mi envío") : ""}`
+        : ""
+
       html = wrap(`
         <h1 style="font-size:26px;font-weight:400;color:#2F2A28;margin:0 0 12px;line-height:1.3;">Actualización<br>de tu pedido.</h1>
         <p style="font-size:14px;color:#5a5450;line-height:1.8;margin:0;">${msgs[data.estado] ?? ""}</p>
@@ -179,6 +190,7 @@ serve(async (req) => {
           <span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#891A55;">Estado: </span>
           <span style="font-size:14px;color:#2F2A28;text-transform:capitalize;">${label}</span>
         </div>
+        ${trackingBlock}
         ${btnLink("https://casagioia.com.ar/pedidos", "Ver mis pedidos")}
       `)
 

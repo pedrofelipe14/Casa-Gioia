@@ -491,6 +491,35 @@ tr:hover td { background: #fdf9f5; }
   </div>
 </div>
 
+<!-- ═══ MODAL DATOS DE ENVÍO ═══ -->
+<div class="prod-form-overlay" id="trackingOverlay">
+  <div class="prod-form-box" style="max-width:420px;">
+    <button class="prod-form-close" onclick="closeTrackingModal()">✕</button>
+    <div class="prod-form-title">Datos de envío</div>
+    <div class="form-row">
+      <label>Transportista</label>
+      <select id="t-carrier" onchange="updateTrackingUrl()" style="font-family:'Manrope',sans-serif;font-size:.85rem;padding:9px 12px;border:1px solid rgba(91,29,42,.2);background:white;width:100%;color:var(--text);">
+        <option value="Andreani">Andreani</option>
+        <option value="Correo Argentino">Correo Argentino</option>
+        <option value="OCA">OCA</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Número de seguimiento</label>
+      <input type="text" id="t-numero" placeholder="Ej: 12345678" oninput="updateTrackingUrl()">
+    </div>
+    <div class="form-row">
+      <label>Link de rastreo <span style="font-weight:400;color:#a09890;">(generado automáticamente)</span></label>
+      <input type="url" id="t-url" placeholder="https://...">
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px;">
+      <button class="btn-cancel-form" onclick="closeTrackingModal()">Cancelar</button>
+      <button class="btn-save" onclick="confirmTracking()">Confirmar envío</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js'
 
@@ -575,11 +604,11 @@ async function fetchPedidos() {
   return data.pedidos ?? []
 }
 
-async function updateEstado(id, estado, selectEl) {
+async function updateEstado(id, estado, selectEl, tracking = {}) {
   const row = selectEl.closest('tr')
   row.classList.add('saving')
   try {
-    const data = await apiFetch(FN_ORDERS, { method: 'POST', body: JSON.stringify({ id, estado }) })
+    const data = await apiFetch(FN_ORDERS, { method: 'POST', body: JSON.stringify({ id, estado, ...tracking }) })
     if (data.ok) {
       const p = allPedidos.find(p => p.id === id)
       if (p) p.estado = estado
@@ -677,7 +706,54 @@ function renderOrderTable() {
   }).join('')
 }
 
-window.handleEstado = (sel) => updateEstado(sel.dataset.id, sel.value, sel)
+// Tracking modal state
+let _trackingPendiente = null
+
+const CARRIER_URLS = {
+  'Andreani':         n => `https://www.andreani.com/envios/consultar?codigoDeRastreo=${encodeURIComponent(n)}`,
+  'Correo Argentino': n => `https://www.correoargentino.com.ar/formularios/ond?id=${encodeURIComponent(n)}`,
+  'OCA':              n => `https://www5.oca.com.ar/ocaepak/PopupSeguimiento2.asp?pieza=${encodeURIComponent(n)}`,
+  'Otro':             () => '',
+}
+
+window.updateTrackingUrl = () => {
+  const carrier = document.getElementById('t-carrier').value
+  const numero  = document.getElementById('t-numero').value.trim()
+  const gen     = CARRIER_URLS[carrier]
+  if (gen && numero && carrier !== 'Otro') document.getElementById('t-url').value = gen(numero)
+}
+
+window.closeTrackingModal = () => {
+  document.getElementById('trackingOverlay').classList.remove('open')
+  if (_trackingPendiente) {
+    const { id, selectEl } = _trackingPendiente
+    selectEl.value = allPedidos.find(p => p.id === id)?.estado ?? selectEl.dataset.prevEstado
+    _trackingPendiente = null
+  }
+}
+
+window.confirmTracking = async () => {
+  if (!_trackingPendiente) return
+  const { id, estado, selectEl } = _trackingPendiente
+  const tracking_carrier = document.getElementById('t-carrier').value
+  const tracking_numero  = document.getElementById('t-numero').value.trim()
+  const tracking_url     = document.getElementById('t-url').value.trim()
+  document.getElementById('trackingOverlay').classList.remove('open')
+  _trackingPendiente = null
+  await updateEstado(id, estado, selectEl, { tracking_carrier, tracking_numero, tracking_url })
+}
+
+window.handleEstado = (sel) => {
+  if (sel.value === 'en_camino') {
+    _trackingPendiente = { id: sel.dataset.id, estado: sel.value, selectEl: sel }
+    document.getElementById('t-carrier').value = 'Andreani'
+    document.getElementById('t-numero').value = ''
+    document.getElementById('t-url').value = ''
+    document.getElementById('trackingOverlay').classList.add('open')
+    return
+  }
+  updateEstado(sel.dataset.id, sel.value, sel)
+}
 
 window.deletePedido = async (id, numero) => {
   if (!confirm(`¿Eliminar el pedido #${numero} definitivamente? Esta acción no se puede deshacer.`)) return
