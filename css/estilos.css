@@ -436,8 +436,9 @@ main{
 
 .hero{
 
-    min-height:calc(100vh - var(--header-h, 80px) - 53px);
+    height:calc(100vh - var(--header-h, 80px) - 53px);
     flex-shrink:0;
+    overflow:hidden;
 
     display:grid;
     grid-template-columns:55% 45%;
