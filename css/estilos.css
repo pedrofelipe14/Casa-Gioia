@@ -449,7 +449,7 @@ main{
 
     display:flex;
     flex-direction:column;
-    justify-content:center;
+    justify-content:flex-start;
     overflow:visible;
 }
 
@@ -537,7 +537,8 @@ main{
 
 .hero-actions{
 
-    margin-top:32px;
+    margin-top:auto;
+    padding-top:32px;
 }
 
 

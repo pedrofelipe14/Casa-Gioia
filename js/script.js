@@ -42,7 +42,6 @@ if (window.Lenis) {
 }
 
 const slides = document.querySelectorAll('.slide');
-const indicators = document.querySelectorAll('.indicator');
 
 if (slides.length) {
     let current = 0;
@@ -50,9 +49,7 @@ if (slides.length) {
 
     function showSlide(index){
         slides.forEach(slide => slide.classList.remove('active'));
-        indicators.forEach(indicator => indicator.classList.remove('active'));
         slides[index].classList.add('active');
-        if (indicators[index]) indicators[index].classList.add('active');
         if (heroSlides.length) {
             heroSlides.forEach(s => s.classList.remove('active'));
             if (heroSlides[index]) heroSlides[index].classList.add('active');
