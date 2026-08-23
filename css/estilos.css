@@ -480,11 +480,13 @@ main{
     opacity:0;
     pointer-events:none;
     transition:opacity .6s ease;
+    z-index:0;
 }
 
 .slide.active{
     opacity:1;
     pointer-events:auto;
+    z-index:1;
 }
 
 .slide h1{
