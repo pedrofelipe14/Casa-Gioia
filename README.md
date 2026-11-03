@@ -1,46 +1,47 @@
-# Casa Gioia — tienda online
+# Casa Gioia — online store
 
-E-commerce desarrollado para **Casa Gioia**, tienda de diseño italiano, moda y hogar.
-Incluye catálogo, cuentas de usuario, pagos con Mercado Pago, emails automáticos y un panel de administración.
+**English** · [Español](README.es.md)
 
-**Sitio en vivo:** https://casa-gioia.vercel.app
+E-commerce site built for **Casa Gioia**, a store selling Italian design, fashion and homeware.
+It includes a product catalog, user accounts, Mercado Pago payments, automated emails and an admin panel.
 
-![Portada de Casa Gioia](docs/home.jpg)
+**Live site:** https://casa-gioia.vercel.app
 
-![Página de colección](docs/coleccion.jpg)
+![Casa Gioia home page](docs/home.jpg)
 
-## Funcionalidades
+![Collection page](docs/coleccion.jpg)
 
-**Para clientes**
-- Catálogo con colecciones y páginas de producto.
-- Carrito persistente con envío a domicilio o retiro.
-- Cuentas de usuario: registro con confirmación por email, login, recuperación de contraseña y perfil.
-- Pago con **Mercado Pago** y confirmación automática por webhook.
-- Historial de pedidos con **seguimiento de envío**.
-- Journal (artículos), newsletter, páginas legales y banner de cookies.
+## Features
 
-**Para la tienda**
-- **Panel de administración**: productos, pedidos y artículos del journal.
-- Descuento de **stock** automático al confirmarse un pago.
-- **Emails transaccionales** (confirmación de pedido) y **recordatorio de carrito abandonado** con una tarea programada.
-- **Alertas de errores a Discord** desde el backend.
+**For customers**
+- Catalog with collections and product pages.
+- Persistent cart with home delivery or in-store pickup.
+- User accounts: sign-up with email confirmation, login, password recovery and profile.
+- Checkout with **Mercado Pago**, confirmed automatically by webhook.
+- Order history with **shipment tracking**.
+- Journal (articles), newsletter, legal pages and cookie banner.
 
-## Arquitectura
+**For the store**
+- **Admin panel** for products, orders and journal articles.
+- Automatic **stock** decrement once a payment is confirmed.
+- **Transactional emails** (order confirmation) and **abandoned-cart reminders** sent by a scheduled job.
+- **Error alerts to Discord** from the backend.
+
+## Architecture
 
 ```
-Navegador (HTML/CSS/JS)  ──►  Supabase Auth + PostgreSQL
-        │                            ▲
+Browser (HTML/CSS/JS)  ──►  Supabase Auth + PostgreSQL
+        │                          ▲
         └──►  Edge Functions (Deno/TypeScript) ──► Mercado Pago · Resend · Discord
 ```
 
-- **Frontend:** HTML, CSS y JavaScript sin frameworks, desplegado en **Vercel**.
-- **Backend:** **Supabase**: autenticación, PostgreSQL y Edge Functions en TypeScript (`supabase/functions/`) para crear pagos, procesar el webhook, administrar productos y pedidos, y enviar emails.
-- **Seguridad:** las operaciones sensibles (pagos, panel admin) pasan siempre por Edge Functions que validan la sesión del usuario; el contenido dinámico se escapa antes de insertarse en el HTML.
+- **Frontend:** framework-free HTML, CSS and JavaScript, deployed on **Vercel**.
+- **Backend:** **Supabase** provides authentication and PostgreSQL. TypeScript Edge Functions (`supabase/functions/`) create payments, handle the webhook, manage products and orders, and send emails.
+- **Security:** sensitive operations (payments, admin panel) always go through Edge Functions that validate the user's session. Dynamic content is escaped before it's inserted into the HTML.
 
 ## Tests
 
-Tests end-to-end con **Playwright** (Chromium y WebKit) que corren en **GitHub Actions** en cada push:
-carrito, checkout, acceso al panel de administración y que las Edge Functions rechacen pedidos sin sesión o con tokens inválidos.
+End-to-end tests with **Playwright** (Chromium and WebKit) run on **GitHub Actions** on every push. They cover the cart, checkout, admin panel access, and that Edge Functions reject requests with no session or an invalid token.
 
 ```sh
 cd tests

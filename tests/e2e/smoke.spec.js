@@ -8,7 +8,10 @@ const { test, expect } = require('@playwright/test')
 // el iframe de Turnstile es https) — es ruido conocido de este entorno de
 // test, no un bug real del sitio. Se filtra explícitamente en vez de
 // ignorarlo a ciegas.
-const KNOWN_NOISE = /Cloudflare Turnstile|challenges\.cloudflare\.com/
+// "ResizeObserver loop completed with undelivered notifications" es un aviso
+// benigno del navegador (aparece en el viewport mobile cuando un layout se
+// reacomoda dentro del mismo frame): no rompe nada ni lo genera nuestro código.
+const KNOWN_NOISE = /Cloudflare Turnstile|challenges\.cloudflare\.com|ResizeObserver loop/
 
 const PAGES = [
   '404.html', 'auth.html', 'coleccion.html', 'contacto.html',
