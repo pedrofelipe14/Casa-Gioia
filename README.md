@@ -5,6 +5,10 @@ Incluye catálogo, cuentas de usuario, pagos con Mercado Pago, emails automátic
 
 **Sitio en vivo:** https://casa-gioia.vercel.app
 
+![Portada de Casa Gioia](docs/home.jpg)
+
+![Página de colección](docs/coleccion.jpg)
+
 ## Funcionalidades
 
 **Para clientes**
