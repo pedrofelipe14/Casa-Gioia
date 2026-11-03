@@ -3,3 +3,6 @@ tests/test-results/
 tests/playwright-report/
 tests/blob-report/
 .DS_Store
+
+# Supabase CLI local state (project ref, db url)
+supabase/.temp/
